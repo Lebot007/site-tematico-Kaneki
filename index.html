@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Lebot | Portfolio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,7 +19,7 @@
             --rize: #a855f7;
         }
         *, *::before, *::after { box-sizing: border-box; }
-        html { -webkit-text-size-adjust: 100%; }
+        html { -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }
         body {
             background-color: var(--void);
             color: var(--bone);
@@ -28,6 +28,7 @@
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
             text-rendering: optimizeSpeed;
+            touch-action: manipulation;
         }
         .font-jp { font-family: 'Noto Serif JP', serif; }
 
@@ -52,6 +53,7 @@
             mix-blend-mode: difference;
             will-change: transform;
             transition: width 0.2s, height 0.2s, background 0.2s, border-color 0.2s, margin 0.2s;
+            transform: translate3d(-100px, -100px, 0);
         }
         .cursor.hover {
             width: 40px; height: 40px;
@@ -63,13 +65,13 @@
         }
 
         .audio-container {
-            position: fixed; bottom: 30px; right: 30px;
+            position: fixed; bottom: 20px; right: 20px;
             z-index: 100;
             display: flex; align-items: center; gap: 12px;
         }
 
         .rize-count {
-            position: fixed; bottom: 90px; right: 30px; z-index: 100;
+            position: fixed; bottom: 75px; right: 20px; z-index: 100;
             font-family: 'Noto Serif JP', serif;
             font-weight: 900; font-size: 1.5rem;
             color: #c41e1e; letter-spacing: 0.05em;
@@ -77,10 +79,11 @@
             pointer-events: auto;
             cursor: none;
             user-select: none;
+            -webkit-user-select: none;
             animation: rize-fade 5s ease-in-out infinite;
             transition: filter 0.3s;
-            padding: 8px;
-            margin: -8px;
+            padding: 12px;
+            margin: -12px;
         }
         .rize-count:hover { filter: brightness(1.3) drop-shadow(0 0 8px rgba(255, 0, 0, 0.5)); }
         .rize-count .thousand {
@@ -116,6 +119,7 @@
             box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
             position: relative;
             display: flex; align-items: center; justify-content: center;
+            -webkit-tap-highlight-color: transparent;
         }
         .kakugan.muted {
             background: radial-gradient(circle, #222 15%, #0a0a0a 40%, #000 70%);
@@ -165,6 +169,7 @@
             border: 1px solid rgba(138, 3, 3, 0.35);
             transition: border-color 0.3s, transform 0.3s;
             contain: layout style paint;
+            position: relative;
         }
         .ghoul-card::after {
             content: '';
@@ -175,7 +180,6 @@
             transition: opacity 0.3s;
             pointer-events: none;
         }
-        .ghoul-card { position: relative; }
         .ghoul-card:hover {
             border-color: #c41e1e;
             transform: translateY(-3px);
@@ -213,6 +217,7 @@
             display: flex; align-items: center; justify-content: center;
             cursor: none;
             transition: opacity 0.8s, visibility 0.8s;
+            -webkit-tap-highlight-color: transparent;
         }
         .entry-overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
         .entry-text {
@@ -234,6 +239,8 @@
             position: relative;
             width: 100%; height: 560px;
             user-select: none;
+            -webkit-user-select: none;
+            touch-action: pan-y;
         }
         .carousel-stage {
             position: relative;
@@ -254,6 +261,7 @@
             cursor: none;
             overflow: hidden;
             contain: layout style paint;
+            will-change: transform, opacity;
         }
         .project-card::before {
             content: ''; position: absolute; inset: 0;
@@ -271,7 +279,6 @@
         }
         .project-card.active {
             border-color: rgba(196, 30, 30, 0.6);
-            will-change: transform;
         }
         .project-card.active::before { opacity: 1; }
         .project-card.active::after { opacity: 1; }
@@ -350,6 +357,7 @@
             cursor: none; z-index: 10;
             transition: background 0.3s, border-color 0.3s;
             color: var(--blood-bright);
+            -webkit-tap-highlight-color: transparent;
         }
         .carousel-nav:hover {
             background: rgba(196, 30, 30, 0.15);
@@ -372,6 +380,7 @@
             background: rgba(196, 30, 30, 0.3);
             border-radius: 50%; cursor: none;
             transition: all 0.4s ease;
+            -webkit-tap-highlight-color: transparent;
         }
         .carousel-dot.active {
             background: var(--blood-bright);
@@ -384,6 +393,7 @@
             transition: border-color 0.3s, transform 0.3s, background 0.3s;
             position: relative;
             contain: layout style paint;
+            -webkit-tap-highlight-color: transparent;
         }
         .social-card::after {
             content: '';
@@ -448,6 +458,7 @@
             transition: transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1);
             display: flex;
             align-items: flex-end;
+            will-change: transform;
         }
         .kaneki-container.entering { transform: translateX(0); }
         .kaneki-container.exiting {
@@ -541,6 +552,7 @@
         .chain-group {
             position: absolute;
             transform-origin: center;
+            will-change: transform;
         }
         
         .chain-link {
@@ -556,69 +568,20 @@
             opacity: 0.6;
         }
         
-        .chain-tl {
-            top: -5%;
-            left: 15%;
-            transform: rotate(25deg);
-            animation: chain-sway-1 4s ease-in-out infinite;
-        }
-        .chain-tr {
-            top: -5%;
-            right: 20%;
-            transform: rotate(-20deg);
-            animation: chain-sway-2 4.5s ease-in-out infinite;
-        }
-        .chain-bl {
-            bottom: -5%;
-            left: 10%;
-            transform: rotate(-160deg);
-            animation: chain-sway-3 5s ease-in-out infinite;
-        }
-        .chain-br {
-            bottom: -5%;
-            right: 15%;
-            transform: rotate(165deg);
-            animation: chain-sway-4 4.2s ease-in-out infinite;
-        }
-        .chain-mid-l {
-            top: 40%;
-            left: -5%;
-            transform: rotate(-85deg);
-            animation: chain-sway-5 4.8s ease-in-out infinite;
-        }
-        .chain-mid-r {
-            top: 55%;
-            right: -5%;
-            transform: rotate(92deg);
-            animation: chain-sway-6 4.3s ease-in-out infinite;
-        }
+        .chain-tl { top: -5%; left: 15%; transform: rotate(25deg); animation: chain-sway-1 4s ease-in-out infinite; }
+        .chain-tr { top: -5%; right: 20%; transform: rotate(-20deg); animation: chain-sway-2 4.5s ease-in-out infinite; }
+        .chain-bl { bottom: -5%; left: 10%; transform: rotate(-160deg); animation: chain-sway-3 5s ease-in-out infinite; }
+        .chain-br { bottom: -5%; right: 15%; transform: rotate(165deg); animation: chain-sway-4 4.2s ease-in-out infinite; }
+        .chain-mid-l { top: 40%; left: -5%; transform: rotate(-85deg); animation: chain-sway-5 4.8s ease-in-out infinite; }
+        .chain-mid-r { top: 55%; right: -5%; transform: rotate(92deg); animation: chain-sway-6 4.3s ease-in-out infinite; }
 
-        @keyframes chain-sway-1 {
-            0%, 100% { transform: rotate(25deg) translateX(0); }
-            50% { transform: rotate(27deg) translateX(3px); }
-        }
-        @keyframes chain-sway-2 {
-            0%, 100% { transform: rotate(-20deg) translateX(0); }
-            50% { transform: rotate(-22deg) translateX(-4px); }
-        }
-        @keyframes chain-sway-3 {
-            0%, 100% { transform: rotate(-160deg) translateX(0); }
-            50% { transform: rotate(-158deg) translateX(2px); }
-        }
-        @keyframes chain-sway-4 {
-            0%, 100% { transform: rotate(165deg) translateX(0); }
-            50% { transform: rotate(167deg) translateX(-3px); }
-        }
-        @keyframes chain-sway-5 {
-            0%, 100% { transform: rotate(-85deg) translateX(0); }
-            50% { transform: rotate(-83deg) translateX(2px); }
-        }
-        @keyframes chain-sway-6 {
-            0%, 100% { transform: rotate(92deg) translateX(0); }
-            50% { transform: rotate(94deg) translateX(-2px); }
-        }
+        @keyframes chain-sway-1 { 0%, 100% { transform: rotate(25deg) translateX(0); } 50% { transform: rotate(27deg) translateX(3px); } }
+        @keyframes chain-sway-2 { 0%, 100% { transform: rotate(-20deg) translateX(0); } 50% { transform: rotate(-22deg) translateX(-4px); } }
+        @keyframes chain-sway-3 { 0%, 100% { transform: rotate(-160deg) translateX(0); } 50% { transform: rotate(-158deg) translateX(2px); } }
+        @keyframes chain-sway-4 { 0%, 100% { transform: rotate(165deg) translateX(0); } 50% { transform: rotate(167deg) translateX(-3px); } }
+        @keyframes chain-sway-5 { 0%, 100% { transform: rotate(-85deg) translateX(0); } 50% { transform: rotate(-83deg) translateX(2px); } }
+        @keyframes chain-sway-6 { 0%, 100% { transform: rotate(92deg) translateX(0); } 50% { transform: rotate(94deg) translateX(-2px); } }
 
-        /* Canvas da centopeia */
         #centipede-canvas {
             position: fixed;
             inset: 0;
@@ -626,55 +589,76 @@
             pointer-events: none;
             opacity: 0;
             transition: opacity 0.5s ease;
+            will-change: opacity;
         }
-        #centipede-canvas.active {
-            opacity: 1;
-        }
+        #centipede-canvas.active { opacity: 1; }
 
         section { content-visibility: auto; contain-intrinsic-size: auto 100vh; }
 
-        @media (max-width: 768px) {
-            .carousel-wrapper { height: 500px; }
-            .project-card { width: 300px; height: 440px; padding: 28px 24px; }
-            .card-title { font-size: 1.6rem; }
-            .card-kanji { font-size: 7rem; }
-            .carousel-nav.prev { left: 5px; }
-            .carousel-nav.next { right: 5px; }
-            .carousel-nav { width: 40px; height: 40px; }
-            .kaneki-container { height: 60vh; }
-            .kaneki-container img { max-width: 65vw; }
-            .mobile-hint { display: inline-block; }
-            .chain-mid-l, .chain-mid-r, .chain-bl, .chain-br { display: none; }
-        }
-
-        @media (hover: none) {
-            .cursor { display: none; }
-            body { cursor: auto; }
-            a, button, .kakugan, .carousel-nav, .carousel-dot, .rize-count, .social-card { cursor: pointer; }
-            .volume-slider { height: 6px; }
-            .volume-slider::-webkit-slider-thumb { width: 18px; height: 18px; }
-            .volume-slider::-moz-range-thumb {
-                width: 18px; height: 18px;
-                background: var(--bone); border-radius: 50%;
-                border: 2px solid var(--blood-bright);
+        /* ===== TOUCH DEVICES ===== */
+        @media (hover: none), (pointer: coarse) {
+            .cursor { display: none !important; }
+            body, a, button, .kakugan, .carousel-nav, .carousel-dot, .rize-count, .social-card, .project-card, .entry-overlay, .volume-slider {
+                cursor: auto !important;
             }
+            /* Remove highlight/feedback nativo */
+            * { -webkit-tap-highlight-color: transparent; }
+            /* Desativa :hover em touch (mantém apenas onde faz sentido via .touched) */
+            .ghoul-card:hover, .social-card:hover {
+                transform: none;
+                background: rgba(15, 5, 5, 0.75);
+                border-color: rgba(138, 3, 3, 0.35);
+            }
+            .ghoul-card:hover::after, .social-card:hover::after { opacity: 0; }
+            .social-card:hover .social-icon { color: var(--bone); transform: none; }
+            .carousel-nav:hover { background: rgba(10, 4, 4, 0.7); border-color: rgba(196, 30, 30, 0.3); }
+            .rize-count:hover { filter: none; }
+            /* Feedback ativo (toque) */
+            .social-card:active { transform: scale(0.97); background: rgba(25, 8, 8, 0.85); border-color: #c41e1e; }
+            .carousel-nav:active { background: rgba(196, 30, 30, 0.15); border-color: var(--blood-bright); }
+            .kakugan:active { transform: scale(0.9); }
+
             .audio-container {
-                padding: 8px;
+                padding: 6px;
                 background: rgba(10, 4, 4, 0.6);
                 backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
                 border-radius: 30px;
                 border: 1px solid rgba(196, 30, 30, 0.2);
             }
-            .carousel-nav { width: 48px; height: 48px; }
-            .carousel-dot { width: 10px; height: 10px; }
+            .volume-slider { height: 6px; }
+            .volume-slider::-webkit-slider-thumb { width: 20px; height: 20px; cursor: pointer; }
+            .volume-slider::-moz-range-thumb { width: 20px; height: 20px; background: var(--bone); border-radius: 50%; border: 2px solid var(--blood-bright); cursor: pointer; }
+            .carousel-nav { width: 48px; height: 48px; cursor: pointer; }
+            .carousel-dot { width: 10px; height: 10px; cursor: pointer; }
             .carousel-dot.active { width: 28px; }
         }
 
+        @media (max-width: 768px) {
+            .carousel-wrapper { height: 520px; }
+            .project-card { width: 300px; height: 460px; padding: 28px 24px; }
+            .card-title { font-size: 1.6rem; }
+            .card-kanji { font-size: 7rem; }
+            .card-desc { font-size: 0.875rem; }
+            .carousel-nav.prev { left: 5px; }
+            .carousel-nav.next { right: 5px; }
+            .kaneki-container { height: 65vh; }
+            .kaneki-container img { max-width: 70vw; }
+            .mobile-hint { display: inline-block; }
+            .chain-mid-l, .chain-mid-r, .chain-bl, .chain-br { display: none; }
+            .audio-container { bottom: 15px; right: 15px; }
+            .rize-count { bottom: 70px; right: 15px; font-size: 1.3rem; }
+        }
+
+        @media (max-width: 480px) {
+            .carousel-wrapper { height: 480px; }
+            .project-card { width: 85vw; height: 440px; padding: 24px 20px; }
+            .card-title { font-size: 1.4rem; }
+            .card-kanji { font-size: 6rem; }
+        }
+
         @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                transition-duration: 0.01ms !important;
-            }
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
         }
 
         body.tab-hidden * { animation-play-state: paused !important; }
@@ -691,7 +675,6 @@
 
     <div class="noise-overlay"></div>
     <div class="vignette"></div>
-
     <div class="cursor" id="cursor"></div>
 
     <video id="bg-video" autoplay muted loop playsinline preload="metadata" webkit-playsinline class="fixed inset-0 w-full h-full object-cover z-[-2] opacity-60">
@@ -708,123 +691,28 @@
     
     <div class="chains-overlay" id="chains-overlay">
         <svg class="chain-group chain-tl" width="120" height="400" viewBox="0 0 120 400">
-            <g class="chain-link">
-                <ellipse cx="60" cy="20" rx="14" ry="20"/>
-                <ellipse cx="60" cy="60" rx="14" ry="20"/>
-                <ellipse cx="60" cy="100" rx="14" ry="20"/>
-                <ellipse cx="60" cy="140" rx="14" ry="20"/>
-                <ellipse cx="60" cy="180" rx="14" ry="20"/>
-                <ellipse cx="60" cy="220" rx="14" ry="20"/>
-                <ellipse cx="60" cy="260" rx="14" ry="20"/>
-                <ellipse cx="60" cy="300" rx="14" ry="20"/>
-                <ellipse cx="60" cy="340" rx="14" ry="20"/>
-                <ellipse cx="60" cy="380" rx="14" ry="20"/>
-            </g>
-            <g class="chain-link-accent">
-                <ellipse cx="60" cy="20" rx="10" ry="16"/>
-                <ellipse cx="60" cy="60" rx="10" ry="16"/>
-                <ellipse cx="60" cy="100" rx="10" ry="16"/>
-                <ellipse cx="60" cy="140" rx="10" ry="16"/>
-                <ellipse cx="60" cy="180" rx="10" ry="16"/>
-                <ellipse cx="60" cy="220" rx="10" ry="16"/>
-                <ellipse cx="60" cy="260" rx="10" ry="16"/>
-                <ellipse cx="60" cy="300" rx="10" ry="16"/>
-                <ellipse cx="60" cy="340" rx="10" ry="16"/>
-                <ellipse cx="60" cy="380" rx="10" ry="16"/>
-            </g>
+            <g class="chain-link"><ellipse cx="60" cy="20" rx="14" ry="20"/><ellipse cx="60" cy="60" rx="14" ry="20"/><ellipse cx="60" cy="100" rx="14" ry="20"/><ellipse cx="60" cy="140" rx="14" ry="20"/><ellipse cx="60" cy="180" rx="14" ry="20"/><ellipse cx="60" cy="220" rx="14" ry="20"/><ellipse cx="60" cy="260" rx="14" ry="20"/><ellipse cx="60" cy="300" rx="14" ry="20"/><ellipse cx="60" cy="340" rx="14" ry="20"/><ellipse cx="60" cy="380" rx="14" ry="20"/></g>
+            <g class="chain-link-accent"><ellipse cx="60" cy="20" rx="10" ry="16"/><ellipse cx="60" cy="60" rx="10" ry="16"/><ellipse cx="60" cy="100" rx="10" ry="16"/><ellipse cx="60" cy="140" rx="10" ry="16"/><ellipse cx="60" cy="180" rx="10" ry="16"/><ellipse cx="60" cy="220" rx="10" ry="16"/><ellipse cx="60" cy="260" rx="10" ry="16"/><ellipse cx="60" cy="300" rx="10" ry="16"/><ellipse cx="60" cy="340" rx="10" ry="16"/><ellipse cx="60" cy="380" rx="10" ry="16"/></g>
         </svg>
-        
         <svg class="chain-group chain-tr" width="120" height="380" viewBox="0 0 120 380">
-            <g class="chain-link">
-                <ellipse cx="60" cy="20" rx="13" ry="18"/>
-                <ellipse cx="60" cy="56" rx="13" ry="18"/>
-                <ellipse cx="60" cy="92" rx="13" ry="18"/>
-                <ellipse cx="60" cy="128" rx="13" ry="18"/>
-                <ellipse cx="60" cy="164" rx="13" ry="18"/>
-                <ellipse cx="60" cy="200" rx="13" ry="18"/>
-                <ellipse cx="60" cy="236" rx="13" ry="18"/>
-                <ellipse cx="60" cy="272" rx="13" ry="18"/>
-                <ellipse cx="60" cy="308" rx="13" ry="18"/>
-                <ellipse cx="60" cy="344" rx="13" ry="18"/>
-            </g>
-            <g class="chain-link-accent">
-                <ellipse cx="60" cy="20" rx="9" ry="14"/>
-                <ellipse cx="60" cy="56" rx="9" ry="14"/>
-                <ellipse cx="60" cy="92" rx="9" ry="14"/>
-                <ellipse cx="60" cy="128" rx="9" ry="14"/>
-                <ellipse cx="60" cy="164" rx="9" ry="14"/>
-                <ellipse cx="60" cy="200" rx="9" ry="14"/>
-                <ellipse cx="60" cy="236" rx="9" ry="14"/>
-                <ellipse cx="60" cy="272" rx="9" ry="14"/>
-                <ellipse cx="60" cy="308" rx="9" ry="14"/>
-                <ellipse cx="60" cy="344" rx="9" ry="14"/>
-            </g>
+            <g class="chain-link"><ellipse cx="60" cy="20" rx="13" ry="18"/><ellipse cx="60" cy="56" rx="13" ry="18"/><ellipse cx="60" cy="92" rx="13" ry="18"/><ellipse cx="60" cy="128" rx="13" ry="18"/><ellipse cx="60" cy="164" rx="13" ry="18"/><ellipse cx="60" cy="200" rx="13" ry="18"/><ellipse cx="60" cy="236" rx="13" ry="18"/><ellipse cx="60" cy="272" rx="13" ry="18"/><ellipse cx="60" cy="308" rx="13" ry="18"/><ellipse cx="60" cy="344" rx="13" ry="18"/></g>
+            <g class="chain-link-accent"><ellipse cx="60" cy="20" rx="9" ry="14"/><ellipse cx="60" cy="56" rx="9" ry="14"/><ellipse cx="60" cy="92" rx="9" ry="14"/><ellipse cx="60" cy="128" rx="9" ry="14"/><ellipse cx="60" cy="164" rx="9" ry="14"/><ellipse cx="60" cy="200" rx="9" ry="14"/><ellipse cx="60" cy="236" rx="9" ry="14"/><ellipse cx="60" cy="272" rx="9" ry="14"/><ellipse cx="60" cy="308" rx="9" ry="14"/><ellipse cx="60" cy="344" rx="9" ry="14"/></g>
         </svg>
-        
         <svg class="chain-group chain-bl" width="120" height="360" viewBox="0 0 120 360">
-            <g class="chain-link">
-                <ellipse cx="60" cy="20" rx="14" ry="20"/>
-                <ellipse cx="60" cy="60" rx="14" ry="20"/>
-                <ellipse cx="60" cy="100" rx="14" ry="20"/>
-                <ellipse cx="60" cy="140" rx="14" ry="20"/>
-                <ellipse cx="60" cy="180" rx="14" ry="20"/>
-                <ellipse cx="60" cy="220" rx="14" ry="20"/>
-                <ellipse cx="60" cy="260" rx="14" ry="20"/>
-                <ellipse cx="60" cy="300" rx="14" ry="20"/>
-                <ellipse cx="60" cy="340" rx="14" ry="20"/>
-            </g>
+            <g class="chain-link"><ellipse cx="60" cy="20" rx="14" ry="20"/><ellipse cx="60" cy="60" rx="14" ry="20"/><ellipse cx="60" cy="100" rx="14" ry="20"/><ellipse cx="60" cy="140" rx="14" ry="20"/><ellipse cx="60" cy="180" rx="14" ry="20"/><ellipse cx="60" cy="220" rx="14" ry="20"/><ellipse cx="60" cy="260" rx="14" ry="20"/><ellipse cx="60" cy="300" rx="14" ry="20"/><ellipse cx="60" cy="340" rx="14" ry="20"/></g>
         </svg>
-        
         <svg class="chain-group chain-br" width="120" height="380" viewBox="0 0 120 380">
-            <g class="chain-link">
-                <ellipse cx="60" cy="20" rx="13" ry="19"/>
-                <ellipse cx="60" cy="58" rx="13" ry="19"/>
-                <ellipse cx="60" cy="96" rx="13" ry="19"/>
-                <ellipse cx="60" cy="134" rx="13" ry="19"/>
-                <ellipse cx="60" cy="172" rx="13" ry="19"/>
-                <ellipse cx="60" cy="210" rx="13" ry="19"/>
-                <ellipse cx="60" cy="248" rx="13" ry="19"/>
-                <ellipse cx="60" cy="286" rx="13" ry="19"/>
-                <ellipse cx="60" cy="324" rx="13" ry="19"/>
-                <ellipse cx="60" cy="362" rx="13" ry="19"/>
-            </g>
+            <g class="chain-link"><ellipse cx="60" cy="20" rx="13" ry="19"/><ellipse cx="60" cy="58" rx="13" ry="19"/><ellipse cx="60" cy="96" rx="13" ry="19"/><ellipse cx="60" cy="134" rx="13" ry="19"/><ellipse cx="60" cy="172" rx="13" ry="19"/><ellipse cx="60" cy="210" rx="13" ry="19"/><ellipse cx="60" cy="248" rx="13" ry="19"/><ellipse cx="60" cy="286" rx="13" ry="19"/><ellipse cx="60" cy="324" rx="13" ry="19"/><ellipse cx="60" cy="362" rx="13" ry="19"/></g>
         </svg>
-        
         <svg class="chain-group chain-mid-l" width="300" height="120" viewBox="0 0 300 120">
-            <g class="chain-link">
-                <ellipse cx="20" cy="60" rx="20" ry="13"/>
-                <ellipse cx="60" cy="60" rx="20" ry="13"/>
-                <ellipse cx="100" cy="60" rx="20" ry="13"/>
-                <ellipse cx="140" cy="60" rx="20" ry="13"/>
-                <ellipse cx="180" cy="60" rx="20" ry="13"/>
-                <ellipse cx="220" cy="60" rx="20" ry="13"/>
-                <ellipse cx="260" cy="60" rx="20" ry="13"/>
-            </g>
-            <g class="chain-link-accent">
-                <ellipse cx="20" cy="60" rx="16" ry="9"/>
-                <ellipse cx="60" cy="60" rx="16" ry="9"/>
-                <ellipse cx="100" cy="60" rx="16" ry="9"/>
-                <ellipse cx="140" cy="60" rx="16" ry="9"/>
-                <ellipse cx="180" cy="60" rx="16" ry="9"/>
-                <ellipse cx="220" cy="60" rx="16" ry="9"/>
-                <ellipse cx="260" cy="60" rx="16" ry="9"/>
-            </g>
+            <g class="chain-link"><ellipse cx="20" cy="60" rx="20" ry="13"/><ellipse cx="60" cy="60" rx="20" ry="13"/><ellipse cx="100" cy="60" rx="20" ry="13"/><ellipse cx="140" cy="60" rx="20" ry="13"/><ellipse cx="180" cy="60" rx="20" ry="13"/><ellipse cx="220" cy="60" rx="20" ry="13"/><ellipse cx="260" cy="60" rx="20" ry="13"/></g>
+            <g class="chain-link-accent"><ellipse cx="20" cy="60" rx="16" ry="9"/><ellipse cx="60" cy="60" rx="16" ry="9"/><ellipse cx="100" cy="60" rx="16" ry="9"/><ellipse cx="140" cy="60" rx="16" ry="9"/><ellipse cx="180" cy="60" rx="16" ry="9"/><ellipse cx="220" cy="60" rx="16" ry="9"/><ellipse cx="260" cy="60" rx="16" ry="9"/></g>
         </svg>
-        
         <svg class="chain-group chain-mid-r" width="280" height="120" viewBox="0 0 280 120">
-            <g class="chain-link">
-                <ellipse cx="20" cy="60" rx="19" ry="12"/>
-                <ellipse cx="58" cy="60" rx="19" ry="12"/>
-                <ellipse cx="96" cy="60" rx="19" ry="12"/>
-                <ellipse cx="134" cy="60" rx="19" ry="12"/>
-                <ellipse cx="172" cy="60" rx="19" ry="12"/>
-                <ellipse cx="210" cy="60" rx="19" ry="12"/>
-                <ellipse cx="248" cy="60" rx="19" ry="12"/>
-            </g>
+            <g class="chain-link"><ellipse cx="20" cy="60" rx="19" ry="12"/><ellipse cx="58" cy="60" rx="19" ry="12"/><ellipse cx="96" cy="60" rx="19" ry="12"/><ellipse cx="134" cy="60" rx="19" ry="12"/><ellipse cx="172" cy="60" rx="19" ry="12"/><ellipse cx="210" cy="60" rx="19" ry="12"/><ellipse cx="248" cy="60" rx="19" ry="12"/></g>
         </svg>
     </div>
 
-    <!-- Canvas para centopeia profissional -->
     <canvas id="centipede-canvas"></canvas>
 
     <div class="kaneki-container" id="kaneki-container">
@@ -971,6 +859,12 @@
         (function() {
             'use strict';
 
+            // ===== DETECÇÃO DE DISPOSITIVO =====
+            const isTouchDevice = (window.matchMedia('(hover: none)').matches) || 
+                                  (window.matchMedia('(pointer: coarse)').matches) ||
+                                  ('ontouchstart' in window) || 
+                                  (navigator.maxTouchPoints > 0);
+
             // ===== VIDEO LOOP =====
             const bgVideo = document.getElementById('bg-video');
             if (bgVideo) {
@@ -988,31 +882,35 @@
                 }
             }
 
-            // ===== CURSOR =====
+            // ===== CURSOR (apenas desktop) =====
             const cursor = document.getElementById('cursor');
-            let rafId = null, pendingX = 0, pendingY = 0;
+            if (!isTouchDevice && cursor) {
+                let rafId = null, pendingX = 0, pendingY = 0;
 
-            document.addEventListener('mousemove', (e) => {
-                pendingX = e.clientX - 8;
-                pendingY = e.clientY - 8;
-                if (!rafId) {
-                    rafId = requestAnimationFrame(() => {
-                        cursor.style.transform = `translate3d(${pendingX}px, ${pendingY}px, 0)`;
-                        rafId = null;
-                    });
-                }
-            }, { passive: true });
+                document.addEventListener('mousemove', (e) => {
+                    pendingX = e.clientX - 8;
+                    pendingY = e.clientY - 8;
+                    if (!rafId) {
+                        rafId = requestAnimationFrame(() => {
+                            cursor.style.transform = `translate3d(${pendingX}px, ${pendingY}px, 0)`;
+                            rafId = null;
+                        });
+                    }
+                }, { passive: true });
 
-            document.addEventListener('mouseover', (e) => {
-                if (e.target.closest('a, .ghoul-card, .kakugan, .volume-slider, .entry-overlay, .carousel-nav, .carousel-dot, .project-card, .rize-count, .social-card')) {
-                    cursor.classList.add('hover');
-                }
-            });
-            document.addEventListener('mouseout', (e) => {
-                if (e.target.closest('a, .ghoul-card, .kakugan, .volume-slider, .entry-overlay, .carousel-nav, .carousel-dot, .project-card, .rize-count, .social-card')) {
-                    cursor.classList.remove('hover');
-                }
-            });
+                document.addEventListener('mouseover', (e) => {
+                    if (e.target.closest('a, .ghoul-card, .kakugan, .volume-slider, .entry-overlay, .carousel-nav, .carousel-dot, .project-card, .rize-count, .social-card')) {
+                        cursor.classList.add('hover');
+                    }
+                });
+                document.addEventListener('mouseout', (e) => {
+                    if (e.target.closest('a, .ghoul-card, .kakugan, .volume-slider, .entry-overlay, .carousel-nav, .carousel-dot, .project-card, .rize-count, .social-card')) {
+                        cursor.classList.remove('hover');
+                    }
+                });
+            } else if (cursor) {
+                cursor.style.display = 'none';
+            }
 
             // ===== AUDIO =====
             const audio = document.getElementById('bg-audio');
@@ -1043,6 +941,11 @@
 
             window.addEventListener('load', startAudio, { once: true });
             entryOverlay.addEventListener('click', () => {
+                hasInteracted = false;
+                startAudio();
+            }, { once: true });
+            entryOverlay.addEventListener('touchend', (e) => {
+                e.preventDefault();
                 hasInteracted = false;
                 startAudio();
             }, { once: true });
@@ -1092,7 +995,8 @@
 
             // ===== DISCORD COPY =====
             const discordCard = document.getElementById('discord-card');
-            discordCard.addEventListener('click', async () => {
+            discordCard.addEventListener('click', async (e) => {
+                e.preventDefault();
                 const username = discordCard.dataset.username;
                 try {
                     await navigator.clipboard.writeText(username);
@@ -1215,9 +1119,9 @@
 
                     let tx, sc, op, z;
                     if (isMobile) {
-                        tx = offset * 200;
-                        sc = offset === 0 ? 1 : 0.75;
-                        op = offset === 0 ? 1 : 0.4;
+                        tx = offset * Math.min(220, window.innerWidth * 0.65);
+                        sc = offset === 0 ? 1 : 0.78;
+                        op = offset === 0 ? 1 : 0.35;
                         z = 10 - absOff;
                     } else {
                         tx = offset * 320;
@@ -1263,7 +1167,7 @@
             wrapper.addEventListener('pointerup', (e) => {
                 if (dragStart === null) return;
                 const diff = e.clientX - dragStart;
-                if (Math.abs(diff) > 60) {
+                if (Math.abs(diff) > 50) {
                     if (diff < 0) next(); else prev();
                 }
                 dragStart = null;
@@ -1287,61 +1191,63 @@
                 resizeTimer = setTimeout(updateCarousel, 150);
             });
 
-            // ===== CENTOPEIA CANVAS PROFISSIONAL =====
+            // ===== CENTOPEIA GROTESCA & REALISTA (OTIMIZADA) =====
             class Centipede {
                 constructor(canvas) {
                     this.canvas = canvas;
-                    this.ctx = canvas.getContext('2d');
+                    this.ctx = canvas.getContext('2d', { alpha: true });
                     this.segments = [];
-                    this.numSegments = 20;
-                    this.segmentSpacing = 18;
+                    this.numSegments = 35;
+                    this.segmentSpacing = 12;
                     this.running = false;
                     this.path = [];
                     this.pathIndex = 0;
+                    this.time = 0;
+                    this.velocity = 0; // pixels por frame
+                    this.exitX = 0; // ponto de saída (fora da tela à direita)
+                    this.rafId = null;
                     this.resize();
-                    window.addEventListener('resize', () => this.resize());
+                    window.addEventListener('resize', () => this.resize(), { passive: true });
                 }
 
                 resize() {
-                    this.canvas.width = window.innerWidth;
-                    this.canvas.height = window.innerHeight;
+                    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+                    this.canvas.width = window.innerWidth * dpr;
+                    this.canvas.height = window.innerHeight * dpr;
+                    this.canvas.style.width = window.innerWidth + 'px';
+                    this.canvas.style.height = window.innerHeight + 'px';
+                    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
                 }
 
-                // Gera path sinuoso pela tela
                 generatePath() {
                     this.path = [];
-                    const w = this.canvas.width;
-                    const h = this.canvas.height;
-                    const points = [
-                        { x: -100, y: h * 0.4 },
-                        { x: w * 0.15, y: h * 0.35 },
-                        { x: w * 0.3, y: h * 0.55 },
-                        { x: w * 0.45, y: h * 0.3 },
-                        { x: w * 0.6, y: h * 0.5 },
-                        { x: w * 0.75, y: h * 0.35 },
-                        { x: w * 0.9, y: h * 0.55 },
-                        { x: w + 100, y: h * 0.4 }
+                    const w = window.innerWidth;
+                    const h = window.innerHeight;
+                    // Garantir que o ponto final esteja BEM fora da tela à direita
+                    this.exitX = w + 200;
+                    
+                    const points = [ 
+                        { x: -100, y: h * 0.4 }, 
+                        { x: w * 0.15, y: h * 0.35 }, 
+                        { x: w * 0.3, y: h * 0.6 }, 
+                        { x: w * 0.45, y: h * 0.25 }, 
+                        { x: w * 0.6, y: h * 0.55 }, 
+                        { x: w * 0.75, y: h * 0.3 }, 
+                        { x: w * 0.9, y: h * 0.6 }, 
+                        { x: this.exitX, y: h * 0.4 } 
                     ];
                     
-                    // Interpola pontos entre os keyframes para movimento suave
                     for (let i = 0; i < points.length - 1; i++) {
-                        const steps = 60;
+                        const steps = 80;
                         for (let j = 0; j < steps; j++) {
                             const t = j / steps;
-                            // Curva de Catmull-Rom simplificada
                             const p0 = points[Math.max(0, i - 1)];
                             const p1 = points[i];
                             const p2 = points[Math.min(points.length - 1, i + 1)];
                             const p3 = points[Math.min(points.length - 1, i + 2)];
                             
-                            const x = 0.5 * ((2 * p1.x) +
-                                (-p0.x + p2.x) * t +
-                                (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * t * t +
-                                (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * t * t * t);
-                            const y = 0.5 * ((2 * p1.y) +
-                                (-p0.y + p2.y) * t +
-                                (2 * p0.y - 5 * p1.y + 4 * p2.y - p3.y) * t * t +
-                                (-p0.y + 3 * p1.y - 3 * p2.y + p3.y) * t * t * t);
+                            const x = 0.5 * ((2 * p1.x) + (-p0.x + p2.x) * t + (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * t * t + (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * t * t * t);
+                            const y = 0.5 * ((2 * p1.y) + (-p0.y + p2.y) * t + (2 * p0.y - 5 * p1.y + 4 * p2.y - p3.y) * t * t + (-p0.y + 3 * p1.y - 3 * p2.y + p3.y) * t * t * t);
                             
                             this.path.push({ x, y });
                         }
@@ -1354,7 +1260,17 @@
                     this.pathIndex = 0;
                     this.segments = [];
                     
-                    // Inicializa segmentos na posição inicial
+                    // Velocidade adaptativa baseada no tamanho da tela
+                    // Queremos que a centopeia atravesse em ~4 segundos (~240 frames a 60fps)
+                    const totalFrames = 240;
+                    const totalSteps = this.path.length;
+                    this.velocity = totalSteps / totalFrames;
+                    
+                    // Em telas pequenas, aumentar um pouco para garantir saída
+                    if (window.innerWidth < 768) {
+                        this.velocity *= 1.15;
+                    }
+                    
                     for (let i = 0; i < this.numSegments; i++) {
                         this.segments.push({
                             x: this.path[0].x - i * this.segmentSpacing,
@@ -1370,27 +1286,43 @@
 
                 stop() {
                     this.running = false;
+                    if (this.rafId) {
+                        cancelAnimationFrame(this.rafId);
+                        this.rafId = null;
+                    }
                     this.canvas.classList.remove('active');
                 }
 
                 animate() {
                     if (!this.running) return;
                     
-                    // Move o head ao longo do path
-                    if (this.pathIndex < this.path.length - 1) {
-                        this.pathIndex += 2; // velocidade
-                    } else {
+                    this.time += 0.2;
+                    
+                    // Avança o índice com velocidade adaptativa
+                    this.pathIndex += this.velocity;
+                    
+                    // Verifica se a cabeça já saiu da tela pela direita
+                    const headX = this.segments[0] ? this.segments[0].x : 0;
+                    if (this.pathIndex >= this.path.length - 1 || headX > this.exitX - 50) {
                         this.stop();
                         return;
                     }
 
-                    const target = this.path[Math.min(this.pathIndex, this.path.length - 1)];
+                    const idx = Math.min(Math.floor(this.pathIndex), this.path.length - 1);
+                    const nextIdx = Math.min(idx + 1, this.path.length - 1);
+                    const frac = this.pathIndex - idx;
                     
-                    // Atualiza head
-                    this.segments[0].x += (target.x - this.segments[0].x) * 0.15;
-                    this.segments[0].y += (target.y - this.segments[0].y) * 0.15;
+                    // Interpolação suave entre pontos do path
+                    const target = {
+                        x: this.path[idx].x + (this.path[nextIdx].x - this.path[idx].x) * frac,
+                        y: this.path[idx].y + (this.path[nextIdx].y - this.path[idx].y) * frac
+                    };
+                    
+                    // Movimento suave da cabeça
+                    this.segments[0].x += (target.x - this.segments[0].x) * 0.25;
+                    this.segments[0].y += (target.y - this.segments[0].y) * 0.25;
 
-                    // Follow the leader: cada segmento segue o anterior
+                    // Follow the leader
                     for (let i = 1; i < this.segments.length; i++) {
                         const prev = this.segments[i - 1];
                         const curr = this.segments[i];
@@ -1402,7 +1334,6 @@
                         curr.y = prev.y - Math.sin(angle) * this.segmentSpacing;
                     }
 
-                    // Atualiza ângulo do head
                     if (this.segments.length > 1) {
                         this.segments[0].angle = Math.atan2(
                             this.segments[1].y - this.segments[0].y,
@@ -1411,26 +1342,21 @@
                     }
 
                     this.draw();
-                    requestAnimationFrame(() => this.animate());
+                    this.rafId = requestAnimationFrame(() => this.animate());
                 }
 
                 draw() {
                     const ctx = this.ctx;
-                    ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-                    // Sombra/glow
-                    ctx.shadowColor = 'rgba(255, 0, 0, 0.6)';
-                    ctx.shadowBlur = 15;
-
-                    // Desenha pernas primeiro (atrás do corpo)
+                    const w = window.innerWidth;
+                    const h = window.innerHeight;
+                    ctx.clearRect(0, 0, w, h);
+                    
                     this.drawLegs();
-
-                    // Desenha segmentos do corpo (do último ao primeiro)
-                    for (let i = this.segments.length - 1; i >= 0; i--) {
+                    
+                    for (let i = this.segments.length - 1; i >= 1; i--) {
                         this.drawSegment(i);
                     }
-
-                    // Cabeça (primeiro segmento, desenhado por último)
+                    
                     this.drawHead();
                 }
 
@@ -1438,26 +1364,52 @@
                     const seg = this.segments[i];
                     const ctx = this.ctx;
                     const progress = i / this.segments.length;
-                    const size = 12 - progress * 4; // diminui em direção à cauda
+                    const width = 13 - progress * 7;
+                    const length = 9 - progress * 4;
 
                     ctx.save();
                     ctx.translate(seg.x, seg.y);
                     ctx.rotate(seg.angle);
 
-                    // Corpo do segmento (oval)
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+                    ctx.shadowBlur = 6;
+                    ctx.shadowOffsetY = 3;
+
                     ctx.beginPath();
-                    ctx.ellipse(0, 0, size, size * 0.7, 0, 0, Math.PI * 2);
-                    
-                    const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, size);
-                    gradient.addColorStop(0, '#6a0000');
-                    gradient.addColorStop(0.6, '#4a0000');
-                    gradient.addColorStop(1, '#2a0000');
-                    ctx.fillStyle = gradient;
+                    ctx.moveTo(length, 0);
+                    ctx.bezierCurveTo(length, width * 0.8, length * 0.5, width, -length * 0.5, width * 0.9);
+                    ctx.bezierCurveTo(-length, width * 0.5, -length, -width * 0.5, -length * 0.5, -width * 0.9);
+                    ctx.bezierCurveTo(length * 0.5, -width, length, -width * 0.8, length, 0);
+                    ctx.closePath();
+
+                    const grad = ctx.createLinearGradient(0, -width, 0, width);
+                    grad.addColorStop(0, '#0a0000');
+                    grad.addColorStop(0.3, '#4a0000');
+                    grad.addColorStop(0.5, '#7a0303');
+                    grad.addColorStop(0.7, '#4a0000');
+                    grad.addColorStop(1, '#0a0000');
+                    ctx.fillStyle = grad;
                     ctx.fill();
 
-                    // Borda
-                    ctx.strokeStyle = '#8a0303';
+                    ctx.shadowBlur = 0;
+                    ctx.strokeStyle = '#000';
+                    ctx.lineWidth = 1.2;
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(length * 0.8, 0);
+                    ctx.lineTo(-length * 0.5, 0);
+                    ctx.strokeStyle = 'rgba(0,0,0,0.7)';
                     ctx.lineWidth = 1;
+                    ctx.stroke();
+
+                    ctx.strokeStyle = '#1a0000';
+                    ctx.lineWidth = 0.8;
+                    ctx.beginPath();
+                    ctx.moveTo(-length * 0.3, width * 0.8);
+                    ctx.lineTo(-length * 0.6, width * 1.2);
+                    ctx.moveTo(-length * 0.3, -width * 0.8);
+                    ctx.lineTo(-length * 0.6, -width * 1.2);
                     ctx.stroke();
 
                     ctx.restore();
@@ -1471,93 +1423,156 @@
                     ctx.translate(head.x, head.y);
                     ctx.rotate(head.angle);
 
-                    // Cabeça maior
-                    ctx.beginPath();
-                    ctx.ellipse(0, 0, 16, 12, 0, 0, Math.PI * 2);
-                    const headGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 16);
-                    headGradient.addColorStop(0, '#8a0000');
-                    headGradient.addColorStop(1, '#4a0000');
-                    ctx.fillStyle = headGradient;
-                    ctx.fill();
-                    ctx.strokeStyle = '#c41e1e';
-                    ctx.lineWidth = 1.5;
-                    ctx.stroke();
+                    this.drawAntennae(ctx);
+                    this.drawForcipules(ctx);
 
-                    // Olhos
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+                    ctx.shadowBlur = 8;
+
+                    ctx.beginPath();
+                    ctx.moveTo(14, 0);
+                    ctx.bezierCurveTo(16, 12, 6, 16, -10, 14);
+                    ctx.bezierCurveTo(-14, 10, -14, -10, -10, -14);
+                    ctx.bezierCurveTo(6, -16, 16, -12, 14, 0);
+                    ctx.closePath();
+
+                    const headGrad = ctx.createRadialGradient(2, 0, 0, 0, 0, 16);
+                    headGrad.addColorStop(0, '#a80808');
+                    headGrad.addColorStop(0.4, '#5a0000');
+                    headGrad.addColorStop(1, '#050000');
+                    ctx.fillStyle = headGrad;
+                    ctx.fill();
+
                     ctx.shadowBlur = 0;
-                    ctx.beginPath();
-                    ctx.arc(-4, -5, 3, 0, Math.PI * 2);
-                    ctx.arc(4, -5, 3, 0, Math.PI * 2);
-                    ctx.fillStyle = '#ff0000';
-                    ctx.fill();
-
-                    // Brilho dos olhos
-                    ctx.beginPath();
-                    ctx.arc(-4, -5, 1, 0, Math.PI * 2);
-                    ctx.arc(4, -5, 1, 0, Math.PI * 2);
-                    ctx.fillStyle = '#ffaaaa';
-                    ctx.fill();
-
-                    // Mandíbulas
-                    ctx.strokeStyle = '#c41e1e';
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    ctx.moveTo(-8, 4);
-                    ctx.quadraticCurveTo(-12, 10, -10, 14);
-                    ctx.stroke();
-                    ctx.beginPath();
-                    ctx.moveTo(8, 4);
-                    ctx.quadraticCurveTo(12, 10, 10, 14);
-                    ctx.stroke();
-
-                    // Antenas
-                    ctx.strokeStyle = '#c41e1e';
+                    ctx.strokeStyle = '#000';
                     ctx.lineWidth = 1.5;
-                    ctx.beginPath();
-                    ctx.moveTo(-6, -10);
-                    ctx.quadraticCurveTo(-15, -20, -20, -25);
                     ctx.stroke();
+
+                    ctx.fillStyle = '#000';
+                    for (let i = 0; i < 8; i++) {
+                        const angle = (i / 8) * Math.PI - Math.PI / 2;
+                        const ex = 3 + Math.cos(angle) * 5;
+                        const ey = 6 + Math.sin(angle) * 4;
+                        ctx.beginPath();
+                        ctx.arc(ex, ey, 1.2, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.beginPath();
+                        ctx.arc(ex, -ey, 1.2, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+
+                    ctx.fillStyle = '#ff1a1a';
                     ctx.beginPath();
-                    ctx.moveTo(6, -10);
-                    ctx.quadraticCurveTo(15, -20, 20, -25);
-                    ctx.stroke();
+                    ctx.arc(4, 6, 0.6, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(4, -6, 0.6, 0, Math.PI * 2);
+                    ctx.fill();
 
                     ctx.restore();
                 }
 
+                drawAntennae(ctx) {
+                    const wave = Math.sin(this.time * 1.5) * 0.3;
+                    ctx.strokeStyle = '#110000';
+                    ctx.lineWidth = 1.8;
+                    ctx.lineCap = 'round';
+
+                    ctx.beginPath();
+                    ctx.moveTo(10, 8);
+                    ctx.quadraticCurveTo(25 + wave * 15, 20 + wave * 10, 45 + wave * 25, 15 + wave * 30);
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(10, -8);
+                    ctx.quadraticCurveTo(25 - wave * 15, -20 - wave * 10, 45 - wave * 25, -15 - wave * 30);
+                    ctx.stroke();
+
+                    ctx.strokeStyle = '#4a0000';
+                    ctx.lineWidth = 0.5;
+                    for(let j=1; j<=4; j++) {
+                        const t = j/5;
+                        ctx.beginPath();
+                        ctx.arc(10 + (35+wave*25)*t, 8 + (7+wave*30)*t, 1.5, 0, Math.PI*2);
+                        ctx.stroke();
+                        ctx.beginPath();
+                        ctx.arc(10 + (35-wave*25)*t, -8 + (-7-wave*30)*t, 1.5, 0, Math.PI*2);
+                        ctx.stroke();
+                    }
+                }
+
+                drawForcipules(ctx) {
+                    ctx.shadowColor = 'rgba(255, 0, 0, 0.4)';
+                    ctx.shadowBlur = 6;
+                    ctx.fillStyle = '#050000';
+                    ctx.strokeStyle = '#5a0000';
+                    ctx.lineWidth = 1.2;
+
+                    ctx.beginPath();
+                    ctx.moveTo(12, 5);
+                    ctx.bezierCurveTo(22, 8, 30, 16, 26, 26);
+                    ctx.bezierCurveTo(22, 20, 16, 12, 8, 10);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(12, -5);
+                    ctx.bezierCurveTo(22, -8, 30, -16, 26, -26);
+                    ctx.bezierCurveTo(22, -20, 16, -12, 8, -10);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+
+                    ctx.shadowBlur = 0;
+                }
+
                 drawLegs() {
                     const ctx = this.ctx;
-                    ctx.shadowBlur = 0;
-                    ctx.strokeStyle = '#6a0000';
-                    ctx.lineWidth = 1.5;
+                    ctx.lineCap = 'round';
+                    ctx.lineJoin = 'round';
 
-                    // Desenha pernas para cada segmento (exceto cabeça e cauda)
                     for (let i = 1; i < this.segments.length - 1; i++) {
                         const seg = this.segments[i];
                         const progress = i / this.segments.length;
-                        const legLength = 15 - progress * 8;
+                        const legLen1 = 9;
+                        const legLen2 = 14 - progress * 6;
                         const perpAngle = seg.angle + Math.PI / 2;
+                        const phase = this.time * 3 + i * 0.7;
+                        const wave = Math.sin(phase) * 0.5;
+                        const wave2 = Math.cos(phase) * 0.4;
 
-                        // Ondulação das pernas baseada no tempo e posição
-                        const wave = Math.sin(Date.now() * 0.01 + i * 0.3) * 0.3;
+                        for (let side = -1; side <= 1; side += 2) {
+                            const baseAngle = perpAngle * side;
+                            
+                            const j1X = seg.x + Math.cos(baseAngle) * 7;
+                            const j1Y = seg.y + Math.sin(baseAngle) * 7;
+                            
+                            const j2X = j1X + Math.cos(baseAngle + wave * side) * legLen1;
+                            const j2Y = j1Y + Math.sin(baseAngle + wave * side) * legLen1;
+                            
+                            const eX = j2X + Math.cos(baseAngle + wave * side + 0.9 * side + wave2) * legLen2;
+                            const eY = j2Y + Math.sin(baseAngle + wave * side + 0.9 * side + wave2) * legLen2;
 
-                        // Perna esquerda
-                        ctx.beginPath();
-                        ctx.moveTo(seg.x, seg.y);
-                        ctx.lineTo(
-                            seg.x + Math.cos(perpAngle + wave) * legLength,
-                            seg.y + Math.sin(perpAngle + wave) * legLength
-                        );
-                        ctx.stroke();
+                            ctx.strokeStyle = '#0a0000';
+                            ctx.lineWidth = 2.2;
+                            ctx.beginPath();
+                            ctx.moveTo(seg.x, seg.y);
+                            ctx.lineTo(j1X, j1Y);
+                            ctx.lineTo(j2X, j2Y);
+                            ctx.lineTo(eX, eY);
+                            ctx.stroke();
 
-                        // Perna direita
-                        ctx.beginPath();
-                        ctx.moveTo(seg.x, seg.y);
-                        ctx.lineTo(
-                            seg.x + Math.cos(-perpAngle - wave) * legLength,
-                            seg.y + Math.sin(-perpAngle - wave) * legLength
-                        );
-                        ctx.stroke();
+                            ctx.strokeStyle = '#3a0000';
+                            ctx.lineWidth = 1;
+                            ctx.beginPath();
+                            ctx.moveTo(j2X, j2Y);
+                            ctx.lineTo(
+                                j2X + Math.cos(baseAngle + wave * side + 1.5 * side) * 4,
+                                j2Y + Math.sin(baseAngle + wave * side + 1.5 * side) * 4
+                            );
+                            ctx.stroke();
+                        }
                     }
                 }
             }
@@ -1575,7 +1590,6 @@
             let longPressTimer = null;
             let kanekiActive = false;
             let kanekiCooldown = false;
-            const isTouchDevice = window.matchMedia('(hover: none)').matches;
 
             function triggerKaneki() {
                 if (kanekiActive || kanekiCooldown) return;
@@ -1587,7 +1601,6 @@
                 chainsOverlay.classList.add('active');
                 glitchOverlay.classList.add('active');
                 
-                // Centopeia profissional
                 setTimeout(() => centipede.start(), 200);
                 
                 setTimeout(() => {
@@ -1624,11 +1637,18 @@
             }
 
             if (isTouchDevice) {
+                // Long press em touch
                 rizeCount.addEventListener('touchstart', (e) => {
                     longPressTimer = setTimeout(triggerKaneki, 500);
                 }, { passive: true });
                 rizeCount.addEventListener('touchend', () => clearTimeout(longPressTimer), { passive: true });
                 rizeCount.addEventListener('touchmove', () => clearTimeout(longPressTimer), { passive: true });
+                rizeCount.addEventListener('touchcancel', () => clearTimeout(longPressTimer), { passive: true });
+                // Também aceita click/tap curto como fallback
+                rizeCount.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    triggerKaneki();
+                });
             } else {
                 rizeCount.addEventListener('click', triggerKaneki);
             }
