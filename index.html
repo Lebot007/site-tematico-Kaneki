@@ -652,6 +652,7 @@
             pointer-events: none;
             opacity: 0;
             transition: opacity 0.5s ease;
+            will-change: opacity;
         }
         #centipede-canvas.active { opacity: 1; }
 
@@ -759,7 +760,6 @@
     <div class="glitch-overlay" id="glitch-overlay"></div>
     
     <div class="chains-overlay" id="chains-overlay">
-        <!-- Definições de gradientes e filtros para correntes grotescas -->
         <svg width="0" height="0" style="position: absolute;">
             <defs>
                 <linearGradient id="chainGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -784,7 +784,6 @@
             </defs>
         </svg>
         
-        <!-- Corrente Superior Esquerda -->
         <svg class="chain-group chain-tl" width="140" height="450" viewBox="0 0 140 450">
             <g class="chain-link">
                 <ellipse cx="70" cy="25" rx="18" ry="25"/>
@@ -832,7 +831,6 @@
             </g>
         </svg>
         
-        <!-- Corrente Superior Direita -->
         <svg class="chain-group chain-tr" width="140" height="430" viewBox="0 0 140 430">
             <g class="chain-link">
                 <ellipse cx="70" cy="25" rx="17" ry="24"/>
@@ -879,7 +877,6 @@
             </g>
         </svg>
         
-        <!-- Corrente Inferior Esquerda -->
         <svg class="chain-group chain-bl" width="140" height="410" viewBox="0 0 140 410">
             <g class="chain-link">
                 <ellipse cx="70" cy="25" rx="18" ry="25"/>
@@ -922,7 +919,6 @@
             </g>
         </svg>
         
-        <!-- Corrente Inferior Direita -->
         <svg class="chain-group chain-br" width="140" height="430" viewBox="0 0 140 430">
             <g class="chain-link">
                 <ellipse cx="70" cy="25" rx="17" ry="24"/>
@@ -969,7 +965,6 @@
             </g>
         </svg>
         
-        <!-- Corrente Média Esquerda -->
         <svg class="chain-group chain-mid-l" width="350" height="140" viewBox="0 0 350 140">
             <g class="chain-link">
                 <ellipse cx="25" cy="70" rx="25" ry="18"/>
@@ -1008,7 +1003,6 @@
             </g>
         </svg>
         
-        <!-- Corrente Média Direita -->
         <svg class="chain-group chain-mid-r" width="330" height="140" viewBox="0 0 330 140">
             <g class="chain-link">
                 <ellipse cx="25" cy="70" rx="24" ry="17"/>
@@ -1566,14 +1560,13 @@
                 resizeTimer = setTimeout(updateCarousel, 150);
             });
 
-            // ===== CENTOPEIA - MOVIMENTO SUAVE E UNIFORME =====
             class Centipede {
                 constructor(canvas) {
                     this.canvas = canvas;
                     this.ctx = canvas.getContext('2d', { alpha: true });
                     this.segments = [];
                     this.numSegments = isTouchDevice ? 28 : 35;
-                    this.segmentSpacing = 10; // Reduzido para manter cabeça mais próxima do corpo
+                    this.segmentSpacing = 10;
                     this.running = false;
                     this.path = [];
                     this.distanceTraveled = 0;
@@ -1843,13 +1836,13 @@
                     }
 
                     ctx.beginPath();
-                    ctx.moveTo(12, 0); // Ajustado para ficar mais próximo do corpo
-                    ctx.bezierCurveTo(14, 10, 5, 14, -8, 12);
-                    ctx.bezierCurveTo(-12, 8, -12, -8, -8, -12);
-                    ctx.bezierCurveTo(5, -14, 14, -10, 12, 0);
+                    ctx.moveTo(14, 0);
+                    ctx.bezierCurveTo(16, 11, 4, 15, -14, 12);
+                    ctx.bezierCurveTo(-18, 8, -18, -8, -14, -12);
+                    ctx.bezierCurveTo(4, -15, 16, -11, 14, 0);
                     ctx.closePath();
 
-                    const headGrad = ctx.createRadialGradient(2, 0, 0, 0, 0, 14);
+                    const headGrad = ctx.createRadialGradient(2, 0, 0, 0, 0, 16);
                     headGrad.addColorStop(0, '#a80808');
                     headGrad.addColorStop(0.4, '#5a0000');
                     headGrad.addColorStop(1, '#050000');
