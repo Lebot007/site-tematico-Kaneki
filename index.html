@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@700;900&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@700;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.29/bundled/lenis.min.js"></script>
@@ -15,8 +15,11 @@
         :root {
             --void: #050505;
             --blood-bright: #c41e1e;
+            --blood-glow: rgba(196, 30, 30, 0.5);
             --bone: #EAEAEA;
             --rize: #a855f7;
+            --player-bg: rgba(8, 2, 2, 0.72);
+            --player-border: rgba(196, 30, 30, 0.18);
         }
         *, *::before, *::after { box-sizing: border-box; }
         html { -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }
@@ -47,7 +50,8 @@
             width: 16px; height: 16px;
             border: 2px solid var(--bone);
             border-radius: 50%;
-            position: fixed; top: 0; left: 0;            pointer-events: none;
+            position: fixed; top: 0; left: 0;
+            pointer-events: none;
             z-index: 10000;
             mix-blend-mode: difference;
             will-change: transform;
@@ -63,26 +67,32 @@
             opacity: 0.85;
         }
 
-        .audio-container {
-            position: fixed; bottom: 20px; right: 20px;
-            z-index: 100;
-            display: flex; align-items: center; gap: 12px;
-        }
-
         .rize-count {
-            position: fixed; bottom: 75px; right: 20px; z-index: 100;
+            position: fixed; 
+            bottom: 20px; 
+            right: 20px; 
+            z-index: 99;
             font-family: 'Noto Serif JP', serif;
-            font-weight: 900; font-size: 1.5rem;
-            color: #c41e1e; letter-spacing: 0.05em;
-            display: flex; align-items: baseline; gap: 4px;
+            font-weight: 900; 
+            font-size: 1.5rem;
+            color: #c41e1e; 
+            letter-spacing: 0.05em;
+            display: flex; 
+            align-items: baseline; 
+            gap: 4px;
             pointer-events: auto;
             cursor: none;
             user-select: none;
             -webkit-user-select: none;
-            animation: rize-fade 5s ease-in-out infinite;
-            transition: filter 0.3s;
-            padding: 12px;
-            margin: -12px;
+            transition: filter 0.3s, opacity 0.3s, transform 0.3s ease;
+            padding: 10px 14px;
+            background: rgba(5, 2, 2, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 12px;
+            border: 1px solid rgba(196, 30, 30, 0.2);
+            will-change: transform, opacity;
+            transform: translate3d(0, 0, 0);
         }
         .rize-count:hover { filter: brightness(1.3) drop-shadow(0 0 8px rgba(255, 0, 0, 0.5)); }
         .rize-count .thousand {
@@ -96,91 +106,224 @@
             transform: skewX(2deg) rotate(1deg);
             font-style: italic;
         }
-        .mobile-hint {            display: none;
+        .mobile-hint {
+            display: none;
             font-size: 0.6rem;
             letter-spacing: 0.2em;
             color: rgba(196, 30, 30, 0.5);
             margin-left: 6px;
             font-weight: 400;
         }
-        @keyframes rize-fade {
-            0%, 100% { opacity: 0.55; }
-            50% { opacity: 1; }
+
+        .music-player {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 101;
+            width: 360px;
+            max-width: calc(100vw - 40px);
+            background: var(--player-bg);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid var(--player-border);
+            border-radius: 16px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+            transition: 
+                transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), 
+                left 0.6s cubic-bezier(0.22, 1, 0.36, 1), 
+                right 0.6s cubic-bezier(0.22, 1, 0.36, 1), 
+                width 0.6s cubic-bezier(0.22, 1, 0.36, 1), 
+                padding 0.6s cubic-bezier(0.22, 1, 0.36, 1), 
+                opacity 0.4s ease, 
+                border-color 0.4s ease;
+            transform-origin: bottom left;
+            overflow: hidden;
+            will-change: transform, width, left;
+            transform: translate3d(0, 0, 0);
         }
 
-        .kakugan {
-            width: 45px; height: 45px; min-width: 45px;
-            background: radial-gradient(circle, #ff0000 15%, #4a0000 40%, #000 70%);
-            border-radius: 50%;
-            cursor: none;
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.4s;
-            box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
-            position: relative;
-            display: flex; align-items: center; justify-content: center;
+        .music-player::after {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: 16px;
+            box-shadow: 0 0 60px rgba(196, 30, 30, 0.25), 0 0 100px rgba(196, 30, 30, 0.08);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+            z-index: -1;
+        }
+        .music-player.playing::after { opacity: 1; }
+        .music-player.playing { border-color: rgba(196, 30, 30, 0.4); }
+
+        .music-player::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: 
+                radial-gradient(circle at top left, rgba(196, 30, 30, 0.12), transparent 60%),
+                radial-gradient(circle at bottom right, rgba(168, 85, 247, 0.06), transparent 60%);
+            pointer-events: none;
+            opacity: 0.7;
+            z-index: 0;
+        }
+
+        .music-player > * { position: relative; z-index: 1; }
+        .player-top { display: flex; align-items: center; gap: 12px; }
+        .player-cover-wrap { position: relative; width: 52px; height: 52px; flex-shrink: 0; }
+        .player-cover {
+            width: 100%; height: 100%; border-radius: 10px; object-fit: cover;
+            background: linear-gradient(135deg, #1a0505 0%, #050000 100%);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(196, 30, 30, 0.15) inset;
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease;
+        }
+        .music-player.playing .player-cover {
+            animation: cover-pulse 3s ease-in-out infinite;
+            box-shadow: 0 4px 16px rgba(196, 30, 30, 0.4), 0 0 0 1px rgba(196, 30, 30, 0.3) inset;
+        }
+        @keyframes cover-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+
+        .player-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 2px; }
+        .player-track-name {
+            font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; font-weight: 600;
+            color: var(--bone); letter-spacing: 0.01em; white-space: nowrap;
+            overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+        }
+        .player-track-artist {
+            font-family: 'Space Grotesk', sans-serif; font-size: 0.72rem;
+            color: rgba(234, 234, 234, 0.55); letter-spacing: 0.08em;
+            text-transform: uppercase; font-weight: 500;
+        }
+        .music-player.playing .player-track-artist { color: rgba(196, 30, 30, 0.75); }
+
+        .player-visualizer { display: flex; align-items: flex-end; gap: 2px; height: 14px; margin-left: auto; padding-right: 4px; }
+        .viz-bar {
+            width: 2.5px; background: linear-gradient(to top, var(--blood-bright), #ff4444);
+            border-radius: 1px; height: 3px; transition: height 0.15s ease; opacity: 0.4;
+        }
+        .music-player.playing .viz-bar { opacity: 1; animation: viz-bounce 1s ease-in-out infinite; }
+        .viz-bar:nth-child(1) { animation-delay: 0s; }
+        .viz-bar:nth-child(2) { animation-delay: 0.15s; }
+        .viz-bar:nth-child(3) { animation-delay: 0.3s; }
+        .viz-bar:nth-child(4) { animation-delay: 0.1s; }
+        @keyframes viz-bounce {
+            0%, 100% { height: 3px; }
+            50% { height: 14px; }
+        }
+
+        .player-progress-wrap { display: flex; flex-direction: column; gap: 6px; }
+        .player-progress-bar {
+            position: relative; width: 100%; height: 4px; background: rgba(234, 234, 234, 0.1);
+            border-radius: 2px; cursor: none; overflow: visible; transition: height 0.2s ease;
+        }
+        .player-progress-bar:hover { height: 5px; }
+        .player-progress-fill {
+            position: absolute; top: 0; left: 0; height: 100%; width: 0%;
+            background: linear-gradient(90deg, var(--blood-bright), #ff3333);
+            border-radius: 2px; transition: width 0.1s linear;
+        }
+        .player-progress-thumb {
+            position: absolute; top: 50%; left: 0%; width: 12px; height: 12px;
+            background: var(--bone); border: 2px solid var(--blood-bright); border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 0 8px rgba(196, 30, 30, 0.6); pointer-events: none;
+        }
+        .player-progress-bar:hover .player-progress-thumb,
+        .player-progress-bar.dragging .player-progress-thumb { transform: translate(-50%, -50%) scale(1); }
+
+        .player-time {
+            display: flex; justify-content: space-between; align-items: center;
+            font-family: 'Space Grotesk', sans-serif; font-size: 0.68rem;
+            color: rgba(234, 234, 234, 0.5); letter-spacing: 0.05em; font-variant-numeric: tabular-nums;
+        }
+
+        .player-controls { display: flex; align-items: center; justify-content: center; gap: 18px; }
+        .player-btn {
+            background: transparent; border: none; color: var(--bone); cursor: none;
+            display: flex; align-items: center; justify-content: center; padding: 6px;
+            transition: color 0.25s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
             -webkit-tap-highlight-color: transparent;
         }
-        .kakugan.muted {
-            background: radial-gradient(circle, #222 15%, #0a0a0a 40%, #000 70%);
-            box-shadow: none; transform: scale(0.8);
-        }
-        .kakugan.playing { animation: pulse-eye 2.5s infinite alternate; }
-        @keyframes pulse-eye {
-            0% { box-shadow: 0 0 15px rgba(255, 0, 0, 0.4); }
-            100% { box-shadow: 0 0 30px rgba(255, 0, 0, 0.7); }
-        }
+        .player-btn:hover { color: var(--blood-bright); transform: scale(1.12); }
+        .player-btn:active { transform: scale(0.92); }
+        .player-btn svg { width: 18px; height: 18px; fill: currentColor; }
 
-        .sound-icon {
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 20px; height: 20px; color: var(--bone);
-            transition: opacity 0.3s, transform 0.3s;
-            pointer-events: none;
+        .player-btn-play {
+            width: 42px; height: 42px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--blood-bright), #8a0303); color: var(--bone);
+            box-shadow: 0 4px 12px rgba(196, 30, 30, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, background 0.3s ease;
         }
-        .icon-on { opacity: 1; }
-        .icon-off { opacity: 0; transform: translate(-50%, -50%) scale(0.7); }
-        .kakugan.muted .icon-on { opacity: 0; transform: translate(-50%, -50%) scale(0.7); }
-        .kakugan.muted .icon-off { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        .player-btn-play:hover {
+            color: var(--bone); transform: scale(1.1);
+            background: linear-gradient(135deg, #e02525, #a80808);
+            box-shadow: 0 6px 20px rgba(196, 30, 30, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+        }
+        .player-btn-play:active { transform: scale(0.94); }
+        .player-btn-play svg { width: 16px; height: 16px; }
 
-        .volume-slider-container {
-            width: 0; overflow: hidden; opacity: 0;
-            transition: width 0.4s ease, opacity 0.3s ease;
-            display: flex; align-items: center;
-        }        .audio-container:hover .volume-slider-container,
-        .audio-container.expanded .volume-slider-container { width: 100px; opacity: 1; }
-        .volume-slider {
-            -webkit-appearance: none; appearance: none;
-            width: 100px; height: 4px;
-            background: linear-gradient(to right, var(--blood-bright) 0%, var(--blood-bright) 50%, #222 50%, #222 100%);
-            border-radius: 2px; outline: none; cursor: none;
+        .player-volume-wrap { display: flex; align-items: center; gap: 8px; padding: 0 4px; }
+        .player-volume-btn {
+            background: transparent; border: none; color: rgba(234, 234, 234, 0.7); cursor: none;
+            display: flex; align-items: center; justify-content: center; padding: 4px;
+            transition: color 0.25s ease, transform 0.25s ease; -webkit-tap-highlight-color: transparent;
         }
-        .volume-slider::-webkit-slider-thumb {
-            -webkit-appearance: none; appearance: none;
-            width: 12px; height: 12px;
-            background: var(--bone); border-radius: 50%;
-            border: 2px solid var(--blood-bright);
-            cursor: none;
+        .player-volume-btn:hover { color: var(--bone); transform: scale(1.08); }
+        .player-volume-btn svg { width: 18px; height: 18px; fill: currentColor; }
+
+        .player-volume-slider {
+            flex: 1; height: 4px; background: rgba(234, 234, 234, 0.1);
+            border-radius: 2px; position: relative; cursor: none; overflow: visible;
         }
+        .player-volume-fill {
+            position: absolute; top: 0; left: 0; height: 100%; width: 30%;
+            background: linear-gradient(90deg, var(--blood-bright), #ff3333); border-radius: 2px; transition: width 0.1s ease;
+        }
+        .player-volume-thumb {
+            position: absolute; top: 50%; left: 30%; width: 10px; height: 10px;
+            background: var(--bone); border: 2px solid var(--blood-bright); border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 0 6px rgba(196, 30, 30, 0.5); pointer-events: none;
+        }
+        .player-volume-slider:hover .player-volume-thumb,
+        .player-volume-slider.dragging .player-volume-thumb { transform: translate(-50%, -50%) scale(1); }
+
+        .music-player.collapsed { width: 72px; padding: 8px; }
+        .music-player.collapsed .player-info,
+        .music-player.collapsed .player-progress-wrap,
+        .music-player.collapsed .player-controls,
+        .music-player.collapsed .player-visualizer,
+        .music-player.collapsed .player-volume-wrap { display: none; }
+        .music-player.collapsed .player-top { justify-content: center; }
+        .music-player.collapsed .player-cover-wrap { width: 52px; height: 52px; }
+
+        .player-toggle {
+            position: absolute; top: 8px; right: 8px; width: 22px; height: 22px;
+            background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(196, 30, 30, 0.25);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            cursor: none; color: rgba(234, 234, 234, 0.7); transition: all 0.25s ease;
+            z-index: 2; -webkit-tap-highlight-color: transparent;
+        }
+        .player-toggle:hover { background: rgba(196, 30, 30, 0.25); color: var(--bone); border-color: var(--blood-bright); }
+        .player-toggle svg { width: 10px; height: 10px; fill: currentColor; transition: transform 0.3s ease; }
+        .music-player.collapsed .player-toggle svg { transform: rotate(180deg); }
 
         .ghoul-card {
-            background: rgba(15, 5, 5, 0.75);
-            border: 1px solid rgba(138, 3, 3, 0.35);
-            transition: border-color 0.3s, transform 0.3s;
-            contain: layout style paint;
-            position: relative;
+            background: rgba(15, 5, 5, 0.75); border: 1px solid rgba(138, 3, 3, 0.35);
+            transition: border-color 0.3s, transform 0.3s; contain: layout style paint; position: relative;
         }
         .ghoul-card::after {
-            content: '';
-            position: absolute; inset: -1px;
-            border-radius: inherit;
-            box-shadow: 0 0 20px rgba(196, 30, 30, 0.4);
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
+            content: ''; position: absolute; inset: -1px; border-radius: inherit;
+            box-shadow: 0 0 20px rgba(196, 30, 30, 0.4); opacity: 0; transition: opacity 0.3s; pointer-events: none;
         }
-        .ghoul-card:hover {
-            border-color: #c41e1e;
-            transform: translateY(-3px);
-        }
+        .ghoul-card:hover { border-color: #c41e1e; transform: translateY(-3px); }
         .ghoul-card:hover::after { opacity: 1; }
 
         .kanji-bg {
@@ -190,16 +333,11 @@
             z-index: 0; pointer-events: none; user-select: none;
         }
 
-        .higanbana-wrap {
-            position: relative;
-            animation: float-flower 8s ease-in-out infinite;
-        }
-        .higanbana-wrap::before {            content: '';
-            position: absolute; inset: -20px;
+        .higanbana-wrap { position: relative; animation: float-flower 8s ease-in-out infinite; }
+        .higanbana-wrap::before {
+            content: ''; position: absolute; inset: -20px;
             background: radial-gradient(circle, rgba(255, 0, 0, 0.25), transparent 60%);
-            border-radius: 50%;
-            z-index: -1;
-            filter: blur(20px);
+            border-radius: 50%; z-index: -1; filter: blur(20px);
         }
         @keyframes float-flower {
             0%, 100% { transform: translateY(0); }
@@ -207,20 +345,14 @@
         }
 
         .entry-overlay {
-            position: fixed; inset: 0;
-            background: rgba(5, 5, 5, 0.95);
-            z-index: 9999;
-            display: flex; align-items: center; justify-content: center;
-            cursor: none;
-            transition: opacity 0.8s, visibility 0.8s;
-            -webkit-tap-highlight-color: transparent;
+            position: fixed; inset: 0; background: rgba(5, 5, 5, 0.95); z-index: 9999;
+            display: flex; align-items: center; justify-content: center; cursor: none;
+            transition: opacity 0.8s, visibility 0.8s; -webkit-tap-highlight-color: transparent;
         }
         .entry-overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
         .entry-text {
-            font-family: 'Noto Serif JP', serif;
-            font-size: 1.2rem; letter-spacing: 0.5em;
-            color: var(--bone); text-transform: uppercase;
-            animation: entry-pulse 2.5s ease-in-out infinite;
+            font-family: 'Noto Serif JP', serif; font-size: 1.2rem; letter-spacing: 0.5em;
+            color: var(--bone); text-transform: uppercase; animation: entry-pulse 2.5s ease-in-out infinite;
         }
         @keyframes entry-pulse {
             0%, 100% { opacity: 0.4; }
@@ -231,346 +363,172 @@
         .text-readable-dim { color: #a3a3a3; }
         .text-readable-faint { color: #737373; }
 
-        .carousel-wrapper {
-            position: relative;
-            width: 100%; height: 600px;
-            user-select: none;
-            -webkit-user-select: none;
-            touch-action: pan-y;
-        }
-        .carousel-stage {
-            position: relative;
-            width: 100%; height: 100%;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .project-card {            position: absolute;
-            width: 420px; max-width: 85vw; height: 540px;
+        .carousel-wrapper { position: relative; width: 100%; height: 600px; user-select: none; -webkit-user-select: none; touch-action: pan-y; }
+        .carousel-stage { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+        .project-card {
+            position: absolute; width: 420px; max-width: 85vw; height: 540px;
             background: linear-gradient(145deg, rgba(20, 8, 8, 0.9), rgba(10, 4, 4, 0.98));
-            border: 1px solid rgba(196, 30, 30, 0.2);
-            border-radius: 4px;
+            border: 1px solid rgba(196, 30, 30, 0.2); border-radius: 4px;
             display: flex; flex-direction: column; justify-content: space-between;
-            transition: transform 0.7s cubic-bezier(0.25, 1, 0.5, 1),
-                        opacity 0.7s cubic-bezier(0.25, 1, 0.5, 1),
-                        border-color 0.7s ease;
-            cursor: none;
-            overflow: hidden;
-            contain: layout style paint;
-            will-change: transform, opacity;
+            transition: transform 0.7s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.7s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.7s ease;
+            cursor: none; overflow: hidden; contain: layout style paint; will-change: transform, opacity;
         }
         .card-bg-image {
-            position: absolute;
-            inset: 0;
-            background-size: cover;
-            background-position: center top;
-            background-repeat: no-repeat;
-            opacity: 0.55;
-            transition: opacity 0.7s ease, transform 0.7s ease;
-            pointer-events: none;
+            position: absolute; inset: 0; background-size: cover; background-position: center top;
+            background-repeat: no-repeat; opacity: 0.55; transition: opacity 0.7s ease, transform 0.7s ease; pointer-events: none;
         }
-        .project-card.active .card-bg-image {
-            opacity: 0.75;
-            transform: scale(1.05);
-        }
+        .project-card.active .card-bg-image { opacity: 0.75; transform: scale(1.05); }
         .card-bg-overlay {
-            position: absolute;
-            inset: 0;
+            position: absolute; inset: 0;
             background: linear-gradient(145deg, rgba(5, 2, 2, 0.55) 0%, rgba(5, 2, 2, 0.65) 50%, rgba(5, 2, 2, 0.85) 100%);
             pointer-events: none;
         }
-        .card-content {
-            position: relative;
-            z-index: 2;
-            padding: 40px 36px;
-            display: flex; flex-direction: column; justify-content: space-between;
-            height: 100%;
-        }
+        .card-content { position: relative; z-index: 2; padding: 40px 36px; display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
         .project-card::before {
             content: ''; position: absolute; inset: 0;
             background: radial-gradient(circle at top right, rgba(196, 30, 30, 0.15), transparent 60%);
-            opacity: 0; transition: opacity 0.7s ease;
-            pointer-events: none;
-            z-index: 1;
+            opacity: 0; transition: opacity 0.7s ease; pointer-events: none; z-index: 1;
         }
         .project-card::after {
-            content: ''; position: absolute; inset: 0;            border-radius: inherit;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            opacity: 0;
-            transition: opacity 0.7s ease;
-            pointer-events: none;
+            content: ''; position: absolute; inset: 0; border-radius: inherit;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); opacity: 0; transition: opacity 0.7s ease; pointer-events: none;
         }
-        .project-card.active {
-            border-color: rgba(196, 30, 30, 0.6);
-        }
+        .project-card.active { border-color: rgba(196, 30, 30, 0.6); }
         .project-card.active::before { opacity: 1; }
         .project-card.active::after { opacity: 1; }
 
         .card-kanji {
-            position: absolute; top: 20px; right: 20px;
-            font-family: 'Noto Serif JP', serif;
-            font-weight: 900; font-size: 10rem; line-height: 1;
-            color: rgba(196, 30, 30, 0.08);
-            pointer-events: none;
-            transition: color 0.7s ease;
-            z-index: 1;
+            position: absolute; top: 20px; right: 20px; font-family: 'Noto Serif JP', serif;
+            font-weight: 900; font-size: 10rem; line-height: 1; color: rgba(196, 30, 30, 0.08);
+            pointer-events: none; transition: color 0.7s ease; z-index: 1;
         }
         .project-card.active .card-kanji { color: rgba(196, 30, 30, 0.22); }
-
         .card-number {
-            font-family: 'Noto Serif JP', serif;
-            font-size: 0.85rem; letter-spacing: 0.3em;
-            color: var(--blood-bright); margin-bottom: 14px;
-            display: flex; align-items: center; gap: 10px;
+            font-family: 'Noto Serif JP', serif; font-size: 0.85rem; letter-spacing: 0.3em;
+            color: var(--blood-bright); margin-bottom: 14px; display: flex; align-items: center; gap: 10px;
             text-shadow: 0 2px 8px rgba(0,0,0,0.9);
         }
-        .card-number::before {
-            content: '';
-            width: 24px; height: 1px;
-            background: var(--blood-bright);
-        }
+        .card-number::before { content: ''; width: 24px; height: 1px; background: var(--blood-bright); }
         .card-title {
-            font-family: 'Noto Serif JP', serif;
-            font-size: 2.4rem; font-weight: 900;
+            font-family: 'Noto Serif JP', serif; font-size: 2.4rem; font-weight: 900;
             color: var(--bone); margin-bottom: 6px; line-height: 1;
             text-shadow: 0 2px 20px rgba(0,0,0,0.95), 0 1px 3px rgba(0,0,0,1);
         }
         .card-subtitle {
-            font-family: 'Noto Serif JP', serif;
-            font-size: 0.9rem;
-            color: #ff4444;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            margin-bottom: 16px;
-            font-style: italic;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.95);        }
+            font-family: 'Noto Serif JP', serif; font-size: 0.9rem; color: #ff4444;
+            letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 16px; font-style: italic;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.95);
+        }
         .card-desc {
-            color: #d8d8d8; font-size: 0.92rem;
-            line-height: 1.6; margin-bottom: 20px; flex-grow: 1;
+            color: #d8d8d8; font-size: 0.92rem; line-height: 1.6; margin-bottom: 20px; flex-grow: 1;
             text-shadow: 0 1px 6px rgba(0,0,0,1), 0 0 2px rgba(0,0,0,0.9);
         }
-        .card-tags {
-            display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px;
-        }
+        .card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
         .card-tag {
-            font-size: 0.65rem; letter-spacing: 0.15em;
-            padding: 4px 10px;
-            border: 1px solid rgba(196, 30, 30, 0.5);
-            color: #e4e4e4; text-transform: uppercase;
-            border-radius: 2px;
-            background: rgba(20, 5, 5, 0.75);
-            backdrop-filter: blur(4px);
+            font-size: 0.65rem; letter-spacing: 0.15em; padding: 4px 10px;
+            border: 1px solid rgba(196, 30, 30, 0.5); color: #e4e4e4; text-transform: uppercase;
+            border-radius: 2px; background: rgba(20, 5, 5, 0.75); backdrop-filter: blur(4px);
         }
         .card-footer {
             display: flex; justify-content: space-between; align-items: center;
-            padding-top: 16px;
-            border-top: 1px solid rgba(196, 30, 30, 0.3);
+            padding-top: 16px; border-top: 1px solid rgba(196, 30, 30, 0.3);
         }
         .card-year {
-            font-family: 'Noto Serif JP', serif;
-            font-size: 0.85rem; color: #aaa; letter-spacing: 0.1em;
+            font-family: 'Noto Serif JP', serif; font-size: 0.85rem; color: #aaa; letter-spacing: 0.1em;
             text-shadow: 0 1px 4px rgba(0,0,0,0.9);
         }
         .card-cta {
-            display: flex; align-items: center; gap: 8px;
-            font-size: 0.7rem; letter-spacing: 0.25em;
-            color: var(--blood-bright); text-transform: uppercase;
-            opacity: 0; transform: translateX(-10px);
-            transition: opacity 0.5s ease 0.2s, transform 0.5s ease 0.2s;
-            font-weight: 500;
+            display: flex; align-items: center; gap: 8px; font-size: 0.7rem; letter-spacing: 0.25em;
+            color: var(--blood-bright); text-transform: uppercase; opacity: 0; transform: translateX(-10px);
+            transition: opacity 0.5s ease 0.2s, transform 0.5s ease 0.2s; font-weight: 500;
         }
         .project-card.active .card-cta { opacity: 1; transform: translateX(0); }
-        .card-cta-arrow {
-            width: 24px; height: 1px;
-            background: var(--blood-bright); position: relative;
-        }
+        .card-cta-arrow { width: 24px; height: 1px; background: var(--blood-bright); position: relative; }
         .card-cta-arrow::after {
-            content: ''; position: absolute; right: 0; top: -3px;
-            width: 7px; height: 7px;
-            border-top: 1px solid var(--blood-bright);
-            border-right: 1px solid var(--blood-bright);
-            transform: rotate(45deg);
+            content: ''; position: absolute; right: 0; top: -3px; width: 7px; height: 7px;
+            border-top: 1px solid var(--blood-bright); border-right: 1px solid var(--blood-bright); transform: rotate(45deg);
         }
 
-        .carousel-nav {            position: absolute; top: 50%;
-            transform: translateY(-50%);
-            width: 50px; height: 50px;
-            background: rgba(10, 4, 4, 0.85);
-            border: 1px solid rgba(196, 30, 30, 0.4);
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            cursor: none; z-index: 10;
-            transition: background 0.3s, border-color 0.3s, transform 0.2s;
-            color: var(--blood-bright);
-            -webkit-tap-highlight-color: transparent;
-            backdrop-filter: blur(10px);
+        .carousel-nav {
+            position: absolute; top: 50%; transform: translateY(-50%); width: 50px; height: 50px;
+            background: rgba(10, 4, 4, 0.85); border: 1px solid rgba(196, 30, 30, 0.4); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; cursor: none; z-index: 10;
+            transition: background 0.3s, border-color 0.3s, transform 0.2s; color: var(--blood-bright);
+            -webkit-tap-highlight-color: transparent; backdrop-filter: blur(10px);
         }
-        .carousel-nav:hover {
-            background: rgba(196, 30, 30, 0.2);
-            border-color: var(--blood-bright);
-        }
+        .carousel-nav:hover { background: rgba(196, 30, 30, 0.2); border-color: var(--blood-bright); }
         .carousel-nav:active { transform: translateY(-50%) scale(0.92); }
         .carousel-nav.prev { left: 20px; }
         .carousel-nav.next { right: 20px; }
-        .carousel-nav svg {
-            width: 20px; height: 20px;
-            stroke: currentColor; stroke-width: 2; fill: none;
-        }
+        .carousel-nav svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 2; fill: none; }
 
-        .carousel-dots {
-            position: absolute; bottom: -30px; left: 50%;
-            transform: translateX(-50%);
-            display: flex; gap: 12px; z-index: 5;
-        }
+        .carousel-dots { position: absolute; bottom: -30px; left: 50%; transform: translateX(-50%); display: flex; gap: 12px; z-index: 5; }
         .carousel-dot {
-            width: 6px; height: 6px;
-            background: rgba(196, 30, 30, 0.3);
-            border-radius: 50%; cursor: none;
-            transition: all 0.4s ease;
-            -webkit-tap-highlight-color: transparent;
+            width: 6px; height: 6px; background: rgba(196, 30, 30, 0.3); border-radius: 50%; cursor: none;
+            transition: all 0.4s ease; -webkit-tap-highlight-color: transparent;
         }
-        .carousel-dot.active {
-            background: var(--blood-bright);
-            width: 24px; border-radius: 3px;
-        }
+        .carousel-dot.active { background: var(--blood-bright); width: 24px; border-radius: 3px; }
 
         .social-card {
-            background: rgba(15, 5, 5, 0.75);
-            border: 1px solid rgba(138, 3, 3, 0.35);
-            transition: border-color 0.3s, transform 0.3s, background 0.3s;
-            position: relative;
-            contain: layout style paint;
-            -webkit-tap-highlight-color: transparent;
-        }        .social-card::after {
-            content: '';
-            position: absolute; inset: -1px;
-            border-radius: inherit;
-            box-shadow: 0 0 25px rgba(196, 30, 30, 0.4);
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
+            background: rgba(15, 5, 5, 0.75); border: 1px solid rgba(138, 3, 3, 0.35);
+            transition: border-color 0.3s, transform 0.3s, background 0.3s; position: relative;
+            contain: layout style paint; -webkit-tap-highlight-color: transparent;
         }
-        .social-card:hover {
-            border-color: #c41e1e;
-            transform: translateY(-4px);
-            background: rgba(25, 8, 8, 0.85);
+        .social-card::after {
+            content: ''; position: absolute; inset: -1px; border-radius: inherit;
+            box-shadow: 0 0 25px rgba(196, 30, 30, 0.4); opacity: 0; transition: opacity 0.3s; pointer-events: none;
         }
+        .social-card:hover { border-color: #c41e1e; transform: translateY(-4px); background: rgba(25, 8, 8, 0.85); }
         .social-card:hover::after { opacity: 1; }
         .social-card:hover .social-icon { color: #ff3333; transform: scale(1.1); }
-        .social-icon {
-            transition: color 0.3s, transform 0.3s;
-            color: var(--bone);
-        }
-        .social-label {
-            font-size: 0.75rem;
-            letter-spacing: 0.2em;
-            color: #a3a3a3;
-            text-transform: uppercase;
-        }
-        .social-handle {
-            font-size: 0.85rem;
-            color: #737373;
-            margin-top: 4px;
-            font-family: 'Space Grotesk', sans-serif;
-        }
+        .social-icon { transition: color 0.3s, transform 0.3s; color: var(--bone); }
+        .social-label { font-size: 0.75rem; letter-spacing: 0.2em; color: #a3a3a3; text-transform: uppercase; }
+        .social-handle { font-size: 0.85rem; color: #737373; margin-top: 4px; font-family: 'Space Grotesk', sans-serif; }
         .copied-toast {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(196, 30, 30, 0.95);
-            color: var(--bone);
-            padding: 8px 16px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            letter-spacing: 0.15em;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-            z-index: 10;
-            text-transform: uppercase;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(196, 30, 30, 0.95); color: var(--bone); padding: 8px 16px; border-radius: 4px;
+            font-size: 0.75rem; letter-spacing: 0.15em; opacity: 0; pointer-events: none;
+            transition: opacity 0.3s; z-index: 10; text-transform: uppercase;
         }
         .social-card.copied .copied-toast { opacity: 1; }
+
         .kaneki-container {
-            position: fixed;
-            right: 0;
-            bottom: 0;
-            height: 85vh;
-            max-height: 700px;
-            width: auto;
-            pointer-events: none;
-            z-index: 9996;
-            transform: translateX(100%);
-            transition: transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1);
-            display: flex;
-            align-items: flex-end;
-            will-change: transform;
+            position: fixed; right: 0; bottom: 0; height: 85vh; max-height: 700px; width: auto;
+            pointer-events: none; z-index: 9996; transform: translateX(100%);
+            transition: transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1); display: flex;
+            align-items: flex-end; will-change: transform;
         }
         .kaneki-container.entering { transform: translateX(0); }
-        .kaneki-container.exiting {
-            transform: translateX(100%);
-            transition: transform 1.5s cubic-bezier(0.65, 0, 0.35, 1);
-        }
+        .kaneki-container.exiting { transform: translateX(100%); transition: transform 1.5s cubic-bezier(0.65, 0, 0.35, 1); }
         .kaneki-container img {
-            height: 100%;
-            width: auto;
-            max-width: 45vw;
-            object-fit: contain;
-            object-position: bottom;
+            height: 100%; width: auto; max-width: 45vw; object-fit: contain; object-position: bottom;
             -webkit-mask-image: linear-gradient(to bottom, black 75%, transparent 100%);
             mask-image: linear-gradient(to bottom, black 75%, transparent 100%);
             filter: drop-shadow(-20px 0 40px rgba(196, 30, 30, 0.3));
         }
-        .kaneki-container.entering img {
-            animation: kaneki-glitch 0.3s steps(2) 1;
-        }
+        .kaneki-container.entering img { animation: kaneki-glitch 0.3s steps(2) 1; }
         @keyframes kaneki-glitch {
             0%, 100% { filter: drop-shadow(-20px 0 40px rgba(196, 30, 30, 0.3)); transform: translateX(0); }
-            25% {
-                filter: drop-shadow(-20px 0 40px rgba(196, 30, 30, 0.3)) drop-shadow(5px 0 0 rgba(255, 0, 0, 0.5));
-                transform: translateX(-3px);
-            }
-            75% {
-                filter: drop-shadow(-20px 0 40px rgba(196, 30, 30, 0.3)) drop-shadow(-5px 0 0 rgba(0, 255, 255, 0.3));
-                transform: translateX(3px);
-            }
+            25% { filter: drop-shadow(-20px 0 40px rgba(196, 30, 30, 0.3)) drop-shadow(5px 0 0 rgba(255, 0, 0, 0.5)); transform: translateX(-3px); }
+            75% { filter: drop-shadow(-20px 0 40px rgba(196, 30, 30, 0.3)) drop-shadow(-5px 0 0 rgba(0, 255, 255, 0.3)); transform: translateX(3px); }
         }
 
         .darken-overlay {
-            position: fixed; inset: 0;
-            background: radial-gradient(ellipse at center, rgba(0,0,0,0.4), rgba(0,0,0,0.85));
-            z-index: 9994;
-            opacity: 0;            pointer-events: none;
-            transition: opacity 1s ease;
+            position: fixed; inset: 0; background: radial-gradient(ellipse at center, rgba(0,0,0,0.4), rgba(0,0,0,0.85));
+            z-index: 9994; opacity: 0; pointer-events: none; transition: opacity 1s ease;
         }
         .darken-overlay.active { opacity: 1; }
 
         .glitch-overlay {
-            position: fixed; inset: 0;
-            z-index: 9995;
-            pointer-events: none;
-            opacity: 0;
-            background: 
-                repeating-linear-gradient(
-                    0deg,
-                    transparent,
-                    transparent 2px,
-                    rgba(196, 30, 30, 0.04) 2px,
-                    rgba(196, 30, 30, 0.04) 4px
-                );
+            position: fixed; inset: 0; z-index: 9995; pointer-events: none; opacity: 0;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(196, 30, 30, 0.04) 2px, rgba(196, 30, 30, 0.04) 4px);
         }
         .glitch-overlay.active { animation: glitch-flash 0.5s steps(3) 3; }
-        .glitch-overlay.active::before,
-        .glitch-overlay.active::after {
-            content: ''; position: absolute; inset: 0;
-            background: inherit;
-            animation: glitch-shift 0.5s steps(2) 4;
+        .glitch-overlay.active::before, .glitch-overlay.active::after {
+            content: ''; position: absolute; inset: 0; background: inherit; animation: glitch-shift 0.5s steps(2) 4;
         }
-        .glitch-overlay.active::before {
-            background-color: rgba(255, 0, 0, 0.06);
-            mix-blend-mode: screen;
-        }
-        .glitch-overlay.active::after {
-            background-color: rgba(0, 255, 255, 0.03);
-            mix-blend-mode: screen;
-        }
+        .glitch-overlay.active::before { background-color: rgba(255, 0, 0, 0.06); mix-blend-mode: screen; }
+        .glitch-overlay.active::after { background-color: rgba(0, 255, 255, 0.03); mix-blend-mode: screen; }
         @keyframes glitch-flash {
             0%, 100% { opacity: 0; }
             10%, 30%, 50%, 70%, 90% { opacity: 1; transform: translateX(-3px); }
@@ -582,50 +540,19 @@
             75% { transform: translateX(8px) skewX(-3deg); }
         }
 
-        .chains-overlay {
-            position: fixed; inset: 0;
-            z-index: 9993;
-            pointer-events: none;
-            opacity: 0;            transition: opacity 0.8s ease;
-        }
+        .chains-overlay { position: fixed; inset: 0; z-index: 9993; pointer-events: none; opacity: 0; transition: opacity 0.8s ease; }
         .chains-overlay.active { opacity: 1; }
-        
-        .chain-group {
-            position: absolute;
-            transform-origin: center;
-            will-change: transform;
-        }
-        
-        .chain-link {
-            fill: none;
-            stroke: url(#chainGradient);
-            stroke-width: 3;
-            filter: drop-shadow(0 0 6px rgba(255, 0, 0, 0.6)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
-        }
-        .chain-link-inner {
-            fill: none;
-            stroke: #000;
-            stroke-width: 1.5;
-            opacity: 0.7;
-        }
-        .chain-link-highlight {
-            fill: none;
-            stroke: #c41e1e;
-            stroke-width: 0.8;
-            opacity: 0.9;
-        }
-        .chain-rust {
-            fill: #3a0000;
-            opacity: 0.6;
-        }
-        
+        .chain-group { position: absolute; transform-origin: center; will-change: transform; }
+        .chain-link { fill: none; stroke: url(#chainGradient); stroke-width: 3; filter: drop-shadow(0 0 6px rgba(255, 0, 0, 0.6)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8)); }
+        .chain-link-inner { fill: none; stroke: #000; stroke-width: 1.5; opacity: 0.7; }
+        .chain-link-highlight { fill: none; stroke: #c41e1e; stroke-width: 0.8; opacity: 0.9; }
+        .chain-rust { fill: #3a0000; opacity: 0.6; }
         .chain-tl { top: -5%; left: 15%; transform: rotate(25deg); animation: chain-sway-1 4s ease-in-out infinite; }
         .chain-tr { top: -5%; right: 20%; transform: rotate(-20deg); animation: chain-sway-2 4.5s ease-in-out infinite; }
         .chain-bl { bottom: -5%; left: 10%; transform: rotate(-160deg); animation: chain-sway-3 5s ease-in-out infinite; }
         .chain-br { bottom: -5%; right: 15%; transform: rotate(165deg); animation: chain-sway-4 4.2s ease-in-out infinite; }
         .chain-mid-l { top: 40%; left: -5%; transform: rotate(-85deg); animation: chain-sway-5 4.8s ease-in-out infinite; }
         .chain-mid-r { top: 55%; right: -5%; transform: rotate(92deg); animation: chain-sway-6 4.3s ease-in-out infinite; }
-
         @keyframes chain-sway-1 { 0%, 100% { transform: rotate(25deg) translateX(0); } 50% { transform: rotate(27deg) translateX(3px); } }
         @keyframes chain-sway-2 { 0%, 100% { transform: rotate(-20deg) translateX(0); } 50% { transform: rotate(-22deg) translateX(-4px); } }
         @keyframes chain-sway-3 { 0%, 100% { transform: rotate(-160deg) translateX(0); } 50% { transform: rotate(-158deg) translateX(2px); } }
@@ -633,58 +560,42 @@
         @keyframes chain-sway-5 { 0%, 100% { transform: rotate(-85deg) translateX(0); } 50% { transform: rotate(-83deg) translateX(2px); } }
         @keyframes chain-sway-6 { 0%, 100% { transform: rotate(92deg) translateX(0); } 50% { transform: rotate(94deg) translateX(-2px); } }
 
-        #centipede-canvas {
-            position: fixed;
-            inset: 0;            z-index: 9997;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.5s ease;
-            will-change: opacity;
-        }
+        #centipede-canvas { position: fixed; inset: 0; z-index: 9997; pointer-events: none; opacity: 0; transition: opacity 0.5s ease; will-change: opacity; }
         #centipede-canvas.active { opacity: 1; }
 
         section { content-visibility: auto; contain-intrinsic-size: auto 100vh; }
 
         @media (hover: none), (pointer: coarse) {
             .cursor { display: none !important; }
-            body, a, button, .kakugan, .carousel-nav, .carousel-dot, .rize-count, .social-card, .project-card, .entry-overlay, .volume-slider {
-                cursor: auto !important;
-            }
+            body, a, button, .carousel-nav, .carousel-dot, .rize-count, .social-card, .project-card, .entry-overlay, .player-btn, .player-toggle, .player-progress-bar, .player-volume-btn, .player-volume-slider { cursor: auto !important; }
             * { -webkit-tap-highlight-color: transparent; }
-            .ghoul-card:hover, .social-card:hover {
-                transform: none;
-                background: rgba(15, 5, 5, 0.75);
-                border-color: rgba(138, 3, 3, 0.35);
-            }
+            .ghoul-card:hover, .social-card:hover { transform: none; background: rgba(15, 5, 5, 0.75); border-color: rgba(138, 3, 3, 0.35); }
             .ghoul-card:hover::after, .social-card:hover::after { opacity: 0; }
             .social-card:hover .social-icon { color: var(--bone); transform: none; }
             .rize-count:hover { filter: none; }
             .social-card:active { transform: scale(0.97); background: rgba(25, 8, 8, 0.85); border-color: #c41e1e; }
-            .kakugan:active { transform: scale(0.9); }
-
-            .audio-container {
-                padding: 6px;
-                background: rgba(10, 4, 4, 0.6);
-                backdrop-filter: blur(8px);
-                -webkit-backdrop-filter: blur(8px);
-                border-radius: 30px;
-                border: 1px solid rgba(196, 30, 30, 0.2);
-            }
-            .volume-slider { height: 6px; }
-            .volume-slider::-webkit-slider-thumb { width: 20px; height: 20px; cursor: pointer; }
-            .volume-slider::-moz-range-thumb { width: 20px; height: 20px; background: var(--bone); border-radius: 50%; border: 2px solid var(--blood-bright); cursor: pointer; }
+            .player-btn:active { transform: scale(0.9); }
+            .player-btn-play:active { transform: scale(0.9); }
             .carousel-dot { width: 10px; height: 10px; cursor: pointer; }
             .carousel-dot.active { width: 28px; }
-            
             .chain-link { stroke-width: 2.5; }
             .chain-link-inner { stroke-width: 1.2; }
+            .player-progress-thumb { transform: translate(-50%, -50%) scale(1); }
+            .player-volume-thumb { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        @media (max-width: 1024px) {
+            .music-player { width: 340px; padding: 12px; }
+            .player-cover-wrap { width: 50px; height: 50px; }
+            .player-btn-play { width: 38px; height: 38px; }
         }
 
         @media (max-width: 768px) {
             .carousel-wrapper { height: 560px; }
             .project-card { width: 300px; height: 520px; }
             .card-content { padding: 28px 24px; }
-            .card-title { font-size: 1.8rem; }            .card-subtitle { font-size: 0.75rem; margin-bottom: 12px; }
+            .card-title { font-size: 1.8rem; }
+            .card-subtitle { font-size: 0.75rem; margin-bottom: 12px; }
             .card-kanji { font-size: 7rem; }
             .card-desc { font-size: 0.85rem; line-height: 1.55; }
             .card-tag { font-size: 0.6rem; padding: 3px 8px; }
@@ -695,8 +606,43 @@
             .kaneki-container img { max-width: 70vw; }
             .mobile-hint { display: inline-block; }
             .chain-mid-l, .chain-mid-r, .chain-bl, .chain-br { display: none; }
-            .audio-container { bottom: 15px; right: 15px; }
-            .rize-count { bottom: 70px; right: 15px; font-size: 1.3rem; }
+
+            .music-player {
+                left: 50%;
+                right: auto;
+                bottom: 15px;
+                width: calc(100vw - 30px);
+                padding: 10px;
+                border-radius: 14px;
+                transform: translateX(-50%) translate3d(0, 0, 0);
+                transform-origin: bottom center;
+            }
+            .music-player.collapsed {
+                left: 15px;
+                transform: translateX(0) translate3d(0, 0, 0);
+                width: 72px;
+                transform-origin: bottom left;
+            }
+            .player-cover-wrap { width: 46px; height: 46px; }
+            .player-track-name { font-size: 0.88rem; }
+            .player-track-artist { font-size: 0.68rem; }
+            .player-controls { gap: 14px; }
+            .player-btn-play { width: 40px; height: 40px; }
+            
+            .rize-count {
+                position: relative;
+                bottom: auto;
+                right: auto;
+                margin-top: 2.5rem;
+                font-size: 1.1rem;
+                padding: 8px 14px;
+                opacity: 0.9;
+                background: rgba(5, 2, 2, 0.75);
+                align-self: center;
+            }
+            .rize-count-fixed-mobile {
+                display: none;
+            }
         }
 
         @media (max-width: 480px) {
@@ -711,12 +657,31 @@
             .carousel-nav.next { right: -4px; }
             .carousel-nav { width: 38px; height: 38px; }
             .carousel-nav svg { width: 16px; height: 16px; }
+
+            .music-player { left: 50%; right: auto; bottom: 10px; width: calc(100vw - 20px); padding: 8px; border-radius: 12px; gap: 8px; transform: translateX(-50%) translate3d(0, 0, 0); }
+            .music-player.collapsed { 
+                left: 10px;
+                transform: translateX(0) translate3d(0, 0, 0); 
+            }
+            .player-cover-wrap { width: 40px; height: 40px; }
+            .player-track-name { font-size: 0.82rem; }
+            .player-track-artist { font-size: 0.64rem; }
+            .player-controls { gap: 12px; }
+            .player-btn svg { width: 16px; height: 16px; }
+            .player-btn-play { width: 36px; height: 36px; }
+            .player-time { font-size: 0.62rem; }
+            .player-volume-wrap { gap: 6px; }
+            
+            .rize-count { margin-top: 2rem; font-size: 1rem; padding: 6px 12px; }
+        }
+
+        @media (max-width: 375px) {
+            section:first-of-type h2.text-7xl { font-size: 3.5rem; }
         }
 
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
         }
-
         body.tab-hidden * { animation-play-state: paused !important; }
     </style>
 </head>
@@ -733,7 +698,8 @@
     <div class="vignette"></div>
     <div class="cursor" id="cursor"></div>
 
-    <video id="bg-video" autoplay muted loop playsinline preload="metadata" webkit-playsinline class="fixed inset-0 w-full h-full object-cover z-[-2] opacity-60">        <source src="video.mp4" type="video/mp4">
+    <video id="bg-video" autoplay muted loop playsinline preload="metadata" webkit-playsinline class="fixed inset-0 w-full h-full object-cover z-[-2] opacity-60">
+        <source src="video.mp4" type="video/mp4">
     </video>
     <div id="video-overlay" class="fixed inset-0 bg-black z-[-1]" style="opacity: 0.2;"></div>
 
@@ -741,285 +707,62 @@
         <source id="audio-source" src="musica.mp3" type="audio/mpeg">
     </audio>
 
+    <div class="music-player" id="music-player">
+        <button class="player-toggle" id="player-toggle" aria-label="Toggle player">
+            <svg viewBox="0 0 12 12"><path d="M2 4L6 8L10 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="player-top">
+            <div class="player-cover-wrap">
+                <img src="music1image.jpg" alt="Album cover" class="player-cover" id="player-cover" loading="lazy">
+            </div>
+            <div class="player-info">
+                <div class="player-track-name" id="player-track-name">Nuts</div>
+                <div class="player-track-artist" id="player-track-artist">Lil Peep</div>
+            </div>
+            <div class="player-visualizer">
+                <div class="viz-bar"></div><div class="viz-bar"></div><div class="viz-bar"></div><div class="viz-bar"></div>
+            </div>
+        </div>
+        <div class="player-progress-wrap">
+            <div class="player-progress-bar" id="player-progress-bar">
+                <div class="player-progress-fill" id="player-progress-fill"></div>
+                <div class="player-progress-thumb" id="player-progress-thumb"></div>
+            </div>
+            <div class="player-time">
+                <span id="player-time-current">0:00</span>
+                <span id="player-time-total">0:00</span>
+            </div>
+        </div>
+        <div class="player-controls">
+            <button class="player-btn" id="player-prev" aria-label="Anterior"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+            <button class="player-btn player-btn-play" id="player-play" aria-label="Play/Pause"><svg id="player-play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+            <button class="player-btn" id="player-next" aria-label="Próxima"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
+        </div>
+        <div class="player-volume-wrap">
+            <button class="player-volume-btn" id="player-volume-btn" aria-label="Volume"><svg id="player-volume-icon" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg></button>
+            <div class="player-volume-slider" id="player-volume-slider">
+                <div class="player-volume-fill" id="player-volume-fill"></div>
+                <div class="player-volume-thumb" id="player-volume-thumb"></div>
+            </div>
+        </div>
+    </div>
+
     <div class="darken-overlay" id="darken-overlay"></div>
     <div class="glitch-overlay" id="glitch-overlay"></div>
     
     <div class="chains-overlay" id="chains-overlay">
         <svg width="0" height="0" style="position: absolute;">
             <defs>
-                <linearGradient id="chainGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" style="stop-color:#4a0000;stop-opacity:1" />
-                    <stop offset="50%" style="stop-color:#8a0303;stop-opacity:1" />
-                    <stop offset="100%" style="stop-color:#3a0000;stop-opacity:1" />
-                </linearGradient>
-                <linearGradient id="chainGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" style="stop-color:#5a0000;stop-opacity:1" />
-                    <stop offset="50%" style="stop-color:#9a1313;stop-opacity:1" />
-                    <stop offset="100%" style="stop-color:#4a0000;stop-opacity:1" />
-                </linearGradient>
-                <filter id="chainRust">
-                    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" result="noise"/>
-                    <feColorMatrix type="matrix" values="0 0 0 0 0.2 0 0 0 0 0 0 0 0 0 0 0 0 0 0.3 0" in="noise" result="rustNoise"/>
-                    <feComposite operator="in" in="rustNoise" in2="SourceGraphic" result="rustTexture"/>
-                    <feMerge>
-                        <feMergeNode in="SourceGraphic"/>
-                        <feMergeNode in="rustTexture"/>
-                    </feMerge>
-                </filter>
+                <linearGradient id="chainGradient" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#4a0000;stop-opacity:1" /><stop offset="50%" style="stop-color:#8a0303;stop-opacity:1" /><stop offset="100%" style="stop-color:#3a0000;stop-opacity:1" /></linearGradient>
+                <filter id="chainRust"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" result="noise"/><feColorMatrix type="matrix" values="0 0 0 0 0.2 0 0 0 0 0 0 0 0 0 0 0 0 0 0.3 0" in="noise" result="rustNoise"/><feComposite operator="in" in="rustNoise" in2="SourceGraphic" result="rustTexture"/><feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="rustTexture"/></feMerge></filter>
             </defs>
         </svg>
-        
-        <svg class="chain-group chain-tl" width="140" height="450" viewBox="0 0 140 450">
-            <g class="chain-link">
-                <ellipse cx="70" cy="25" rx="18" ry="25"/>
-                <ellipse cx="70" cy="75" rx="18" ry="25"/>
-                <ellipse cx="70" cy="125" rx="18" ry="25"/>
-                <ellipse cx="70" cy="175" rx="18" ry="25"/>
-                <ellipse cx="70" cy="225" rx="18" ry="25"/>
-                <ellipse cx="70" cy="275" rx="18" ry="25"/>
-                <ellipse cx="70" cy="325" rx="18" ry="25"/>
-                <ellipse cx="70" cy="375" rx="18" ry="25"/>
-                <ellipse cx="70" cy="425" rx="18" ry="25"/>
-            </g>
-            <g class="chain-link-inner">
-                <ellipse cx="70" cy="25" rx="12" ry="18"/>                <ellipse cx="70" cy="75" rx="12" ry="18"/>
-                <ellipse cx="70" cy="125" rx="12" ry="18"/>
-                <ellipse cx="70" cy="175" rx="12" ry="18"/>
-                <ellipse cx="70" cy="225" rx="12" ry="18"/>
-                <ellipse cx="70" cy="275" rx="12" ry="18"/>
-                <ellipse cx="70" cy="325" rx="12" ry="18"/>
-                <ellipse cx="70" cy="375" rx="12" ry="18"/>
-                <ellipse cx="70" cy="425" rx="12" ry="18"/>
-            </g>
-            <g class="chain-link-highlight">
-                <path d="M 58 15 Q 52 25 58 35" />
-                <path d="M 58 65 Q 52 75 58 85" />
-                <path d="M 58 115 Q 52 125 58 135" />
-                <path d="M 58 165 Q 52 175 58 185" />
-                <path d="M 58 215 Q 52 225 58 235" />
-                <path d="M 58 265 Q 52 275 58 285" />
-                <path d="M 58 315 Q 52 325 58 335" />
-                <path d="M 58 365 Q 52 375 58 385" />
-                <path d="M 58 415 Q 52 425 58 435" />
-            </g>
-            <g class="chain-rust">
-                <circle cx="65" cy="20" r="2"/>
-                <circle cx="78" cy="80" r="1.5"/>
-                <circle cx="62" cy="130" r="2"/>
-                <circle cx="75" cy="180" r="1.5"/>
-                <circle cx="68" cy="230" r="2"/>
-                <circle cx="72" cy="280" r="1.5"/>
-                <circle cx="66" cy="330" r="2"/>
-                <circle cx="76" cy="380" r="1.5"/>
-                <circle cx="64" cy="430" r="2"/>
-            </g>
-        </svg>
-        
-        <svg class="chain-group chain-tr" width="140" height="430" viewBox="0 0 140 430">
-            <g class="chain-link">
-                <ellipse cx="70" cy="25" rx="17" ry="24"/>
-                <ellipse cx="70" cy="73" rx="17" ry="24"/>
-                <ellipse cx="70" cy="121" rx="17" ry="24"/>
-                <ellipse cx="70" cy="169" rx="17" ry="24"/>
-                <ellipse cx="70" cy="217" rx="17" ry="24"/>
-                <ellipse cx="70" cy="265" rx="17" ry="24"/>
-                <ellipse cx="70" cy="313" rx="17" ry="24"/>
-                <ellipse cx="70" cy="361" rx="17" ry="24"/>
-                <ellipse cx="70" cy="409" rx="17" ry="24"/>
-            </g>
-            <g class="chain-link-inner">
-                <ellipse cx="70" cy="25" rx="11" ry="17"/>
-                <ellipse cx="70" cy="73" rx="11" ry="17"/>
-                <ellipse cx="70" cy="121" rx="11" ry="17"/>
-                <ellipse cx="70" cy="169" rx="11" ry="17"/>                <ellipse cx="70" cy="217" rx="11" ry="17"/>
-                <ellipse cx="70" cy="265" rx="11" ry="17"/>
-                <ellipse cx="70" cy="313" rx="11" ry="17"/>
-                <ellipse cx="70" cy="361" rx="11" ry="17"/>
-                <ellipse cx="70" cy="409" rx="11" ry="17"/>
-            </g>
-            <g class="chain-link-highlight">
-                <path d="M 59 16 Q 53 25 59 34" />
-                <path d="M 59 64 Q 53 73 59 82" />
-                <path d="M 59 112 Q 53 121 59 130" />
-                <path d="M 59 160 Q 53 169 59 178" />
-                <path d="M 59 208 Q 53 217 59 226" />
-                <path d="M 59 256 Q 53 265 59 274" />
-                <path d="M 59 304 Q 53 313 59 322" />
-                <path d="M 59 352 Q 53 361 59 370" />
-                <path d="M 59 400 Q 53 409 59 418" />
-            </g>
-            <g class="chain-rust">
-                <circle cx="75" cy="30" r="1.5"/>
-                <circle cx="63" cy="78" r="2"/>
-                <circle cx="76" cy="126" r="1.5"/>
-                <circle cx="64" cy="174" r="2"/>
-                <circle cx="73" cy="222" r="1.5"/>
-                <circle cx="67" cy="270" r="2"/>
-                <circle cx="74" cy="318" r="1.5"/>
-                <circle cx="66" cy="366" r="2"/>
-            </g>
-        </svg>
-        
-        <svg class="chain-group chain-bl" width="140" height="410" viewBox="0 0 140 410">
-            <g class="chain-link">
-                <ellipse cx="70" cy="25" rx="18" ry="25"/>
-                <ellipse cx="70" cy="75" rx="18" ry="25"/>
-                <ellipse cx="70" cy="125" rx="18" ry="25"/>
-                <ellipse cx="70" cy="175" rx="18" ry="25"/>
-                <ellipse cx="70" cy="225" rx="18" ry="25"/>
-                <ellipse cx="70" cy="275" rx="18" ry="25"/>
-                <ellipse cx="70" cy="325" rx="18" ry="25"/>
-                <ellipse cx="70" cy="375" rx="18" ry="25"/>
-            </g>
-            <g class="chain-link-inner">
-                <ellipse cx="70" cy="25" rx="12" ry="18"/>
-                <ellipse cx="70" cy="75" rx="12" ry="18"/>
-                <ellipse cx="70" cy="125" rx="12" ry="18"/>
-                <ellipse cx="70" cy="175" rx="12" ry="18"/>
-                <ellipse cx="70" cy="225" rx="12" ry="18"/>
-                <ellipse cx="70" cy="275" rx="12" ry="18"/>
-                <ellipse cx="70" cy="325" rx="12" ry="18"/>
-                <ellipse cx="70" cy="375" rx="12" ry="18"/>
-            </g>            <g class="chain-link-highlight">
-                <path d="M 58 15 Q 52 25 58 35" />
-                <path d="M 58 65 Q 52 75 58 85" />
-                <path d="M 58 115 Q 52 125 58 135" />
-                <path d="M 58 165 Q 52 175 58 185" />
-                <path d="M 58 215 Q 52 225 58 235" />
-                <path d="M 58 265 Q 52 275 58 285" />
-                <path d="M 58 315 Q 52 325 58 335" />
-                <path d="M 58 365 Q 52 375 58 385" />
-            </g>
-            <g class="chain-rust">
-                <circle cx="68" cy="28" r="2"/>
-                <circle cx="74" cy="78" r="1.5"/>
-                <circle cx="66" cy="128" r="2"/>
-                <circle cx="76" cy="178" r="1.5"/>
-                <circle cx="64" cy="228" r="2"/>
-                <circle cx="72" cy="278" r="1.5"/>
-                <circle cx="68" cy="328" r="2"/>
-            </g>
-        </svg>
-        
-        <svg class="chain-group chain-br" width="140" height="430" viewBox="0 0 140 430">
-            <g class="chain-link">
-                <ellipse cx="70" cy="25" rx="17" ry="24"/>
-                <ellipse cx="70" cy="73" rx="17" ry="24"/>
-                <ellipse cx="70" cy="121" rx="17" ry="24"/>
-                <ellipse cx="70" cy="169" rx="17" ry="24"/>
-                <ellipse cx="70" cy="217" rx="17" ry="24"/>
-                <ellipse cx="70" cy="265" rx="17" ry="24"/>
-                <ellipse cx="70" cy="313" rx="17" ry="24"/>
-                <ellipse cx="70" cy="361" rx="17" ry="24"/>
-                <ellipse cx="70" cy="409" rx="17" ry="24"/>
-            </g>
-            <g class="chain-link-inner">
-                <ellipse cx="70" cy="25" rx="11" ry="17"/>
-                <ellipse cx="70" cy="73" rx="11" ry="17"/>
-                <ellipse cx="70" cy="121" rx="11" ry="17"/>
-                <ellipse cx="70" cy="169" rx="11" ry="17"/>
-                <ellipse cx="70" cy="217" rx="11" ry="17"/>
-                <ellipse cx="70" cy="265" rx="11" ry="17"/>
-                <ellipse cx="70" cy="313" rx="11" ry="17"/>
-                <ellipse cx="70" cy="361" rx="11" ry="17"/>
-                <ellipse cx="70" cy="409" rx="11" ry="17"/>
-            </g>
-            <g class="chain-link-highlight">
-                <path d="M 59 16 Q 53 25 59 34" />
-                <path d="M 59 64 Q 53 73 59 82" />
-                <path d="M 59 112 Q 53 121 59 130" />
-                <path d="M 59 160 Q 53 169 59 178" />
-                <path d="M 59 208 Q 53 217 59 226" />                <path d="M 59 256 Q 53 265 59 274" />
-                <path d="M 59 304 Q 53 313 59 322" />
-                <path d="M 59 352 Q 53 361 59 370" />
-                <path d="M 59 400 Q 53 409 59 418" />
-            </g>
-            <g class="chain-rust">
-                <circle cx="73" cy="28" r="1.5"/>
-                <circle cx="65" cy="76" r="2"/>
-                <circle cx="74" cy="124" r="1.5"/>
-                <circle cx="66" cy="172" r="2"/>
-                <circle cx="72" cy="220" r="1.5"/>
-                <circle cx="68" cy="268" r="2"/>
-                <circle cx="75" cy="316" r="1.5"/>
-                <circle cx="67" cy="364" r="2"/>
-            </g>
-        </svg>
-        
-        <svg class="chain-group chain-mid-l" width="350" height="140" viewBox="0 0 350 140">
-            <g class="chain-link">
-                <ellipse cx="25" cy="70" rx="25" ry="18"/>
-                <ellipse cx="75" cy="70" rx="25" ry="18"/>
-                <ellipse cx="125" cy="70" rx="25" ry="18"/>
-                <ellipse cx="175" cy="70" rx="25" ry="18"/>
-                <ellipse cx="225" cy="70" rx="25" ry="18"/>
-                <ellipse cx="275" cy="70" rx="25" ry="18"/>
-                <ellipse cx="325" cy="70" rx="25" ry="18"/>
-            </g>
-            <g class="chain-link-inner">
-                <ellipse cx="25" cy="70" rx="18" ry="12"/>
-                <ellipse cx="75" cy="70" rx="18" ry="12"/>
-                <ellipse cx="125" cy="70" rx="18" ry="12"/>
-                <ellipse cx="175" cy="70" rx="18" ry="12"/>
-                <ellipse cx="225" cy="70" rx="18" ry="12"/>
-                <ellipse cx="275" cy="70" rx="18" ry="12"/>
-                <ellipse cx="325" cy="70" rx="18" ry="12"/>
-            </g>
-            <g class="chain-link-highlight">
-                <path d="M 15 58 Q 25 52 35 58" />
-                <path d="M 65 58 Q 75 52 85 58" />
-                <path d="M 115 58 Q 125 52 135 58" />
-                <path d="M 165 58 Q 175 52 185 58" />
-                <path d="M 215 58 Q 225 52 235 58" />
-                <path d="M 265 58 Q 275 52 285 58" />
-                <path d="M 315 58 Q 325 52 335 58" />
-            </g>
-            <g class="chain-rust">
-                <circle cx="30" cy="65" r="2"/>
-                <circle cx="80" cy="75" r="1.5"/>
-                <circle cx="130" cy="68" r="2"/>
-                <circle cx="180" cy="72" r="1.5"/>                <circle cx="230" cy="66" r="2"/>
-                <circle cx="280" cy="74" r="1.5"/>
-            </g>
-        </svg>
-        
-        <svg class="chain-group chain-mid-r" width="330" height="140" viewBox="0 0 330 140">
-            <g class="chain-link">
-                <ellipse cx="25" cy="70" rx="24" ry="17"/>
-                <ellipse cx="73" cy="70" rx="24" ry="17"/>
-                <ellipse cx="121" cy="70" rx="24" ry="17"/>
-                <ellipse cx="169" cy="70" rx="24" ry="17"/>
-                <ellipse cx="217" cy="70" rx="24" ry="17"/>
-                <ellipse cx="265" cy="70" rx="24" ry="17"/>
-                <ellipse cx="313" cy="70" rx="24" ry="17"/>
-            </g>
-            <g class="chain-link-inner">
-                <ellipse cx="25" cy="70" rx="17" ry="11"/>
-                <ellipse cx="73" cy="70" rx="17" ry="11"/>
-                <ellipse cx="121" cy="70" rx="17" ry="11"/>
-                <ellipse cx="169" cy="70" rx="17" ry="11"/>
-                <ellipse cx="217" cy="70" rx="17" ry="11"/>
-                <ellipse cx="265" cy="70" rx="17" ry="11"/>
-                <ellipse cx="313" cy="70" rx="17" ry="11"/>
-            </g>
-            <g class="chain-link-highlight">
-                <path d="M 16 59 Q 25 53 34 59" />
-                <path d="M 64 59 Q 73 53 82 59" />
-                <path d="M 112 59 Q 121 53 130 59" />
-                <path d="M 160 59 Q 169 53 178 59" />
-                <path d="M 208 59 Q 217 53 226 59" />
-                <path d="M 256 59 Q 265 53 274 59" />
-                <path d="M 304 59 Q 313 53 322 59" />
-            </g>
-            <g class="chain-rust">
-                <circle cx="28" cy="73" r="1.5"/>
-                <circle cx="76" cy="67" r="2"/>
-                <circle cx="124" cy="74" r="1.5"/>
-                <circle cx="172" cy="66" r="2"/>
-                <circle cx="220" cy="72" r="1.5"/>
-                <circle cx="268" cy="68" r="2"/>
-            </g>
-        </svg>
+        <svg class="chain-group chain-tl" width="140" height="450" viewBox="0 0 140 450"><g class="chain-link"><ellipse cx="70" cy="25" rx="18" ry="25"/><ellipse cx="70" cy="75" rx="18" ry="25"/><ellipse cx="70" cy="125" rx="18" ry="25"/><ellipse cx="70" cy="175" rx="18" ry="25"/><ellipse cx="70" cy="225" rx="18" ry="25"/><ellipse cx="70" cy="275" rx="18" ry="25"/><ellipse cx="70" cy="325" rx="18" ry="25"/><ellipse cx="70" cy="375" rx="18" ry="25"/><ellipse cx="70" cy="425" rx="18" ry="25"/></g></svg>
+        <svg class="chain-group chain-tr" width="140" height="430" viewBox="0 0 140 430"><g class="chain-link"><ellipse cx="70" cy="25" rx="17" ry="24"/><ellipse cx="70" cy="73" rx="17" ry="24"/><ellipse cx="70" cy="121" rx="17" ry="24"/><ellipse cx="70" cy="169" rx="17" ry="24"/><ellipse cx="70" cy="217" rx="17" ry="24"/><ellipse cx="70" cy="265" rx="17" ry="24"/><ellipse cx="70" cy="313" rx="17" ry="24"/><ellipse cx="70" cy="361" rx="17" ry="24"/><ellipse cx="70" cy="409" rx="17" ry="24"/></g></svg>
+        <svg class="chain-group chain-bl" width="140" height="410" viewBox="0 0 140 410"><g class="chain-link"><ellipse cx="70" cy="25" rx="18" ry="25"/><ellipse cx="70" cy="75" rx="18" ry="25"/><ellipse cx="70" cy="125" rx="18" ry="25"/><ellipse cx="70" cy="175" rx="18" ry="25"/><ellipse cx="70" cy="225" rx="18" ry="25"/><ellipse cx="70" cy="275" rx="18" ry="25"/><ellipse cx="70" cy="325" rx="18" ry="25"/><ellipse cx="70" cy="375" rx="18" ry="25"/></g></svg>
+        <svg class="chain-group chain-br" width="140" height="430" viewBox="0 0 140 430"><g class="chain-link"><ellipse cx="70" cy="25" rx="17" ry="24"/><ellipse cx="70" cy="73" rx="17" ry="24"/><ellipse cx="70" cy="121" rx="17" ry="24"/><ellipse cx="70" cy="169" rx="17" ry="24"/><ellipse cx="70" cy="217" rx="17" ry="24"/><ellipse cx="70" cy="265" rx="17" ry="24"/><ellipse cx="70" cy="313" rx="17" ry="24"/><ellipse cx="70" cy="361" rx="17" ry="24"/><ellipse cx="70" cy="409" rx="17" ry="24"/></g></svg>
+        <svg class="chain-group chain-mid-l" width="350" height="140" viewBox="0 0 350 140"><g class="chain-link"><ellipse cx="25" cy="70" rx="25" ry="18"/><ellipse cx="75" cy="70" rx="25" ry="18"/><ellipse cx="125" cy="70" rx="25" ry="18"/><ellipse cx="175" cy="70" rx="25" ry="18"/><ellipse cx="225" cy="70" rx="25" ry="18"/><ellipse cx="275" cy="70" rx="25" ry="18"/><ellipse cx="325" cy="70" rx="25" ry="18"/></g></svg>
+        <svg class="chain-group chain-mid-r" width="330" height="140" viewBox="0 0 330 140"><g class="chain-link"><ellipse cx="25" cy="70" rx="24" ry="17"/><ellipse cx="73" cy="70" rx="24" ry="17"/><ellipse cx="121" cy="70" rx="24" ry="17"/><ellipse cx="169" cy="70" rx="24" ry="17"/><ellipse cx="217" cy="70" rx="24" ry="17"/><ellipse cx="265" cy="70" rx="24" ry="17"/><ellipse cx="313" cy="70" rx="24" ry="17"/></g></svg>
     </div>
 
     <canvas id="centipede-canvas"></canvas>
@@ -1027,35 +770,19 @@
     <div class="kaneki-container" id="kaneki-container">
         <img src="kanekituc.png" alt="" loading="lazy">
     </div>
-    <div class="rize-count" id="rize-count">
-        <span class="thousand">1000</span>
-        <span class="minus">-</span>
-        <span class="seven">7</span>
-        <span class="mobile-hint">HOLD</span>
-    </div>
-
-    <div class="audio-container" id="audio-container">
-        <div class="volume-slider-container">
-            <input type="range" min="0" max="100" value="30" class="volume-slider" id="volume-slider">
-        </div>
-        <div class="kakugan muted" id="audio-player" title="Toggle Music">
-            <svg class="sound-icon icon-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
-            </svg>
-            <svg class="sound-icon icon-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                <line x1="23" y1="9" x2="17" y2="15"></line>
-                <line x1="17" y1="9" x2="23" y2="15"></line>
-            </svg>
-        </div>
-    </div>
 
     <section class="relative h-screen flex flex-col items-center justify-center text-center px-4">
         <h1 class="kanji-bg font-jp" aria-hidden="true">喰</h1>
         <h2 class="text-7xl md:text-9xl font-jp tracking-widest mb-4 relative z-10 text-bone">Lebot</h2>
         <p class="text-sm md:text-base text-readable-dim tracking-[0.4em] uppercase relative z-10">Developer & Creator</p>
+        
+        <div class="rize-count" id="rize-count">
+            <span class="thousand">1000</span>
+            <span class="minus">-</span>
+            <span class="seven">7</span>
+            <span class="mobile-hint">HOLD</span>
+        </div>
+        
         <div class="absolute bottom-10 text-xs text-readable-faint tracking-widest">SCROLL</div>
     </section>
 
@@ -1063,29 +790,15 @@
         <div class="max-w-5xl grid md:grid-cols-2 gap-16 items-center">
             <div>
                 <h3 class="text-3xl font-jp mb-6 tracking-wide" style="color: #c41e1e;">A Máscara</h3>
-                <p class="text-readable leading-relaxed text-lg font-light mb-6">
-                    "Você tá começando a entender agora? Você fica sentado aí culpando a si mesmo o tempo todo, mas fazer isso não vai mudar nada. Você não faz nada pra mudar, é tudo culpa sua."
-                </p>
-                <p class="font-jp tracking-wider text-right text-base italic" style="color: var(--rize);">
-                    — Rize Kamishiro
-                </p>
+                <p class="text-readable leading-relaxed text-lg font-light mb-6">"Você tá começando a entender agora? Você fica sentado aí culpando a si mesmo o tempo todo, mas fazer isso não vai mudar nada. Você não faz nada pra mudar, é tudo culpa sua."</p>
+                <p class="font-jp tracking-wider text-right text-base italic" style="color: var(--rize);">— Rize Kamishiro</p>
             </div>
             <div class="flex justify-center items-center">
                 <div class="higanbana-wrap">
                     <svg class="w-64 h-64 md:w-80 md:h-80" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                         <g fill="none" stroke="#c41e1e" stroke-width="1.5" stroke-linecap="round">
                             <circle cx="50" cy="50" r="3" fill="#ff0000" stroke="none" opacity="0.9"/>
-                            <path d="M50,50 Q60,30 50,10 Q40,30 50,50" />
-                            <path d="M50,50 Q70,40 85,25 Q65,45 50,50" />                            <path d="M50,50 Q75,60 90,70 Q70,65 50,50" />
-                            <path d="M50,50 Q60,75 50,90 Q40,75 50,50" />
-                            <path d="M50,50 Q30,75 10,70 Q25,60 50,50" />
-                            <path d="M50,50 Q20,45 15,25 Q35,40 50,50" />
-                            <path d="M50,50 Q55,20 65,5" stroke-width="0.5" opacity="0.7"/>
-                            <path d="M50,50 Q80,35 95,20" stroke-width="0.5" opacity="0.7"/>
-                            <path d="M50,50 Q85,65 95,85" stroke-width="0.5" opacity="0.7"/>
-                            <path d="M50,50 Q55,80 45,95" stroke-width="0.5" opacity="0.7"/>
-                            <path d="M50,50 Q20,65 5,80" stroke-width="0.5" opacity="0.7"/>
-                            <path d="M50,50 Q25,30 5,15" stroke-width="0.5" opacity="0.7"/>
+                            <path d="M50,50 Q60,30 50,10 Q40,30 50,50" /><path d="M50,50 Q70,40 85,25 Q65,45 50,50" /><path d="M50,50 Q75,60 90,70 Q70,65 50,50" /><path d="M50,50 Q60,75 50,90 Q40,75 50,50" /><path d="M50,50 Q30,75 10,70 Q25,60 50,50" /><path d="M50,50 Q20,45 15,25 Q35,40 50,50" />
                         </g>
                     </svg>
                 </div>
@@ -1099,12 +812,8 @@
             <p class="text-center text-readable-faint text-sm tracking-widest uppercase mb-16">Arquivos Classificados</p>
             <div class="carousel-wrapper" id="carousel">
                 <div class="carousel-stage" id="carousel-stage"></div>
-                <button class="carousel-nav prev" id="carousel-prev" aria-label="Anterior">
-                    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                </button>
-                <button class="carousel-nav next" id="carousel-next" aria-label="Próximo">
-                    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                </button>
+                <button class="carousel-nav prev" id="carousel-prev" aria-label="Anterior"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+                <button class="carousel-nav next" id="carousel-next" aria-label="Próximo"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
                 <div class="carousel-dots" id="carousel-dots"></div>
             </div>
         </div>
@@ -1113,46 +822,26 @@
     <section class="min-h-[70vh] flex flex-col items-center justify-center px-6 py-20">
         <h3 class="text-3xl font-jp mb-4 tracking-wide text-center" style="color: #c41e1e;">Conexões</h3>
         <p class="text-center text-readable-faint text-sm tracking-widest uppercase mb-12">Onde me encontrar</p>
-        
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-5 max-w-6xl w-full">
             <a href="https://www.instagram.com/https.jvalves/" target="_blank" rel="noopener" class="social-card rounded-sm p-6 flex flex-col items-center text-center cursor-pointer block group">
-                <svg class="social-icon w-10 h-10 mb-3" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                </svg>
-                <div class="social-label">Instagram</div>
-                <div class="social-handle">@https.jvalves</div>
+                <svg class="social-icon w-10 h-10 mb-3" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                <div class="social-label">Instagram</div><div class="social-handle">@https.jvalves</div>
             </a>
-
             <a href="https://www.twitch.tv/Lebotz_gg" target="_blank" rel="noopener" class="social-card rounded-sm p-6 flex flex-col items-center text-center cursor-pointer block group">
-                <svg class="social-icon w-10 h-10 mb-3" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/>                </svg>
-                <div class="social-label">Twitch</div>
-                <div class="social-handle">Lebotz_gg</div>
+                <svg class="social-icon w-10 h-10 mb-3" viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
+                <div class="social-label">Twitch</div><div class="social-handle">Lebotz_gg</div>
             </a>
-
             <a href="https://www.tiktok.com/@lebot_gg" target="_blank" rel="noopener" class="social-card rounded-sm p-6 flex flex-col items-center text-center cursor-pointer block group">
-                <svg class="social-icon w-10 h-10 mb-3" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5.8 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.84-.1Z"/>
-                </svg>
-                <div class="social-label">TikTok</div>
-                <div class="social-handle">@lebot_gg</div>
+                <svg class="social-icon w-10 h-10 mb-3" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5.8 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.84-.1Z"/></svg>
+                <div class="social-label">TikTok</div><div class="social-handle">@lebot_gg</div>
             </a>
-
             <a href="https://open.spotify.com/user/o2fbtdnh53z6t6ca4v6wez8rz" target="_blank" rel="noopener" class="social-card rounded-sm p-6 flex flex-col items-center text-center cursor-pointer block group">
-                <svg class="social-icon w-10 h-10 mb-3" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.42 1.56-.301.42-1.02.599-1.561.3z"/>
-                </svg>
-                <div class="social-label">Spotify</div>
-                <div class="social-handle">Perfil</div>
+                <svg class="social-icon w-10 h-10 mb-3" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.42 1.56-.301.42-1.02.599-1.561.3z"/></svg>
+                <div class="social-label">Spotify</div><div class="social-handle">Perfil</div>
             </a>
-
             <div class="social-card rounded-sm p-6 flex flex-col items-center text-center cursor-pointer group" id="discord-card" data-username="Lebot.gg">
-                <svg class="social-icon w-10 h-10 mb-3" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/>
-                </svg>
-                <div class="social-label">Discord</div>
-                <div class="social-handle">Lebot.gg</div>
-                <div class="copied-toast">Copiado!</div>
+                <svg class="social-icon w-10 h-10 mb-3" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>
+                <div class="social-label">Discord</div><div class="social-handle">Lebot.gg</div><div class="copied-toast">Copiado!</div>
             </div>
         </div>
     </section>
@@ -1164,33 +853,19 @@
     <script>
         (function() {
             'use strict';
-
-            const isTouchDevice = (window.matchMedia('(hover: none)').matches) || 
-                                  (window.matchMedia('(pointer: coarse)').matches) ||
-                                  ('ontouchstart' in window) || 
-                                  (navigator.maxTouchPoints > 0);
+            const isTouchDevice = (window.matchMedia('(hover: none)').matches) || (window.matchMedia('(pointer: coarse)').matches) || ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
             const bgVideo = document.getElementById('bg-video');
             if (bgVideo) {
-                bgVideo.addEventListener('ended', () => {
-                    bgVideo.currentTime = 0;
-                    bgVideo.play().catch(() => {});                });
-                const playPromise = bgVideo.play();
-                if (playPromise !== undefined) {
-                    playPromise.catch(() => {
-                        document.addEventListener('click', () => {
-                            bgVideo.play().catch(() => {});
-                        }, { once: true });
-                    });
-                }
+                bgVideo.addEventListener('ended', () => { bgVideo.currentTime = 0; bgVideo.play().catch(() => {}); });
+                bgVideo.play().catch(() => { document.addEventListener('click', () => bgVideo.play().catch(() => {}), { once: true }); });
             }
 
             const cursor = document.getElementById('cursor');
             if (!isTouchDevice && cursor) {
                 let rafId = null, pendingX = 0, pendingY = 0;
                 document.addEventListener('mousemove', (e) => {
-                    pendingX = e.clientX - 8;
-                    pendingY = e.clientY - 8;
+                    pendingX = e.clientX - 8; pendingY = e.clientY - 8;
                     if (!rafId) {
                         rafId = requestAnimationFrame(() => {
                             cursor.style.transform = `translate3d(${pendingX}px, ${pendingY}px, 0)`;
@@ -1198,47 +873,182 @@
                         });
                     }
                 }, { passive: true });
-
-                document.addEventListener('mouseover', (e) => {
-                    if (e.target.closest('a, .ghoul-card, .kakugan, .volume-slider, .entry-overlay, .carousel-nav, .carousel-dot, .project-card, .rize-count, .social-card')) {
-                        cursor.classList.add('hover');
-                    }
-                });
-                document.addEventListener('mouseout', (e) => {
-                    if (e.target.closest('a, .ghoul-card, .kakugan, .volume-slider, .entry-overlay, .carousel-nav, .carousel-dot, .project-card, .rize-count, .social-card')) {
-                        cursor.classList.remove('hover');
-                    }
-                });
-            } else if (cursor) {
-                cursor.style.display = 'none';
-            }
+                const hoverTargets = 'a, .ghoul-card, .carousel-nav, .carousel-dot, .rize-count, .social-card, .project-card, .entry-overlay, .player-btn, .player-toggle, .player-progress-bar, .player-volume-btn, .player-volume-slider';
+                document.addEventListener('mouseover', (e) => { if (e.target.closest(hoverTargets)) cursor.classList.add('hover'); });
+                document.addEventListener('mouseout', (e) => { if (e.target.closest(hoverTargets)) cursor.classList.remove('hover'); });
+            } else if (cursor) { cursor.style.display = 'none'; }
 
             const audio = document.getElementById('bg-audio');
             const audioSource = document.getElementById('audio-source');
-            const player = document.getElementById('audio-player');
-            const volumeSlider = document.getElementById('volume-slider');
             const entryOverlay = document.getElementById('entry-overlay');
-            const audioContainer = document.getElementById('audio-container');
-            let isPlaying = false, hasInteracted = false;
-            const playlist = ['musica.mp3', 'musica2.mp3'];
-            let currentTrack = 0;
+            let hasInteracted = false;
 
-            audio.volume = 0.3;            updateSliderBg(30);
+            const playlist = [
+                { src: 'musica.mp3', img: 'music1image.jpg', name: 'Nuts', artist: 'Lil Peep' },
+                { src: 'musica2.mp3', img: 'music2image.jpg', name: 'CONSUME', artist: 'Chase Atlantic' },
+                { src: 'musica3.mp3', img: 'music3image.jpg', name: 'SWIM', artist: 'Chase Atlantic' }
+            ];
+            let currentTrack = 0, isPlaying = false;
+
+            const musicPlayer = document.getElementById('music-player');
+            const playerToggle = document.getElementById('player-toggle');
+            const playerCover = document.getElementById('player-cover');
+            const playerTrackName = document.getElementById('player-track-name');
+            const playerTrackArtist = document.getElementById('player-track-artist');
+            const playerPlayBtn = document.getElementById('player-play');
+            const playerPlayIcon = document.getElementById('player-play-icon');
+            const playerPrevBtn = document.getElementById('player-prev');
+            const playerNextBtn = document.getElementById('player-next');
+            const playerProgressBar = document.getElementById('player-progress-bar');
+            const playerProgressFill = document.getElementById('player-progress-fill');
+            const playerProgressThumb = document.getElementById('player-progress-thumb');
+            const playerTimeCurrent = document.getElementById('player-time-current');
+            const playerTimeTotal = document.getElementById('player-time-total');
+            const playerVolumeBtn = document.getElementById('player-volume-btn');
+            const playerVolumeIcon = document.getElementById('player-volume-icon');
+            const playerVolumeSlider = document.getElementById('player-volume-slider');
+            const playerVolumeFill = document.getElementById('player-volume-fill');
+            const playerVolumeThumb = document.getElementById('player-volume-thumb');
+
+            const ICON_PLAY = '<path d="M8 5v14l11-7z"/>';
+            const ICON_PAUSE = '<path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>';
+            const ICON_VOLUME_MUTE = '<path d="M3 9v6h4l5 5V4L7 9H3z"/><path d="M16.5 12l4.5-4.5-1.41-1.41L15 10.67l-4.59-4.59L9 7.5l4.59 4.59L9 16.5l1.41 1.41L15 13.33l4.59 4.59L21 16.5 16.5 12z"/>';
+            const ICON_VOLUME_LOW = '<path d="M7 9v6h4l5 5V4l-5 5H7z"/>';
+            const ICON_VOLUME_HIGH = '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>';
+
+            function formatTime(sec) {
+                if (!sec || isNaN(sec)) return '0:00';
+                const m = Math.floor(sec / 60), s = Math.floor(sec % 60);
+                return `${m}:${s.toString().padStart(2, '0')}`;
+            }
+
+            function updateTrackInfo() {
+                const track = playlist[currentTrack];
+                playerCover.src = track.img;
+                playerTrackName.textContent = track.name;
+                playerTrackArtist.textContent = track.artist;
+                audioSource.src = track.src;
+                audio.load();
+                playerTimeTotal.textContent = '0:00';
+                playerTimeCurrent.textContent = '0:00';
+                playerProgressFill.style.width = '0%';
+                playerProgressThumb.style.left = '0%';
+            }
+
+            function updatePlayIcon() {
+                playerPlayIcon.innerHTML = isPlaying ? ICON_PAUSE : ICON_PLAY;
+                musicPlayer.classList.toggle('playing', isPlaying);
+            }
+            
+            function updateVolumeIcon(vol) {
+                if (vol === 0) playerVolumeIcon.innerHTML = ICON_VOLUME_MUTE;
+                else if (vol < 0.5) playerVolumeIcon.innerHTML = ICON_VOLUME_LOW;
+                else playerVolumeIcon.innerHTML = ICON_VOLUME_HIGH;
+            }
+
+            function playAudio() {
+                const p = audio.play();
+                if (p !== undefined) {
+                    p.then(() => { isPlaying = true; updatePlayIcon(); }).catch(() => {});
+                }
+            }
+
+            function pauseAudio() { audio.pause(); isPlaying = false; updatePlayIcon(); }
+            function togglePlay() { if (isPlaying) pauseAudio(); else playAudio(); }
+
+            function nextTrack() { currentTrack = (currentTrack + 1) % playlist.length; updateTrackInfo(); if (isPlaying) playAudio(); }
+            function prevTrack() { currentTrack = (currentTrack - 1 + playlist.length) % playlist.length; updateTrackInfo(); if (isPlaying) playAudio(); }
+
+            function setVolume(vol) {
+                vol = Math.max(0, Math.min(1, vol));
+                audio.volume = vol;
+                const pct = vol * 100;
+                playerVolumeFill.style.width = pct + '%';
+                playerVolumeThumb.style.left = pct + '%';
+                updateVolumeIcon(vol);
+            }
+
+            function startAudioWithFade() {
+                if (hasInteracted) return;
+                hasInteracted = true;
+                updateTrackInfo();
+                
+                audio.muted = true;
+                audio.volume = 0;
+                
+                const playPromise = audio.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        isPlaying = true;
+                        updatePlayIcon();
+                        entryOverlay.classList.add('hidden');
+                        
+                        let vol = 0;
+                        audio.muted = false;
+                        const fadeIn = setInterval(() => {
+                            vol = Math.min(vol + 0.015, 0.3);
+                            audio.volume = vol;
+                            if (vol >= 0.3) {
+                                setVolume(0.3);
+                                clearInterval(fadeIn);
+                            }
+                        }, 100);
+                    }).catch(() => {
+                        entryOverlay.classList.remove('hidden');
+                        hasInteracted = false;
+                    });
+                }
+            }
 
             function startAudio() {
                 if (hasInteracted) return;
                 hasInteracted = true;
-                audio.play().then(() => {
-                    isPlaying = true;
-                    player.classList.remove('muted');
-                    player.classList.add('playing');
-                    entryOverlay.classList.add('hidden');
-                }).catch(() => {
-                    entryOverlay.classList.remove('hidden');
-                });
+                updateTrackInfo();
+                audio.muted = false;
+                setVolume(0.3);
+                
+                const playPromise = audio.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        isPlaying = true;
+                        updatePlayIcon();
+                        entryOverlay.classList.add('hidden');
+                    }).catch(() => {
+                        entryOverlay.classList.remove('hidden');
+                        hasInteracted = false;
+                    });
+                }
             }
 
-            window.addEventListener('load', startAudio, { once: true });
+            window.addEventListener('load', () => {
+                updateTrackInfo();
+                audio.muted = true;
+                audio.volume = 0;
+                
+                const playPromise = audio.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        isPlaying = true;
+                        updatePlayIcon();
+                        entryOverlay.classList.add('hidden');
+                        
+                        let vol = 0;
+                        audio.muted = false;
+                        const fadeIn = setInterval(() => {
+                            vol = Math.min(vol + 0.015, 0.3);
+                            audio.volume = vol;
+                            playerVolumeFill.style.width = (vol * 100) + '%';
+                            if (vol >= 0.3) {
+                                setVolume(0.3);
+                                clearInterval(fadeIn);
+                            }
+                        }, 100);
+                    }).catch(() => {
+                        entryOverlay.classList.remove('hidden');
+                    });
+                }
+            }, { once: true });
+            
             entryOverlay.addEventListener('click', () => {
                 hasInteracted = false;
                 startAudio();
@@ -1249,61 +1059,79 @@
                 startAudio();
             }, { once: true });
 
-            player.addEventListener('click', () => {
-                if (isPlaying) {
-                    audio.pause();
-                    player.classList.add('muted');
-                    player.classList.remove('playing');
-                } else {
-                    audio.play();
-                    player.classList.remove('muted');
-                    player.classList.add('playing');
+            playerPlayBtn.addEventListener('click', togglePlay);
+            playerNextBtn.addEventListener('click', nextTrack);
+            playerPrevBtn.addEventListener('click', prevTrack);
+            playerToggle.addEventListener('click', () => musicPlayer.classList.toggle('collapsed'));
+
+            audio.addEventListener('ended', nextTrack);
+            audio.addEventListener('loadedmetadata', () => { playerTimeTotal.textContent = formatTime(audio.duration); });
+            audio.addEventListener('timeupdate', () => {
+                if (audio.duration) {
+                    const pct = (audio.currentTime / audio.duration) * 100;
+                    playerProgressFill.style.width = pct + '%';
+                    playerProgressThumb.style.left = pct + '%';
+                    playerTimeCurrent.textContent = formatTime(audio.currentTime);
                 }
-                isPlaying = !isPlaying;
             });
 
-            audio.addEventListener('ended', () => {
-                currentTrack = (currentTrack + 1) % playlist.length;
-                audioSource.src = playlist[currentTrack];
-                audio.load();
-                if (isPlaying) audio.play();
-            });
-
-            volumeSlider.addEventListener('input', (e) => {
-                const vol = e.target.value / 100;
-                audio.volume = vol;
-                updateSliderBg(e.target.value);                if (vol === 0) player.classList.add('muted');
-                else if (isPlaying) player.classList.remove('muted');
-            });
-
-            let volumeExpandTimer;
-            audioContainer.addEventListener('touchstart', () => {
-                audioContainer.classList.add('expanded');
-                clearTimeout(volumeExpandTimer);
-            }, { passive: true });
-            audioContainer.addEventListener('touchend', () => {
-                volumeExpandTimer = setTimeout(() => {
-                    audioContainer.classList.remove('expanded');
-                }, 3000);
-            }, { passive: true });
-
-            function updateSliderBg(val) {
-                volumeSlider.style.background = `linear-gradient(to right, #c41e1e 0%, #c41e1e ${val}%, #222 ${val}%, #222 100%)`;
+            let isSeeking = false;
+            function seekTo(e) {
+                const rect = playerProgressBar.getBoundingClientRect();
+                const clientX = e.clientX ?? (e.touches && e.touches[0]?.clientX);
+                if (clientX == null) return;
+                let pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+                if (audio.duration) {
+                    audio.currentTime = pct * audio.duration;
+                    playerProgressFill.style.width = (pct * 100) + '%';
+                    playerProgressThumb.style.left = (pct * 100) + '%';
+                }
             }
+
+            playerProgressBar.addEventListener('mousedown', (e) => { isSeeking = true; playerProgressBar.classList.add('dragging'); seekTo(e); });
+            document.addEventListener('mousemove', (e) => { if (isSeeking) seekTo(e); });
+            document.addEventListener('mouseup', () => { if (isSeeking) { isSeeking = false; playerProgressBar.classList.remove('dragging'); } });
+            playerProgressBar.addEventListener('touchstart', (e) => { isSeeking = true; playerProgressBar.classList.add('dragging'); seekTo(e); }, { passive: true });
+            playerProgressBar.addEventListener('touchmove', (e) => { if (isSeeking) seekTo(e); }, { passive: true });
+            playerProgressBar.addEventListener('touchend', () => { isSeeking = false; playerProgressBar.classList.remove('dragging'); }, { passive: true });
+
+            let isAdjustingVolume = false, lastVolume = 0.3;
+            function adjustVolume(e) {
+                const rect = playerVolumeSlider.getBoundingClientRect();
+                const clientX = e.clientX ?? (e.touches && e.touches[0]?.clientX);
+                if (clientX == null) return;
+                let pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+                setVolume(pct);
+                if (pct > 0) lastVolume = pct;
+            }
+
+            playerVolumeSlider.addEventListener('mousedown', (e) => { isAdjustingVolume = true; playerVolumeSlider.classList.add('dragging'); adjustVolume(e); });
+            document.addEventListener('mousemove', (e) => { if (isAdjustingVolume) adjustVolume(e); });
+            document.addEventListener('mouseup', () => { if (isAdjustingVolume) { isAdjustingVolume = false; playerVolumeSlider.classList.remove('dragging'); } });
+            playerVolumeSlider.addEventListener('touchstart', (e) => { isAdjustingVolume = true; playerVolumeSlider.classList.add('dragging'); adjustVolume(e); }, { passive: true });
+            playerVolumeSlider.addEventListener('touchmove', (e) => { if (isAdjustingVolume) adjustVolume(e); }, { passive: true });
+            playerVolumeSlider.addEventListener('touchend', () => { isAdjustingVolume = false; playerVolumeSlider.classList.remove('dragging'); }, { passive: true });
+
+            playerVolumeBtn.addEventListener('click', () => {
+                if (audio.volume > 0) { lastVolume = audio.volume; setVolume(0); } 
+                else { setVolume(lastVolume || 0.3); }
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+                if (e.code === 'Space') { e.preventDefault(); togglePlay(); } 
+                else if (e.key === 'ArrowRight' && e.ctrlKey) nextTrack(); 
+                else if (e.key === 'ArrowLeft' && e.ctrlKey) prevTrack();
+            });
 
             const discordCard = document.getElementById('discord-card');
             discordCard.addEventListener('click', async (e) => {
                 e.preventDefault();
                 const username = discordCard.dataset.username;
-                try {
-                    await navigator.clipboard.writeText(username);
-                } catch {
-                    const ta = document.createElement('textarea');
-                    ta.value = username;
-                    document.body.appendChild(ta);
-                    ta.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(ta);
+                try { await navigator.clipboard.writeText(username); } 
+                catch {
+                    const ta = document.createElement('textarea'); ta.value = username;
+                    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
                 }
                 discordCard.classList.add('copied');
                 if (navigator.vibrate) navigator.vibrate(30);
@@ -1311,90 +1139,26 @@
             });
 
             document.addEventListener('visibilitychange', () => {
-                if (document.hidden) {
-                    document.body.classList.add('tab-hidden');
-                } else {
+                if (document.hidden) document.body.classList.add('tab-hidden');
+                else {
                     document.body.classList.remove('tab-hidden');
-                    if (isPlaying && hasInteracted && audio.paused) {
-                        audio.play().catch(() => {});
-                    }
+                    if (isPlaying && hasInteracted && audio.paused) audio.play().catch(() => {});
                 }
             });
 
-            const lenis = new Lenis({                duration: 1.2,
-                smoothWheel: true,
-                wheelMultiplier: 1,
-                touchMultiplier: 2
-            });
-
-            function raf(time) {
-                lenis.raf(time);
-                requestAnimationFrame(raf);
-            }
+            const lenis = new Lenis({ duration: 1.2, smoothWheel: true, wheelMultiplier: 1, touchMultiplier: 2 });
+            function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
             requestAnimationFrame(raf);
 
             gsap.registerPlugin(ScrollTrigger);
-            gsap.to("#video-overlay", {
-                opacity: 0.75,
-                ease: "none",
-                scrollTrigger: {
-                    trigger: "body",
-                    start: "top top",
-                    end: "100vh top",
-                    scrub: 0.5
-                }
-            });
+            gsap.to("#video-overlay", { opacity: 0.75, ease: "none", scrollTrigger: { trigger: "body", start: "top top", end: "100vh top", scrub: 0.5 } });
 
             const projects = [
-                { 
-                    kanji: '眼', 
-                    num: 'DOSSIÊ 01', 
-                    title: 'Ken Kaneki', 
-                    subtitle: 'O Trágico · Eyepatch',
-                    desc: 'Estudante universitário transformado em meio-ghoul após o transplante de órgãos de Rize. Carrega o peso de dois mundos e a dor de uma máscara que revela mais do que esconde. Seu Kagune Rinkaku se manifesta como quatro tentáculos escarlates.', 
-                    tags: ['Rinkaku', 'Meio-Ghoul', 'Anteiku', 'Aogiri', 'Dragão'], 
-                    year: 'RC: 911',
-                    img: 'kanekiprofile.jpg'
-                },
-                { 
-                    kanji: '食', 
-                    num: 'DOSSIÊ 02', 
-                    title: 'Rize Kamishiro', 
-                    subtitle: 'Binge Eater · A Gourmet',
-                    desc: 'Conhecida como "Comilona", é a ghoul cujos órgãos foram transplantados para Kaneki. Filha ilegítima de Washuu, possui um Rinkaku de poder devastador com seis tentáculos. Elegante, letal e insaciável — sua fome não conhece limites.', 
-                    tags: ['Rinkaku', 'Washuu', 'Gourmet', 'Binge Eater'], 
-                    year: 'RC: 872',
-                    img: 'rizeprofile.jpg'
-                },
-                { 
-                    kanji: '兎', 
-                    num: 'DOSSIÊ 03', 
-                    title: 'Touka Kirishima', 
-                    subtitle: 'Rabbit · A Garçonete',                    desc: 'Garçonete da Anteiku e ghoul com codinome "Coelho". Seu Ukaku libera rajadas de cristais endurecidos, mas sacrifica resistência por velocidade explosiva. Temperamento feroz escondendo um coração que aprendeu a amar humanos.', 
-                    tags: ['Ukaku', 'Anteiku', 'Rabbit', 'Koukaku Jr.'], 
-                    year: 'RC: 748',
-                    img: 'toukaprofile.jpg'
-                },
-                { 
-                    kanji: '死', 
-                    num: 'DOSSIÊ 04', 
-                    title: 'Kishou Arima', 
-                    subtitle: 'Shinigami da CCG · Ceifador',
-                    desc: 'O mais temido Investigador de Classe Especial da CCG. Conhecido como o "Deus da Morte" entre os ghouls, sua habilidade com Quinques é inigualável. Por trás dos óculos, carrega um segredo que conecta humanos e ghouls.', 
-                    tags: ['CCG', 'Classe Especial', 'IXA', 'Narukami', 'V'], 
-                    year: 'Q-TYPE',
-                    img: 'arimaprofile.jpg'
-                },
-                { 
-                    kanji: '梟', 
-                    num: 'DOSSIÊ 05', 
-                    title: 'Eto Yoshimura', 
-                    subtitle: 'One-Eyed Owl · A Escritora',
-                    desc: 'Líder da Aogiri Tree e autora sob o pseudônimo Sen Takatsuki. A primeira One-Eyed natural, possui um Kakuja completo que distorce sua forma em horror. Filha do Coruja, sua revolta moldou uma era de caos em Tokyo.', 
-                    tags: ['Kakuja', 'Aogiri', 'One-Eyed', 'Owl', 'Sen Takatsuki'], 
-                    year: 'RC: ∞',
-                    img: 'Etoprofile.jpg'
-                }
+                { kanji: '眼', num: 'DOSSIÊ 01', title: 'Ken Kaneki', subtitle: 'O Trágico · Eyepatch', desc: 'Estudante universitário transformado em meio-ghoul após o transplante de órgãos de Rize. Carrega o peso de dois mundos e a dor de uma máscara que revela mais do que esconde. Seu Kagune Rinkaku se manifesta como quatro tentáculos escarlates.', tags: ['Rinkaku', 'Meio-Ghoul', 'Anteiku', 'Aogiri', 'Dragão'], year: 'RC: 911', img: 'kanekiprofile.jpg' },
+                { kanji: '食', num: 'DOSSIÊ 02', title: 'Rize Kamishiro', subtitle: 'Binge Eater · A Gourmet', desc: 'Conhecida como "Comilona", é a ghoul cujos órgãos foram transplantados para Kaneki. Filha ilegítima de Washuu, possui um Rinkaku de poder devastador com seis tentáculos. Elegante, letal e insaciável — sua fome não conhece limites.', tags: ['Rinkaku', 'Washuu', 'Gourmet', 'Binge Eater'], year: 'RC: 872', img: 'rizeprofile.jpg' },
+                { kanji: '兎', num: 'DOSSIÊ 03', title: 'Touka Kirishima', subtitle: 'Rabbit · A Garçonete', desc: 'Garçonete da Anteiku e ghoul com codinome "Coelho". Seu Ukaku libera rajadas de cristais endurecidos, mas sacrifica resistência por velocidade explosiva. Temperamento feroz escondendo um coração que aprendeu a amar humanos.', tags: ['Ukaku', 'Anteiku', 'Rabbit', 'Koukaku Jr.'], year: 'RC: 748', img: 'toukaprofile.jpg' },
+                { kanji: '死', num: 'DOSSIÊ 04', title: 'Kishou Arima', subtitle: 'Shinigami da CCG · Ceifador', desc: 'O mais temido Investigador de Classe Especial da CCG. Conhecido como o "Deus da Morte" entre os ghouls, sua habilidade com Quinques é inigualável. Por trás dos óculos, carrega um segredo que conecta humanos e ghouls.', tags: ['CCG', 'Classe Especial', 'IXA', 'Narukami', 'V'], year: 'Q-TYPE', img: 'arimaprofile.jpg' },
+                { kanji: '梟', num: 'DOSSIÊ 05', title: 'Eto Yoshimura', subtitle: 'One-Eyed Owl · A Escritora', desc: 'Líder da Aogiri Tree e autora sob o pseudônimo Sen Takatsuki. A primeira One-Eyed natural, possui um Kakuja completo que distorce sua forma em horror. Filha do Coruja, sua revolta moldou uma era de caos em Tokyo.', tags: ['Kakuja', 'Aogiri', 'One-Eyed', 'Owl', 'Sen Takatsuki'], year: 'RC: ∞', img: 'Etoprofile.jpg' }
             ];
 
             const stage = document.getElementById('carousel-stage');
@@ -1404,31 +1168,10 @@
             const fragment = document.createDocumentFragment();
             projects.forEach((p, i) => {
                 const card = document.createElement('div');
-                card.className = 'project-card';
-                card.dataset.index = i;
-                card.innerHTML = `
-                    <div class="card-bg-image" style="background-image: url('${p.img}');"></div>
-                    <div class="card-bg-overlay"></div>
-                    <div class="card-kanji font-jp">${p.kanji}</div>
-                    <div class="card-content">
-                        <div>
-                            <div class="card-number">${p.num}</div>
-                            <h4 class="card-title">${p.title}</h4>
-                            <div class="card-subtitle">${p.subtitle}</div>
-                            <p class="card-desc">${p.desc}</p>
-                            <div class="card-tags">${p.tags.map(t => `<span class="card-tag">${t}</span>`).join('')}</div>
-                        </div>
-                        <div class="card-footer">
-                            <span class="card-year">${p.year}</span>                            <span class="card-cta">Analisar <span class="card-cta-arrow"></span></span>
-                        </div>
-                    </div>
-                `;
-                card.addEventListener('click', () => {
-                    const idx = parseInt(card.dataset.index);
-                    if (idx !== activeIndex) goTo(idx);
-                });
+                card.className = 'project-card'; card.dataset.index = i;
+                card.innerHTML = `<div class="card-bg-image" style="background-image: url('${p.img}');"></div><div class="card-bg-overlay"></div><div class="card-kanji font-jp">${p.kanji}</div><div class="card-content"><div><div class="card-number">${p.num}</div><h4 class="card-title">${p.title}</h4><div class="card-subtitle">${p.subtitle}</div><p class="card-desc">${p.desc}</p><div class="card-tags">${p.tags.map(t => `<span class="card-tag">${t}</span>`).join('')}</div></div><div class="card-footer"><span class="card-year">${p.year}</span><span class="card-cta">Analisar <span class="card-cta-arrow"></span></span></div></div>`;
+                card.addEventListener('click', () => { const idx = parseInt(card.dataset.index); if (idx !== activeIndex) goTo(idx); });
                 fragment.appendChild(card);
-
                 const dot = document.createElement('div');
                 dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
                 dot.addEventListener('click', () => goTo(i));
@@ -1442,50 +1185,25 @@
             function updateCarousel() {
                 const isMobile = window.innerWidth < 768;
                 cards.forEach((card, i) => {
-                    const offset = i - activeIndex;
-                    const absOff = Math.abs(offset);
-
+                    const offset = i - activeIndex, absOff = Math.abs(offset);
                     if (absOff > 2) {
-                        card.style.visibility = 'hidden';
-                        card.style.transform = 'translate3d(0,0,0) scale(0.5)';
-                        card.style.opacity = 0;
-                        card.style.zIndex = 1;
-                        card.style.pointerEvents = 'none';
-                        card.classList.remove('active');
-                        return;
-                    } else {
-                        card.style.visibility = 'visible';
-                    }
-
+                        card.style.visibility = 'hidden'; card.style.transform = 'translate3d(0,0,0) scale(0.5)';
+                        card.style.opacity = 0; card.style.zIndex = 1; card.style.pointerEvents = 'none'; card.classList.remove('active'); return;
+                    } else { card.style.visibility = 'visible'; }
                     let tx, sc, op, z;
-                    if (isMobile) {
-                        tx = offset * Math.min(230, window.innerWidth * 0.68);
-                        sc = offset === 0 ? 1 : 0.78;
-                        op = offset === 0 ? 1 : 0.35;
-                        z = 10 - absOff;
-                    } else {
-                        tx = offset * 340;
-                        sc = offset === 0 ? 1 : (absOff === 1 ? 0.82 : 0.68);
-                        op = offset === 0 ? 1 : (absOff === 1 ? 0.55 : 0.25);
-                        z = 10 - absOff;
-                    }
+                    if (isMobile) { tx = offset * Math.min(230, window.innerWidth * 0.68); sc = offset === 0 ? 1 : 0.78; op = offset === 0 ? 1 : 0.35; z = 10 - absOff; } 
+                    else { tx = offset * 340; sc = offset === 0 ? 1 : (absOff === 1 ? 0.82 : 0.68); op = offset === 0 ? 1 : (absOff === 1 ? 0.55 : 0.25); z = 10 - absOff; }
                     card.style.transform = `translate3d(${tx}px, 0, 0) scale(${sc})`;
-                    card.style.opacity = op;
-                    card.style.zIndex = z;
+                    card.style.opacity = op; card.style.zIndex = z;
                     card.style.pointerEvents = absOff === 0 ? 'auto' : 'none';
-
-                    if (offset === 0) card.classList.add('active');
-                    else card.classList.remove('active');
+                    if (offset === 0) card.classList.add('active'); else card.classList.remove('active');
                 });
-
                 dots.forEach((d, i) => d.classList.toggle('active', i === activeIndex));
             }
 
             function goTo(index) {
                 if (isAnimating || index === activeIndex) return;
-                isAnimating = true;
-                activeIndex = index;
-                updateCarousel();
+                isAnimating = true; activeIndex = index; updateCarousel();
                 setTimeout(() => { isAnimating = false; }, 700);
             }
 
@@ -1496,6 +1214,7 @@
             document.getElementById('carousel-prev').addEventListener('click', prev);
 
             document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey) return;
                 if (e.key === 'ArrowRight') next();
                 if (e.key === 'ArrowLeft') prev();
             });
@@ -1506,9 +1225,7 @@
             wrapper.addEventListener('pointerup', (e) => {
                 if (dragStart === null) return;
                 const diff = e.clientX - dragStart;
-                if (Math.abs(diff) > 50) {
-                    if (diff < 0) next(); else prev();
-                }
+                if (Math.abs(diff) > 50) { if (diff < 0) next(); else prev(); }
                 dragStart = null;
             }, { passive: true });
 
@@ -1517,435 +1234,176 @@
                 if (wheelCooldown) return;
                 if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 30) {
                     if (e.deltaX > 0) next(); else prev();
-                    wheelCooldown = true;                    setTimeout(() => { wheelCooldown = false; }, 900);
+                    wheelCooldown = true; setTimeout(() => { wheelCooldown = false; }, 900);
                 }
             }, { passive: true });
 
             updateCarousel();
-
             let resizeTimer;
-            window.addEventListener('resize', () => {
-                clearTimeout(resizeTimer);
-                resizeTimer = setTimeout(updateCarousel, 150);
-            });
+            window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(updateCarousel, 150); });
 
             class Centipede {
                 constructor(canvas) {
-                    this.canvas = canvas;
-                    this.ctx = canvas.getContext('2d', { alpha: true });
-                    this.segments = [];
-                    this.numSegments = isTouchDevice ? 28 : 35;
-                    this.segmentSpacing = 10;
-                    this.running = false;
-                    this.path = [];
-                    this.distanceTraveled = 0;
-                    this.time = 0;
-                    this.rafId = null;
-                    this.lastTimestamp = 0;
-                    this.speed = 0;
-                    this.totalPathLength = 0;
-                    this.pathLengths = [];
-                    this.exitThreshold = 0;
-                    this.resize();
+                    this.canvas = canvas; this.ctx = canvas.getContext('2d', { alpha: true });
+                    this.segments = []; this.numSegments = isTouchDevice ? 28 : 35; this.segmentSpacing = 10;
+                    this.running = false; this.path = []; this.distanceTraveled = 0; this.time = 0;
+                    this.rafId = null; this.lastTimestamp = 0; this.speed = 0; this.totalPathLength = 0;
+                    this.pathLengths = []; this.exitThreshold = 0; this.resize();
                     window.addEventListener('resize', () => this.resize(), { passive: true });
                 }
-
                 resize() {
                     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-                    this.canvas.width = window.innerWidth * dpr;
-                    this.canvas.height = window.innerHeight * dpr;
-                    this.canvas.style.width = window.innerWidth + 'px';
-                    this.canvas.style.height = window.innerHeight + 'px';
+                    this.canvas.width = window.innerWidth * dpr; this.canvas.height = window.innerHeight * dpr;
+                    this.canvas.style.width = window.innerWidth + 'px'; this.canvas.style.height = window.innerHeight + 'px';
                     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
                 }
-
                 generatePath() {
-                    this.path = [];
-                    this.pathLengths = [];
-                    const w = window.innerWidth;
-                    const h = window.innerHeight;
-                    
-                    const exitX = w + 500;
-                                        const points = [ 
-                        { x: -150, y: h * 0.4 }, 
-                        { x: w * 0.15, y: h * 0.35 }, 
-                        { x: w * 0.3, y: h * 0.6 }, 
-                        { x: w * 0.45, y: h * 0.25 }, 
-                        { x: w * 0.6, y: h * 0.55 }, 
-                        { x: w * 0.75, y: h * 0.3 }, 
-                        { x: w * 0.9, y: h * 0.6 }, 
-                        { x: exitX, y: h * 0.4 } 
-                    ];
-                    
+                    this.path = []; this.pathLengths = [];
+                    const w = window.innerWidth, h = window.innerHeight, exitX = w + 500;
+                    const points = [ { x: -150, y: h * 0.4 }, { x: w * 0.15, y: h * 0.35 }, { x: w * 0.3, y: h * 0.6 }, { x: w * 0.45, y: h * 0.25 }, { x: w * 0.6, y: h * 0.55 }, { x: w * 0.75, y: h * 0.3 }, { x: w * 0.9, y: h * 0.6 }, { x: exitX, y: h * 0.4 } ];
                     for (let i = 0; i < points.length - 1; i++) {
                         const steps = 100;
                         for (let j = 0; j < steps; j++) {
                             const t = j / steps;
-                            const p0 = points[Math.max(0, i - 1)];
-                            const p1 = points[i];
-                            const p2 = points[Math.min(points.length - 1, i + 1)];
-                            const p3 = points[Math.min(points.length - 1, i + 2)];
-                            
+                            const p0 = points[Math.max(0, i - 1)], p1 = points[i], p2 = points[Math.min(points.length - 1, i + 1)], p3 = points[Math.min(points.length - 1, i + 2)];
                             const x = 0.5 * ((2 * p1.x) + (-p0.x + p2.x) * t + (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * t * t + (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * t * t * t);
                             const y = 0.5 * ((2 * p1.y) + (-p0.y + p2.y) * t + (2 * p0.y - 5 * p1.y + 4 * p2.y - p3.y) * t * t + (-p0.y + 3 * p1.y - 3 * p2.y + p3.y) * t * t * t);
-                            
                             this.path.push({ x, y });
                         }
                     }
                     this.path.push(points[points.length - 1]);
-
-                    let acc = 0;
-                    this.pathLengths.push(0);
+                    let acc = 0; this.pathLengths.push(0);
                     for (let i = 1; i < this.path.length; i++) {
-                        const dx = this.path[i].x - this.path[i-1].x;
-                        const dy = this.path[i].y - this.path[i-1].y;
-                        acc += Math.sqrt(dx * dx + dy * dy);
-                        this.pathLengths.push(acc);
+                        const dx = this.path[i].x - this.path[i-1].x, dy = this.path[i].y - this.path[i-1].y;
+                        acc += Math.sqrt(dx * dx + dy * dy); this.pathLengths.push(acc);
                     }
-                    this.totalPathLength = acc;
-                    
-                    const durationMs = 5500;
-                    this.speed = this.totalPathLength / durationMs;
-                    
-                    const tailLength = this.numSegments * this.segmentSpacing;
-                    this.exitThreshold = this.totalPathLength - tailLength - 50;
+                    this.totalPathLength = acc; this.speed = this.totalPathLength / 5500;
+                    this.exitThreshold = this.totalPathLength - (this.numSegments * this.segmentSpacing) - 50;
                 }
-
                 getPositionAtDistance(dist) {
                     if (dist <= 0) return { x: this.path[0].x, y: this.path[0].y };
                     if (dist >= this.totalPathLength) return this.path[this.path.length - 1];
-                    
-                    let lo = 0, hi = this.pathLengths.length - 1;                    while (lo < hi - 1) {
-                        const mid = (lo + hi) >> 1;
-                        if (this.pathLengths[mid] <= dist) lo = mid;
-                        else hi = mid;
-                    }
-                    
-                    const segStart = this.pathLengths[lo];
-                    const segEnd = this.pathLengths[hi];
-                    const t = (dist - segStart) / (segEnd - segStart);
-                    
-                    const p1 = this.path[lo];
-                    const p2 = this.path[hi];
-                    
-                    return {
-                        x: p1.x + (p2.x - p1.x) * t,
-                        y: p1.y + (p2.y - p1.y) * t
-                    };
+                    let lo = 0, hi = this.pathLengths.length - 1;
+                    while (lo < hi - 1) { const mid = (lo + hi) >> 1; if (this.pathLengths[mid] <= dist) lo = mid; else hi = mid; }
+                    const segStart = this.pathLengths[lo], segEnd = this.pathLengths[hi], t = (dist - segStart) / (segEnd - segStart);
+                    const p1 = this.path[lo], p2 = this.path[hi];
+                    return { x: p1.x + (p2.x - p1.x) * t, y: p1.y + (p2.y - p1.y) * t };
                 }
-
                 start() {
-                    this.generatePath();
-                    this.distanceTraveled = 0;
-                    this.time = 0;
-                    this.lastTimestamp = 0;
-                    this.segments = [];
-                    
+                    this.generatePath(); this.distanceTraveled = 0; this.time = 0; this.lastTimestamp = 0; this.segments = [];
                     for (let i = 0; i < this.numSegments; i++) {
                         const pos = this.getPositionAtDistance(-i * this.segmentSpacing);
-                        this.segments.push({
-                            x: pos.x,
-                            y: pos.y,
-                            angle: 0
-                        });
+                        this.segments.push({ x: pos.x, y: pos.y, angle: 0 });
                     }
-                    
-                    this.running = true;
-                    this.canvas.classList.add('active');
+                    this.running = true; this.canvas.classList.add('active');
                     this.rafId = requestAnimationFrame((t) => this.animate(t));
                 }
-
                 stop() {
                     this.running = false;
-                    if (this.rafId) {
-                        cancelAnimationFrame(this.rafId);
-                        this.rafId = null;
-                    }
+                    if (this.rafId) { cancelAnimationFrame(this.rafId); this.rafId = null; }
                     this.canvas.classList.remove('active');
                 }
-
-                animate(timestamp) {                    if (!this.running) return;
-                    
+                animate(timestamp) {
+                    if (!this.running) return;
                     if (!this.lastTimestamp) this.lastTimestamp = timestamp;
-                    const deltaTime = Math.min(timestamp - this.lastTimestamp, 50);
-                    this.lastTimestamp = timestamp;
-                    
-                    this.time += deltaTime * 0.005;
-                    this.distanceTraveled += this.speed * deltaTime;
-                    
-                    const tailDist = this.distanceTraveled - (this.numSegments - 1) * this.segmentSpacing;
-                    const tailPos = this.getPositionAtDistance(tailDist);
-                    const screenWidth = window.innerWidth;
-                    
-                    if (tailPos.x > screenWidth + 50) {
-                        this.stop();
-                        return;
-                    }
-
+                    const deltaTime = Math.min(timestamp - this.lastTimestamp, 50); this.lastTimestamp = timestamp;
+                    this.time += deltaTime * 0.005; this.distanceTraveled += this.speed * deltaTime;
+                    const tailPos = this.getPositionAtDistance(this.distanceTraveled - (this.numSegments - 1) * this.segmentSpacing);
+                    if (tailPos.x > window.innerWidth + 50) { this.stop(); return; }
                     const headPos = this.getPositionAtDistance(this.distanceTraveled);
-                    this.segments[0].x = headPos.x;
-                    this.segments[0].y = headPos.y;
-
-                    // FIXED: Adaptive smoothing based on deltaTime to eliminate head-body gap
-                    // Higher smoothing factor = segments follow more tightly
-                    // Formula: 1 - (1-baseSmooth)^(deltaTime/16) normalizes to 60fps equivalent
-                    const baseSmooth = 0.72;
-                    const smoothing = 1 - Math.pow(1 - baseSmooth, deltaTime / 16);
-
+                    this.segments[0].x = headPos.x; this.segments[0].y = headPos.y;
+                    const smoothing = 1 - Math.pow(1 - 0.72, deltaTime / 16);
                     for (let i = 1; i < this.segments.length; i++) {
-                        const segDist = this.distanceTraveled - i * this.segmentSpacing;
-                        const pos = this.getPositionAtDistance(segDist);
-                        
+                        const pos = this.getPositionAtDistance(this.distanceTraveled - i * this.segmentSpacing);
                         const curr = this.segments[i];
-                        
-                        curr.x += (pos.x - curr.x) * smoothing;
-                        curr.y += (pos.y - curr.y) * smoothing;
-                        
-                        const prev = this.segments[i - 1];
-                        const dx = prev.x - curr.x;
-                        const dy = prev.y - curr.y;
-                        curr.angle = Math.atan2(dy, dx);
+                        curr.x += (pos.x - curr.x) * smoothing; curr.y += (pos.y - curr.y) * smoothing;
+                        const prev = this.segments[i - 1]; curr.angle = Math.atan2(prev.y - curr.y, prev.x - curr.x);
                     }
-
-                    if (this.segments.length > 1) {
-                        this.segments[0].angle = Math.atan2(
-                            this.segments[1].y - this.segments[0].y,
-                            this.segments[1].x - this.segments[0].x
-                        ) + Math.PI;
-                    }
-                    this.draw();
-                    this.rafId = requestAnimationFrame((t) => this.animate(t));
+                    if (this.segments.length > 1) this.segments[0].angle = Math.atan2(this.segments[1].y - this.segments[0].y, this.segments[1].x - this.segments[0].x) + Math.PI;
+                    this.draw(); this.rafId = requestAnimationFrame((t) => this.animate(t));
                 }
-
                 draw() {
-                    const ctx = this.ctx;
-                    const w = window.innerWidth;
-                    const h = window.innerHeight;
-                    ctx.clearRect(0, 0, w, h);
-                    
-                    this.drawLegs();
-                    
-                    for (let i = this.segments.length - 1; i >= 1; i--) {
-                        this.drawSegment(i);
-                    }
-                    
+                    const ctx = this.ctx, w = window.innerWidth, h = window.innerHeight;
+                    ctx.clearRect(0, 0, w, h); this.drawLegs();
+                    for (let i = this.segments.length - 1; i >= 1; i--) this.drawSegment(i);
                     this.drawHead();
                 }
-
                 drawSegment(i) {
-                    const seg = this.segments[i];
-                    const ctx = this.ctx;
-                    const progress = i / this.segments.length;
-                    const width = 13 - progress * 7;
-                    const length = 9 - progress * 4;
-
-                    ctx.save();
-                    ctx.translate(seg.x, seg.y);
-                    ctx.rotate(seg.angle);
-
-                    if (!isTouchDevice) {
-                        ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
-                        ctx.shadowBlur = 6;
-                        ctx.shadowOffsetY = 3;
-                    }
-
-                    ctx.beginPath();
-                    ctx.moveTo(length, 0);
+                    const seg = this.segments[i], ctx = this.ctx, progress = i / this.segments.length;
+                    const width = 13 - progress * 7, length = 9 - progress * 4;
+                    ctx.save(); ctx.translate(seg.x, seg.y); ctx.rotate(seg.angle);
+                    if (!isTouchDevice) { ctx.shadowColor = 'rgba(0, 0, 0, 0.9)'; ctx.shadowBlur = 6; ctx.shadowOffsetY = 3; }
+                    ctx.beginPath(); ctx.moveTo(length, 0);
                     ctx.bezierCurveTo(length, width * 0.8, length * 0.5, width, -length * 0.5, width * 0.9);
                     ctx.bezierCurveTo(-length, width * 0.5, -length, -width * 0.5, -length * 0.5, -width * 0.9);
-                    ctx.bezierCurveTo(length * 0.5, -width, length, -width * 0.8, length, 0);
-                    ctx.closePath();
-
+                    ctx.bezierCurveTo(length * 0.5, -width, length, -width * 0.8, length, 0); ctx.closePath();
                     const grad = ctx.createLinearGradient(0, -width, 0, width);
-                    grad.addColorStop(0, '#0a0000');
-                    grad.addColorStop(0.3, '#4a0000');
-                    grad.addColorStop(0.5, '#7a0303');
-                    grad.addColorStop(0.7, '#4a0000');
-                    grad.addColorStop(1, '#0a0000');
-                    ctx.fillStyle = grad;                    ctx.fill();
-
+                    grad.addColorStop(0, '#0a0000'); grad.addColorStop(0.3, '#4a0000'); grad.addColorStop(0.5, '#7a0303'); grad.addColorStop(0.7, '#4a0000'); grad.addColorStop(1, '#0a0000');
+                    ctx.fillStyle = grad; ctx.fill();
+                    
+                    ctx.strokeStyle = 'rgba(180, 0, 0, 0.3)'; ctx.lineWidth = 0.8;
+                    ctx.beginPath(); ctx.moveTo(length * 0.7, 0); ctx.lineTo(-length * 0.7, 0); ctx.stroke();
+                    
                     ctx.shadowBlur = 0;
-                    ctx.strokeStyle = '#000';
-                    ctx.lineWidth = 1.2;
-                    ctx.stroke();
-
-                    ctx.beginPath();
-                    ctx.moveTo(length * 0.8, 0);
-                    ctx.lineTo(-length * 0.5, 0);
-                    ctx.strokeStyle = 'rgba(0,0,0,0.7)';
-                    ctx.lineWidth = 1;
-                    ctx.stroke();
-
-                    ctx.strokeStyle = '#1a0000';
-                    ctx.lineWidth = 0.8;
-                    ctx.beginPath();
-                    ctx.moveTo(-length * 0.3, width * 0.8);
-                    ctx.lineTo(-length * 0.6, width * 1.2);
-                    ctx.moveTo(-length * 0.3, -width * 0.8);
-                    ctx.lineTo(-length * 0.6, -width * 1.2);
-                    ctx.stroke();
-
+                    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.2; ctx.stroke();
                     ctx.restore();
                 }
-
                 drawHead() {
-                    const head = this.segments[0];
-                    const ctx = this.ctx;
-
-                    ctx.save();
-                    ctx.translate(head.x, head.y);
-                    ctx.rotate(head.angle);
-
-                    this.drawAntennae(ctx);
-                    this.drawForcipules(ctx);
-
-                    if (!isTouchDevice) {
-                        ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
-                        ctx.shadowBlur = 8;
-                    }
-
-                    ctx.beginPath();
-                    ctx.moveTo(14, 0);
+                    const head = this.segments[0], ctx = this.ctx;
+                    ctx.save(); ctx.translate(head.x, head.y); ctx.rotate(head.angle);
+                    
+                    if (!isTouchDevice) { ctx.shadowColor = 'rgba(0, 0, 0, 0.9)'; ctx.shadowBlur = 10; }
+                    
+                    ctx.beginPath(); ctx.moveTo(14, 0);
                     ctx.bezierCurveTo(16, 11, 4, 15, -14, 12);
                     ctx.bezierCurveTo(-18, 8, -18, -8, -14, -12);
-                    ctx.bezierCurveTo(4, -15, 16, -11, 14, 0);
-                    ctx.closePath();
-
-                    const headGrad = ctx.createRadialGradient(2, 0, 0, 0, 0, 16);                    headGrad.addColorStop(0, '#a80808');
-                    headGrad.addColorStop(0.4, '#5a0000');
-                    headGrad.addColorStop(1, '#050000');
-                    ctx.fillStyle = headGrad;
-                    ctx.fill();
-
+                    ctx.bezierCurveTo(4, -15, 16, -11, 14, 0); ctx.closePath();
+                    const headGrad = ctx.createRadialGradient(2, 0, 0, 0, 0, 18);
+                    headGrad.addColorStop(0, '#c41e1e'); headGrad.addColorStop(0.3, '#8a0000'); headGrad.addColorStop(1, '#050000');
+                    ctx.fillStyle = headGrad; ctx.fill();
+                    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5; ctx.stroke();
                     ctx.shadowBlur = 0;
-                    ctx.strokeStyle = '#000';
-                    ctx.lineWidth = 1.5;
-                    ctx.stroke();
-
-                    ctx.fillStyle = '#000';
-                    for (let i = 0; i < 8; i++) {
-                        const angle = (i / 8) * Math.PI - Math.PI / 2;
-                        const ex = 3 + Math.cos(angle) * 4;
-                        const ey = 5 + Math.sin(angle) * 3;
-                        ctx.beginPath();
-                        ctx.arc(ex, ey, 1, 0, Math.PI * 2);
-                        ctx.fill();
-                        ctx.beginPath();
-                        ctx.arc(ex, -ey, 1, 0, Math.PI * 2);
-                        ctx.fill();
-                    }
-
-                    ctx.fillStyle = '#ff1a1a';
-                    ctx.beginPath();
-                    ctx.arc(4, 5, 0.5, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.beginPath();
-                    ctx.arc(4, -5, 0.5, 0, Math.PI * 2);
-                    ctx.fill();
-
+                    
+                    if (!isTouchDevice) { ctx.shadowColor = '#ff0000'; ctx.shadowBlur = 8; }
+                    ctx.fillStyle = '#ff2222';
+                    ctx.beginPath(); ctx.ellipse(8, -5, 3, 2, -0.3, 0, Math.PI * 2); ctx.fill();
+                    ctx.beginPath(); ctx.ellipse(8, 5, 3, 2, 0.3, 0, Math.PI * 2); ctx.fill();
+                    ctx.fillStyle = '#ffffff'; ctx.shadowBlur = 0;
+                    ctx.beginPath(); ctx.ellipse(9.5, -5, 1, 0.8, 0, 0, Math.PI * 2); ctx.fill();
+                    ctx.beginPath(); ctx.ellipse(9.5, 5, 1, 0.8, 0, 0, Math.PI * 2); ctx.fill();
+                    
+                    ctx.strokeStyle = '#1a0000'; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
+                    ctx.beginPath(); ctx.moveTo(14, -4);
+                    ctx.quadraticCurveTo(22, -8, 26, -12);
+                    ctx.quadraticCurveTo(28, -8, 24, -6); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(14, -2);
+                    ctx.quadraticCurveTo(24, -4, 30, -2);
+                    ctx.quadraticCurveTo(28, 2, 22, 2); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(14, 4);
+                    ctx.quadraticCurveTo(22, 8, 26, 12);
+                    ctx.quadraticCurveTo(28, 8, 24, 6); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(14, 2);
+                    ctx.quadraticCurveTo(24, 4, 30, 2);
+                    ctx.quadraticCurveTo(28, -2, 22, -2); ctx.stroke();
+                    
+                    ctx.strokeStyle = 'rgba(180, 0, 0, 0.5)'; ctx.lineWidth = 1;
+                    ctx.beginPath(); ctx.moveTo(10, -10); ctx.quadraticCurveTo(5, -14, -5, -11); ctx.stroke();
+                    
                     ctx.restore();
                 }
-
-                drawAntennae(ctx) {
-                    const wave = Math.sin(this.time * 1.5) * 0.3;
-                    ctx.strokeStyle = '#110000';
-                    ctx.lineWidth = 1.8;
-                    ctx.lineCap = 'round';
-
-                    ctx.beginPath();
-                    ctx.moveTo(8, 6);
-                    ctx.quadraticCurveTo(20 + wave * 12, 16 + wave * 8, 38 + wave * 20, 12 + wave * 25);
-                    ctx.stroke();
-
-                    ctx.beginPath();
-                    ctx.moveTo(8, -6);
-                    ctx.quadraticCurveTo(20 - wave * 12, -16 - wave * 8, 38 - wave * 20, -12 - wave * 25);
-                    ctx.stroke();
-                    ctx.strokeStyle = '#4a0000';
-                    ctx.lineWidth = 0.5;
-                    for(let j=1; j<=4; j++) {
-                        const t = j/5;
-                        ctx.beginPath();
-                        ctx.arc(8 + (30+wave*20)*t, 6 + (6+wave*25)*t, 1.2, 0, Math.PI*2);
-                        ctx.stroke();
-                        ctx.beginPath();
-                        ctx.arc(8 + (30-wave*20)*t, -6 + (-6-wave*25)*t, 1.2, 0, Math.PI*2);
-                        ctx.stroke();
-                    }
-                }
-
-                drawForcipules(ctx) {
-                    if (!isTouchDevice) {
-                        ctx.shadowColor = 'rgba(255, 0, 0, 0.4)';
-                        ctx.shadowBlur = 6;
-                    }
-                    ctx.fillStyle = '#050000';
-                    ctx.strokeStyle = '#5a0000';
-                    ctx.lineWidth = 1.2;
-
-                    ctx.beginPath();
-                    ctx.moveTo(10, 4);
-                    ctx.bezierCurveTo(18, 7, 26, 14, 22, 22);
-                    ctx.bezierCurveTo(18, 17, 13, 10, 7, 8);
-                    ctx.closePath();
-                    ctx.fill();
-                    ctx.stroke();
-
-                    ctx.beginPath();
-                    ctx.moveTo(10, -4);
-                    ctx.bezierCurveTo(18, -7, 26, -14, 22, -22);
-                    ctx.bezierCurveTo(18, -17, 13, -10, 7, -8);
-                    ctx.closePath();
-                    ctx.fill();
-                    ctx.stroke();
-
-                    ctx.shadowBlur = 0;
-                }
-
                 drawLegs() {
-                    const ctx = this.ctx;
-                    ctx.lineCap = 'round';
-                    ctx.lineJoin = 'round';
-
+                    const ctx = this.ctx; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
                     for (let i = 1; i < this.segments.length - 1; i++) {
-                        const seg = this.segments[i];
-                        const progress = i / this.segments.length;                        const legLen1 = 9;
-                        const legLen2 = 14 - progress * 6;
-                        const perpAngle = seg.angle + Math.PI / 2;
-                        const phase = this.time * 3 + i * 0.7;
-                        const wave = Math.sin(phase) * 0.5;
-                        const wave2 = Math.cos(phase) * 0.4;
-
+                        const seg = this.segments[i], progress = i / this.segments.length;
+                        const legLen1 = 9, legLen2 = 14 - progress * 6, perpAngle = seg.angle + Math.PI / 2;
+                        const phase = this.time * 3 + i * 0.7, wave = Math.sin(phase) * 0.5, wave2 = Math.cos(phase) * 0.4;
                         for (let side = -1; side <= 1; side += 2) {
                             const baseAngle = perpAngle * side;
-                            
-                            const j1X = seg.x + Math.cos(baseAngle) * 7;
-                            const j1Y = seg.y + Math.sin(baseAngle) * 7;
-                            
-                            const j2X = j1X + Math.cos(baseAngle + wave * side) * legLen1;
-                            const j2Y = j1Y + Math.sin(baseAngle + wave * side) * legLen1;
-                            
-                            const eX = j2X + Math.cos(baseAngle + wave * side + 0.9 * side + wave2) * legLen2;
-                            const eY = j2Y + Math.sin(baseAngle + wave * side + 0.9 * side + wave2) * legLen2;
-
-                            ctx.strokeStyle = '#0a0000';
-                            ctx.lineWidth = 2.2;
-                            ctx.beginPath();
-                            ctx.moveTo(seg.x, seg.y);
-                            ctx.lineTo(j1X, j1Y);
-                            ctx.lineTo(j2X, j2Y);
-                            ctx.lineTo(eX, eY);
-                            ctx.stroke();
-
-                            ctx.strokeStyle = '#3a0000';
-                            ctx.lineWidth = 1;
-                            ctx.beginPath();
-                            ctx.moveTo(j2X, j2Y);
-                            ctx.lineTo(
-                                j2X + Math.cos(baseAngle + wave * side + 1.5 * side) * 4,
-                                j2Y + Math.sin(baseAngle + wave * side + 1.5 * side) * 4
-                            );
-                            ctx.stroke();
+                            const j1X = seg.x + Math.cos(baseAngle) * 7, j1Y = seg.y + Math.sin(baseAngle) * 7;
+                            const j2X = j1X + Math.cos(baseAngle + wave * side) * legLen1, j2Y = j1Y + Math.sin(baseAngle + wave * side) * legLen1;
+                            const eX = j2X + Math.cos(baseAngle + wave * side + 0.9 * side + wave2) * legLen2, eY = j2Y + Math.sin(baseAngle + wave * side + 0.9 * side + wave2) * legLen2;
+                            ctx.strokeStyle = '#0a0000'; ctx.lineWidth = 2.2;
+                            ctx.beginPath(); ctx.moveTo(seg.x, seg.y); ctx.lineTo(j1X, j1Y); ctx.lineTo(j2X, j2Y); ctx.lineTo(eX, eY); ctx.stroke();
                         }
                     }
                 }
@@ -1957,67 +1415,35 @@
             const darkenOverlay = document.getElementById('darken-overlay');
             const chainsOverlay = document.getElementById('chains-overlay');
             const centipedeCanvas = document.getElementById('centipede-canvas');
+            const centipede = new Centipede(centipedeCanvas);
             
-            const centipede = new Centipede(centipedeCanvas);            
-            let longPressTimer = null;
-            let kanekiActive = false;
-            let kanekiCooldown = false;
+            let longPressTimer = null, kanekiActive = false, kanekiCooldown = false;
 
             function triggerKaneki() {
                 if (kanekiActive || kanekiCooldown) return;
-                
-                kanekiActive = true;
-                kanekiCooldown = true;
-
-                darkenOverlay.classList.add('active');
-                chainsOverlay.classList.add('active');
-                glitchOverlay.classList.add('active');
-                
+                kanekiActive = true; kanekiCooldown = true;
+                darkenOverlay.classList.add('active'); chainsOverlay.classList.add('active'); glitchOverlay.classList.add('active');
                 setTimeout(() => centipede.start(), 200);
-                
-                setTimeout(() => {
-                    kanekiContainer.classList.remove('exiting');
-                    kanekiContainer.classList.add('entering');
-                }, 600);
-
+                setTimeout(() => { kanekiContainer.classList.remove('exiting'); kanekiContainer.classList.add('entering'); }, 600);
                 setTimeout(() => glitchOverlay.classList.remove('active'), 800);
-
+                setTimeout(() => { glitchOverlay.classList.add('active'); setTimeout(() => glitchOverlay.classList.remove('active'), 400); }, 3500);
                 setTimeout(() => {
-                    glitchOverlay.classList.add('active');
-                    setTimeout(() => glitchOverlay.classList.remove('active'), 400);
-                }, 3500);
-
-                setTimeout(() => {
-                    glitchOverlay.classList.add('active');
-                    setTimeout(() => glitchOverlay.classList.remove('active'), 300);
-                    
-                    kanekiContainer.classList.remove('entering');
-                    kanekiContainer.classList.add('exiting');
-                    
+                    glitchOverlay.classList.add('active'); setTimeout(() => glitchOverlay.classList.remove('active'), 300);
+                    kanekiContainer.classList.remove('entering'); kanekiContainer.classList.add('exiting');
                     setTimeout(() => chainsOverlay.classList.remove('active'), 400);
                     setTimeout(() => darkenOverlay.classList.remove('active'), 800);
-                    
                     kanekiActive = false;
                 }, 6000);
-
-                setTimeout(() => {
-                    if (centipede.running) centipede.stop();
-                    kanekiCooldown = false;
-                }, 9500);
-
+                setTimeout(() => { if (centipede.running) centipede.stop(); kanekiCooldown = false; }, 9500);
                 if (navigator.vibrate) navigator.vibrate([50, 100, 50]);
             }
+
             if (isTouchDevice) {
-                rizeCount.addEventListener('touchstart', (e) => {
-                    longPressTimer = setTimeout(triggerKaneki, 500);
-                }, { passive: true });
+                rizeCount.addEventListener('touchstart', (e) => { longPressTimer = setTimeout(triggerKaneki, 500); }, { passive: true });
                 rizeCount.addEventListener('touchend', () => clearTimeout(longPressTimer), { passive: true });
                 rizeCount.addEventListener('touchmove', () => clearTimeout(longPressTimer), { passive: true });
                 rizeCount.addEventListener('touchcancel', () => clearTimeout(longPressTimer), { passive: true });
-                rizeCount.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    triggerKaneki();
-                });
+                rizeCount.addEventListener('click', (e) => { e.preventDefault(); triggerKaneki(); });
             } else {
                 rizeCount.addEventListener('click', triggerKaneki);
             }
