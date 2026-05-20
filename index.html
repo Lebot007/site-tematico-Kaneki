@@ -1,0 +1,1638 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lebot | Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@700;900&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.29/bundled/lenis.min.js"></script>
+    <style>
+        :root {
+            --void: #050505;
+            --blood-bright: #c41e1e;
+            --bone: #EAEAEA;
+            --rize: #a855f7;
+        }
+        *, *::before, *::after { box-sizing: border-box; }
+        html { -webkit-text-size-adjust: 100%; }
+        body {
+            background-color: var(--void);
+            color: var(--bone);
+            font-family: 'Space Grotesk', sans-serif;
+            cursor: none;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeSpeed;
+        }
+        .font-jp { font-family: 'Noto Serif JP', serif; }
+
+        .noise-overlay {
+            position: fixed; inset: 0; z-index: 9998; pointer-events: none;
+            opacity: 0.05;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            mix-blend-mode: overlay;
+        }
+        .vignette {
+            position: fixed; inset: 0; z-index: 9997; pointer-events: none;
+            background: radial-gradient(ellipse at center, transparent 30%, rgba(10,0,0,0.7) 100%);
+        }
+
+        .cursor {
+            width: 16px; height: 16px;
+            border: 2px solid var(--bone);
+            border-radius: 50%;
+            position: fixed; top: 0; left: 0;
+            pointer-events: none;
+            z-index: 10000;
+            mix-blend-mode: difference;
+            will-change: transform;
+            transition: width 0.2s, height 0.2s, background 0.2s, border-color 0.2s, margin 0.2s;
+        }
+        .cursor.hover {
+            width: 40px; height: 40px;
+            margin: -12px 0 0 -12px;
+            background: var(--blood-bright);
+            border-color: var(--blood-bright);
+            mix-blend-mode: normal;
+            opacity: 0.85;
+        }
+
+        .audio-container {
+            position: fixed; bottom: 30px; right: 30px;
+            z-index: 100;
+            display: flex; align-items: center; gap: 12px;
+        }
+
+        .rize-count {
+            position: fixed; bottom: 90px; right: 30px; z-index: 100;
+            font-family: 'Noto Serif JP', serif;
+            font-weight: 900; font-size: 1.5rem;
+            color: #c41e1e; letter-spacing: 0.05em;
+            display: flex; align-items: baseline; gap: 4px;
+            pointer-events: auto;
+            cursor: none;
+            user-select: none;
+            animation: rize-fade 5s ease-in-out infinite;
+            transition: filter 0.3s;
+            padding: 8px;
+            margin: -8px;
+        }
+        .rize-count:hover { filter: brightness(1.3) drop-shadow(0 0 8px rgba(255, 0, 0, 0.5)); }
+        .rize-count .thousand {
+            display: inline-block;
+            transform: skewX(-12deg) rotate(-3deg);
+            letter-spacing: -0.02em;
+        }
+        .rize-count .minus { opacity: 0.7; transform: translateY(-1px); }
+        .rize-count .seven {
+            display: inline-block;
+            transform: skewX(2deg) rotate(1deg);
+            font-style: italic;
+        }
+        .mobile-hint {
+            display: none;
+            font-size: 0.6rem;
+            letter-spacing: 0.2em;
+            color: rgba(196, 30, 30, 0.5);
+            margin-left: 6px;
+            font-weight: 400;
+        }
+        @keyframes rize-fade {
+            0%, 100% { opacity: 0.55; }
+            50% { opacity: 1; }
+        }
+
+        .kakugan {
+            width: 45px; height: 45px; min-width: 45px;
+            background: radial-gradient(circle, #ff0000 15%, #4a0000 40%, #000 70%);
+            border-radius: 50%;
+            cursor: none;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.4s;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
+            position: relative;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .kakugan.muted {
+            background: radial-gradient(circle, #222 15%, #0a0a0a 40%, #000 70%);
+            box-shadow: none; transform: scale(0.8);
+        }
+        .kakugan.playing { animation: pulse-eye 2.5s infinite alternate; }
+        @keyframes pulse-eye {
+            0% { box-shadow: 0 0 15px rgba(255, 0, 0, 0.4); }
+            100% { box-shadow: 0 0 30px rgba(255, 0, 0, 0.7); }
+        }
+
+        .sound-icon {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px; height: 20px; color: var(--bone);
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+        }
+        .icon-on { opacity: 1; }
+        .icon-off { opacity: 0; transform: translate(-50%, -50%) scale(0.7); }
+        .kakugan.muted .icon-on { opacity: 0; transform: translate(-50%, -50%) scale(0.7); }
+        .kakugan.muted .icon-off { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+        .volume-slider-container {
+            width: 0; overflow: hidden; opacity: 0;
+            transition: width 0.4s ease, opacity 0.3s ease;
+            display: flex; align-items: center;
+        }
+        .audio-container:hover .volume-slider-container,
+        .audio-container.expanded .volume-slider-container { width: 100px; opacity: 1; }
+        .volume-slider {
+            -webkit-appearance: none; appearance: none;
+            width: 100px; height: 4px;
+            background: linear-gradient(to right, var(--blood-bright) 0%, var(--blood-bright) 50%, #222 50%, #222 100%);
+            border-radius: 2px; outline: none; cursor: none;
+        }
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none;
+            width: 12px; height: 12px;
+            background: var(--bone); border-radius: 50%;
+            border: 2px solid var(--blood-bright);
+            cursor: none;
+        }
+
+        .ghoul-card {
+            background: rgba(15, 5, 5, 0.75);
+            border: 1px solid rgba(138, 3, 3, 0.35);
+            transition: border-color 0.3s, transform 0.3s;
+            contain: layout style paint;
+        }
+        .ghoul-card::after {
+            content: '';
+            position: absolute; inset: -1px;
+            border-radius: inherit;
+            box-shadow: 0 0 20px rgba(196, 30, 30, 0.4);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .ghoul-card { position: relative; }
+        .ghoul-card:hover {
+            border-color: #c41e1e;
+            transform: translateY(-3px);
+        }
+        .ghoul-card:hover::after { opacity: 1; }
+
+        .kanji-bg {
+            font-size: 45vw; color: rgba(138, 3, 3, 0.05);
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 0; pointer-events: none; user-select: none;
+        }
+
+        .higanbana-wrap {
+            position: relative;
+            animation: float-flower 8s ease-in-out infinite;
+        }
+        .higanbana-wrap::before {
+            content: '';
+            position: absolute; inset: -20px;
+            background: radial-gradient(circle, rgba(255, 0, 0, 0.25), transparent 60%);
+            border-radius: 50%;
+            z-index: -1;
+            filter: blur(20px);
+        }
+        @keyframes float-flower {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+
+        .entry-overlay {
+            position: fixed; inset: 0;
+            background: rgba(5, 5, 5, 0.95);
+            z-index: 9999;
+            display: flex; align-items: center; justify-content: center;
+            cursor: none;
+            transition: opacity 0.8s, visibility 0.8s;
+        }
+        .entry-overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        .entry-text {
+            font-family: 'Noto Serif JP', serif;
+            font-size: 1.2rem; letter-spacing: 0.5em;
+            color: var(--bone); text-transform: uppercase;
+            animation: entry-pulse 2.5s ease-in-out infinite;
+        }
+        @keyframes entry-pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+
+        .text-readable { color: #d4d4d4; }
+        .text-readable-dim { color: #a3a3a3; }
+        .text-readable-faint { color: #737373; }
+
+        .carousel-wrapper {
+            position: relative;
+            width: 100%; height: 560px;
+            user-select: none;
+        }
+        .carousel-stage {
+            position: relative;
+            width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .project-card {
+            position: absolute;
+            width: 420px; max-width: 85vw; height: 480px;
+            background: linear-gradient(145deg, rgba(20, 8, 8, 0.9), rgba(10, 4, 4, 0.98));
+            border: 1px solid rgba(196, 30, 30, 0.2);
+            border-radius: 4px;
+            padding: 40px 36px;
+            display: flex; flex-direction: column; justify-content: space-between;
+            transition: transform 0.7s cubic-bezier(0.25, 1, 0.5, 1),
+                        opacity 0.7s cubic-bezier(0.25, 1, 0.5, 1),
+                        border-color 0.7s ease;
+            cursor: none;
+            overflow: hidden;
+            contain: layout style paint;
+        }
+        .project-card::before {
+            content: ''; position: absolute; inset: 0;
+            background: radial-gradient(circle at top right, rgba(196, 30, 30, 0.15), transparent 60%);
+            opacity: 0; transition: opacity 0.7s ease;
+            pointer-events: none;
+        }
+        .project-card::after {
+            content: ''; position: absolute; inset: 0;
+            border-radius: inherit;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: opacity 0.7s ease;
+            pointer-events: none;
+        }
+        .project-card.active {
+            border-color: rgba(196, 30, 30, 0.6);
+            will-change: transform;
+        }
+        .project-card.active::before { opacity: 1; }
+        .project-card.active::after { opacity: 1; }
+
+        .card-kanji {
+            position: absolute; top: 20px; right: 20px;
+            font-family: 'Noto Serif JP', serif;
+            font-weight: 900; font-size: 10rem; line-height: 1;
+            color: rgba(196, 30, 30, 0.08);
+            pointer-events: none;
+            transition: color 0.7s ease;
+        }
+        .project-card.active .card-kanji { color: rgba(196, 30, 30, 0.18); }
+
+        .card-number {
+            font-family: 'Noto Serif JP', serif;
+            font-size: 1rem; letter-spacing: 0.3em;
+            color: var(--blood-bright); margin-bottom: 20px;
+        }
+        .card-title {
+            font-family: 'Noto Serif JP', serif;
+            font-size: 2.2rem; font-weight: 700;
+            color: var(--bone); margin-bottom: 16px; line-height: 1.1;
+        }
+        .card-desc {
+            color: #a3a3a3; font-size: 0.95rem;
+            line-height: 1.6; margin-bottom: 24px; flex-grow: 1;
+        }
+        .card-tags {
+            display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px;
+        }
+        .card-tag {
+            font-size: 0.7rem; letter-spacing: 0.15em;
+            padding: 5px 12px;
+            border: 1px solid rgba(196, 30, 30, 0.3);
+            color: #c41e1e; text-transform: uppercase;
+            border-radius: 2px;
+        }
+        .card-footer {
+            display: flex; justify-content: space-between; align-items: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(196, 30, 30, 0.15);
+        }
+        .card-year {
+            font-family: 'Noto Serif JP', serif;
+            font-size: 0.9rem; color: #737373; letter-spacing: 0.1em;
+        }
+        .card-cta {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 0.75rem; letter-spacing: 0.25em;
+            color: var(--blood-bright); text-transform: uppercase;
+            opacity: 0; transform: translateX(-10px);
+            transition: opacity 0.5s ease 0.2s, transform 0.5s ease 0.2s;
+        }
+        .project-card.active .card-cta { opacity: 1; transform: translateX(0); }
+        .card-cta-arrow {
+            width: 24px; height: 1px;
+            background: var(--blood-bright); position: relative;
+        }
+        .card-cta-arrow::after {
+            content: ''; position: absolute; right: 0; top: -3px;
+            width: 7px; height: 7px;
+            border-top: 1px solid var(--blood-bright);
+            border-right: 1px solid var(--blood-bright);
+            transform: rotate(45deg);
+        }
+
+        .carousel-nav {
+            position: absolute; top: 50%;
+            transform: translateY(-50%);
+            width: 50px; height: 50px;
+            background: rgba(10, 4, 4, 0.7);
+            border: 1px solid rgba(196, 30, 30, 0.3);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: none; z-index: 10;
+            transition: background 0.3s, border-color 0.3s;
+            color: var(--blood-bright);
+        }
+        .carousel-nav:hover {
+            background: rgba(196, 30, 30, 0.15);
+            border-color: var(--blood-bright);
+        }
+        .carousel-nav.prev { left: 20px; }
+        .carousel-nav.next { right: 20px; }
+        .carousel-nav svg {
+            width: 20px; height: 20px;
+            stroke: currentColor; stroke-width: 1.5; fill: none;
+        }
+
+        .carousel-dots {
+            position: absolute; bottom: -40px; left: 50%;
+            transform: translateX(-50%);
+            display: flex; gap: 12px; z-index: 5;
+        }
+        .carousel-dot {
+            width: 6px; height: 6px;
+            background: rgba(196, 30, 30, 0.3);
+            border-radius: 50%; cursor: none;
+            transition: all 0.4s ease;
+        }
+        .carousel-dot.active {
+            background: var(--blood-bright);
+            width: 24px; border-radius: 3px;
+        }
+
+        .social-card {
+            background: rgba(15, 5, 5, 0.75);
+            border: 1px solid rgba(138, 3, 3, 0.35);
+            transition: border-color 0.3s, transform 0.3s, background 0.3s;
+            position: relative;
+            contain: layout style paint;
+        }
+        .social-card::after {
+            content: '';
+            position: absolute; inset: -1px;
+            border-radius: inherit;
+            box-shadow: 0 0 25px rgba(196, 30, 30, 0.4);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .social-card:hover {
+            border-color: #c41e1e;
+            transform: translateY(-4px);
+            background: rgba(25, 8, 8, 0.85);
+        }
+        .social-card:hover::after { opacity: 1; }
+        .social-card:hover .social-icon { color: #ff3333; transform: scale(1.1); }
+        .social-icon {
+            transition: color 0.3s, transform 0.3s;
+            color: var(--bone);
+        }
+        .social-label {
+            font-size: 0.75rem;
+            letter-spacing: 0.2em;
+            color: #a3a3a3;
+            text-transform: uppercase;
+        }
+        .social-handle {
+            font-size: 0.85rem;
+            color: #737373;
+            margin-top: 4px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .copied-toast {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(196, 30, 30, 0.95);
+            color: var(--bone);
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            letter-spacing: 0.15em;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 10;
+            text-transform: uppercase;
+        }
+        .social-card.copied .copied-toast { opacity: 1; }
+
+        .kaneki-container {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            height: 85vh;
+            max-height: 700px;
+            width: auto;
+            pointer-events: none;
+            z-index: 9996;
+            transform: translateX(100%);
+            transition: transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            align-items: flex-end;
+        }
+        .kaneki-container.entering { transform: translateX(0); }
+        .kaneki-container.exiting {
+            transform: translateX(100%);
+            transition: transform 1.5s cubic-bezier(0.65, 0, 0.35, 1);
+        }
+        .kaneki-container img {
+            height: 100%;
+            width: auto;
+            max-width: 45vw;
+            object-fit: contain;
+            object-position: bottom;
+            -webkit-mask-image: linear-gradient(to bottom, black 75%, transparent 100%);
+            mask-image: linear-gradient(to bottom, black 75%, transparent 100%);
+            filter: drop-shadow(-20px 0 40px rgba(196, 30, 30, 0.3));
+        }
+        .kaneki-container.entering img {
+            animation: kaneki-glitch 0.3s steps(2) 1;
+        }
+        @keyframes kaneki-glitch {
+            0%, 100% { filter: drop-shadow(-20px 0 40px rgba(196, 30, 30, 0.3)); transform: translateX(0); }
+            25% {
+                filter: drop-shadow(-20px 0 40px rgba(196, 30, 30, 0.3)) drop-shadow(5px 0 0 rgba(255, 0, 0, 0.5));
+                transform: translateX(-3px);
+            }
+            75% {
+                filter: drop-shadow(-20px 0 40px rgba(196, 30, 30, 0.3)) drop-shadow(-5px 0 0 rgba(0, 255, 255, 0.3));
+                transform: translateX(3px);
+            }
+        }
+
+        .darken-overlay {
+            position: fixed; inset: 0;
+            background: radial-gradient(ellipse at center, rgba(0,0,0,0.4), rgba(0,0,0,0.85));
+            z-index: 9994;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1s ease;
+        }
+        .darken-overlay.active { opacity: 1; }
+
+        .glitch-overlay {
+            position: fixed; inset: 0;
+            z-index: 9995;
+            pointer-events: none;
+            opacity: 0;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(196, 30, 30, 0.04) 2px,
+                    rgba(196, 30, 30, 0.04) 4px
+                );
+        }
+        .glitch-overlay.active { animation: glitch-flash 0.5s steps(3) 3; }
+        .glitch-overlay.active::before,
+        .glitch-overlay.active::after {
+            content: ''; position: absolute; inset: 0;
+            background: inherit;
+            animation: glitch-shift 0.5s steps(2) 4;
+        }
+        .glitch-overlay.active::before {
+            background-color: rgba(255, 0, 0, 0.06);
+            mix-blend-mode: screen;
+        }
+        .glitch-overlay.active::after {
+            background-color: rgba(0, 255, 255, 0.03);
+            mix-blend-mode: screen;
+        }
+        @keyframes glitch-flash {
+            0%, 100% { opacity: 0; }
+            10%, 30%, 50%, 70%, 90% { opacity: 1; transform: translateX(-3px); }
+            20%, 40%, 60%, 80% { opacity: 1; transform: translateX(3px); }
+        }
+        @keyframes glitch-shift {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px) skewX(3deg); }
+            75% { transform: translateX(8px) skewX(-3deg); }
+        }
+
+        .chains-overlay {
+            position: fixed; inset: 0;
+            z-index: 9993;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+        .chains-overlay.active { opacity: 1; }
+        
+        .chain-group {
+            position: absolute;
+            transform-origin: center;
+        }
+        
+        .chain-link {
+            fill: none;
+            stroke: #8a0303;
+            stroke-width: 1.5;
+            filter: drop-shadow(0 0 4px rgba(255, 0, 0, 0.5));
+        }
+        .chain-link-accent {
+            fill: none;
+            stroke: #c41e1e;
+            stroke-width: 0.5;
+            opacity: 0.6;
+        }
+        
+        .chain-tl {
+            top: -5%;
+            left: 15%;
+            transform: rotate(25deg);
+            animation: chain-sway-1 4s ease-in-out infinite;
+        }
+        .chain-tr {
+            top: -5%;
+            right: 20%;
+            transform: rotate(-20deg);
+            animation: chain-sway-2 4.5s ease-in-out infinite;
+        }
+        .chain-bl {
+            bottom: -5%;
+            left: 10%;
+            transform: rotate(-160deg);
+            animation: chain-sway-3 5s ease-in-out infinite;
+        }
+        .chain-br {
+            bottom: -5%;
+            right: 15%;
+            transform: rotate(165deg);
+            animation: chain-sway-4 4.2s ease-in-out infinite;
+        }
+        .chain-mid-l {
+            top: 40%;
+            left: -5%;
+            transform: rotate(-85deg);
+            animation: chain-sway-5 4.8s ease-in-out infinite;
+        }
+        .chain-mid-r {
+            top: 55%;
+            right: -5%;
+            transform: rotate(92deg);
+            animation: chain-sway-6 4.3s ease-in-out infinite;
+        }
+
+        @keyframes chain-sway-1 {
+            0%, 100% { transform: rotate(25deg) translateX(0); }
+            50% { transform: rotate(27deg) translateX(3px); }
+        }
+        @keyframes chain-sway-2 {
+            0%, 100% { transform: rotate(-20deg) translateX(0); }
+            50% { transform: rotate(-22deg) translateX(-4px); }
+        }
+        @keyframes chain-sway-3 {
+            0%, 100% { transform: rotate(-160deg) translateX(0); }
+            50% { transform: rotate(-158deg) translateX(2px); }
+        }
+        @keyframes chain-sway-4 {
+            0%, 100% { transform: rotate(165deg) translateX(0); }
+            50% { transform: rotate(167deg) translateX(-3px); }
+        }
+        @keyframes chain-sway-5 {
+            0%, 100% { transform: rotate(-85deg) translateX(0); }
+            50% { transform: rotate(-83deg) translateX(2px); }
+        }
+        @keyframes chain-sway-6 {
+            0%, 100% { transform: rotate(92deg) translateX(0); }
+            50% { transform: rotate(94deg) translateX(-2px); }
+        }
+
+        /* Canvas da centopeia */
+        #centipede-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 9997;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        #centipede-canvas.active {
+            opacity: 1;
+        }
+
+        section { content-visibility: auto; contain-intrinsic-size: auto 100vh; }
+
+        @media (max-width: 768px) {
+            .carousel-wrapper { height: 500px; }
+            .project-card { width: 300px; height: 440px; padding: 28px 24px; }
+            .card-title { font-size: 1.6rem; }
+            .card-kanji { font-size: 7rem; }
+            .carousel-nav.prev { left: 5px; }
+            .carousel-nav.next { right: 5px; }
+            .carousel-nav { width: 40px; height: 40px; }
+            .kaneki-container { height: 60vh; }
+            .kaneki-container img { max-width: 65vw; }
+            .mobile-hint { display: inline-block; }
+            .chain-mid-l, .chain-mid-r, .chain-bl, .chain-br { display: none; }
+        }
+
+        @media (hover: none) {
+            .cursor { display: none; }
+            body { cursor: auto; }
+            a, button, .kakugan, .carousel-nav, .carousel-dot, .rize-count, .social-card { cursor: pointer; }
+            .volume-slider { height: 6px; }
+            .volume-slider::-webkit-slider-thumb { width: 18px; height: 18px; }
+            .volume-slider::-moz-range-thumb {
+                width: 18px; height: 18px;
+                background: var(--bone); border-radius: 50%;
+                border: 2px solid var(--blood-bright);
+            }
+            .audio-container {
+                padding: 8px;
+                background: rgba(10, 4, 4, 0.6);
+                backdrop-filter: blur(8px);
+                border-radius: 30px;
+                border: 1px solid rgba(196, 30, 30, 0.2);
+            }
+            .carousel-nav { width: 48px; height: 48px; }
+            .carousel-dot { width: 10px; height: 10px; }
+            .carousel-dot.active { width: 28px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        body.tab-hidden * { animation-play-state: paused !important; }
+    </style>
+</head>
+<body>
+
+    <div class="entry-overlay" id="entry-overlay">
+        <div class="text-center">
+            <div class="entry-text">Click to Enter</div>
+            <div class="mt-6 text-xs text-readable-dim tracking-widest">喰</div>
+        </div>
+    </div>
+
+    <div class="noise-overlay"></div>
+    <div class="vignette"></div>
+
+    <div class="cursor" id="cursor"></div>
+
+    <video id="bg-video" autoplay muted loop playsinline preload="metadata" webkit-playsinline class="fixed inset-0 w-full h-full object-cover z-[-2] opacity-60">
+        <source src="video.mp4" type="video/mp4">
+    </video>
+    <div id="video-overlay" class="fixed inset-0 bg-black z-[-1]" style="opacity: 0.2;"></div>
+
+    <audio id="bg-audio" preload="metadata">
+        <source id="audio-source" src="musica.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="darken-overlay" id="darken-overlay"></div>
+    <div class="glitch-overlay" id="glitch-overlay"></div>
+    
+    <div class="chains-overlay" id="chains-overlay">
+        <svg class="chain-group chain-tl" width="120" height="400" viewBox="0 0 120 400">
+            <g class="chain-link">
+                <ellipse cx="60" cy="20" rx="14" ry="20"/>
+                <ellipse cx="60" cy="60" rx="14" ry="20"/>
+                <ellipse cx="60" cy="100" rx="14" ry="20"/>
+                <ellipse cx="60" cy="140" rx="14" ry="20"/>
+                <ellipse cx="60" cy="180" rx="14" ry="20"/>
+                <ellipse cx="60" cy="220" rx="14" ry="20"/>
+                <ellipse cx="60" cy="260" rx="14" ry="20"/>
+                <ellipse cx="60" cy="300" rx="14" ry="20"/>
+                <ellipse cx="60" cy="340" rx="14" ry="20"/>
+                <ellipse cx="60" cy="380" rx="14" ry="20"/>
+            </g>
+            <g class="chain-link-accent">
+                <ellipse cx="60" cy="20" rx="10" ry="16"/>
+                <ellipse cx="60" cy="60" rx="10" ry="16"/>
+                <ellipse cx="60" cy="100" rx="10" ry="16"/>
+                <ellipse cx="60" cy="140" rx="10" ry="16"/>
+                <ellipse cx="60" cy="180" rx="10" ry="16"/>
+                <ellipse cx="60" cy="220" rx="10" ry="16"/>
+                <ellipse cx="60" cy="260" rx="10" ry="16"/>
+                <ellipse cx="60" cy="300" rx="10" ry="16"/>
+                <ellipse cx="60" cy="340" rx="10" ry="16"/>
+                <ellipse cx="60" cy="380" rx="10" ry="16"/>
+            </g>
+        </svg>
+        
+        <svg class="chain-group chain-tr" width="120" height="380" viewBox="0 0 120 380">
+            <g class="chain-link">
+                <ellipse cx="60" cy="20" rx="13" ry="18"/>
+                <ellipse cx="60" cy="56" rx="13" ry="18"/>
+                <ellipse cx="60" cy="92" rx="13" ry="18"/>
+                <ellipse cx="60" cy="128" rx="13" ry="18"/>
+                <ellipse cx="60" cy="164" rx="13" ry="18"/>
+                <ellipse cx="60" cy="200" rx="13" ry="18"/>
+                <ellipse cx="60" cy="236" rx="13" ry="18"/>
+                <ellipse cx="60" cy="272" rx="13" ry="18"/>
+                <ellipse cx="60" cy="308" rx="13" ry="18"/>
+                <ellipse cx="60" cy="344" rx="13" ry="18"/>
+            </g>
+            <g class="chain-link-accent">
+                <ellipse cx="60" cy="20" rx="9" ry="14"/>
+                <ellipse cx="60" cy="56" rx="9" ry="14"/>
+                <ellipse cx="60" cy="92" rx="9" ry="14"/>
+                <ellipse cx="60" cy="128" rx="9" ry="14"/>
+                <ellipse cx="60" cy="164" rx="9" ry="14"/>
+                <ellipse cx="60" cy="200" rx="9" ry="14"/>
+                <ellipse cx="60" cy="236" rx="9" ry="14"/>
+                <ellipse cx="60" cy="272" rx="9" ry="14"/>
+                <ellipse cx="60" cy="308" rx="9" ry="14"/>
+                <ellipse cx="60" cy="344" rx="9" ry="14"/>
+            </g>
+        </svg>
+        
+        <svg class="chain-group chain-bl" width="120" height="360" viewBox="0 0 120 360">
+            <g class="chain-link">
+                <ellipse cx="60" cy="20" rx="14" ry="20"/>
+                <ellipse cx="60" cy="60" rx="14" ry="20"/>
+                <ellipse cx="60" cy="100" rx="14" ry="20"/>
+                <ellipse cx="60" cy="140" rx="14" ry="20"/>
+                <ellipse cx="60" cy="180" rx="14" ry="20"/>
+                <ellipse cx="60" cy="220" rx="14" ry="20"/>
+                <ellipse cx="60" cy="260" rx="14" ry="20"/>
+                <ellipse cx="60" cy="300" rx="14" ry="20"/>
+                <ellipse cx="60" cy="340" rx="14" ry="20"/>
+            </g>
+        </svg>
+        
+        <svg class="chain-group chain-br" width="120" height="380" viewBox="0 0 120 380">
+            <g class="chain-link">
+                <ellipse cx="60" cy="20" rx="13" ry="19"/>
+                <ellipse cx="60" cy="58" rx="13" ry="19"/>
+                <ellipse cx="60" cy="96" rx="13" ry="19"/>
+                <ellipse cx="60" cy="134" rx="13" ry="19"/>
+                <ellipse cx="60" cy="172" rx="13" ry="19"/>
+                <ellipse cx="60" cy="210" rx="13" ry="19"/>
+                <ellipse cx="60" cy="248" rx="13" ry="19"/>
+                <ellipse cx="60" cy="286" rx="13" ry="19"/>
+                <ellipse cx="60" cy="324" rx="13" ry="19"/>
+                <ellipse cx="60" cy="362" rx="13" ry="19"/>
+            </g>
+        </svg>
+        
+        <svg class="chain-group chain-mid-l" width="300" height="120" viewBox="0 0 300 120">
+            <g class="chain-link">
+                <ellipse cx="20" cy="60" rx="20" ry="13"/>
+                <ellipse cx="60" cy="60" rx="20" ry="13"/>
+                <ellipse cx="100" cy="60" rx="20" ry="13"/>
+                <ellipse cx="140" cy="60" rx="20" ry="13"/>
+                <ellipse cx="180" cy="60" rx="20" ry="13"/>
+                <ellipse cx="220" cy="60" rx="20" ry="13"/>
+                <ellipse cx="260" cy="60" rx="20" ry="13"/>
+            </g>
+            <g class="chain-link-accent">
+                <ellipse cx="20" cy="60" rx="16" ry="9"/>
+                <ellipse cx="60" cy="60" rx="16" ry="9"/>
+                <ellipse cx="100" cy="60" rx="16" ry="9"/>
+                <ellipse cx="140" cy="60" rx="16" ry="9"/>
+                <ellipse cx="180" cy="60" rx="16" ry="9"/>
+                <ellipse cx="220" cy="60" rx="16" ry="9"/>
+                <ellipse cx="260" cy="60" rx="16" ry="9"/>
+            </g>
+        </svg>
+        
+        <svg class="chain-group chain-mid-r" width="280" height="120" viewBox="0 0 280 120">
+            <g class="chain-link">
+                <ellipse cx="20" cy="60" rx="19" ry="12"/>
+                <ellipse cx="58" cy="60" rx="19" ry="12"/>
+                <ellipse cx="96" cy="60" rx="19" ry="12"/>
+                <ellipse cx="134" cy="60" rx="19" ry="12"/>
+                <ellipse cx="172" cy="60" rx="19" ry="12"/>
+                <ellipse cx="210" cy="60" rx="19" ry="12"/>
+                <ellipse cx="248" cy="60" rx="19" ry="12"/>
+            </g>
+        </svg>
+    </div>
+
+    <!-- Canvas para centopeia profissional -->
+    <canvas id="centipede-canvas"></canvas>
+
+    <div class="kaneki-container" id="kaneki-container">
+        <img src="kanekituc.png" alt="" loading="lazy">
+    </div>
+
+    <div class="rize-count" id="rize-count">
+        <span class="thousand">1000</span>
+        <span class="minus">-</span>
+        <span class="seven">7</span>
+        <span class="mobile-hint">HOLD</span>
+    </div>
+
+    <div class="audio-container" id="audio-container">
+        <div class="volume-slider-container">
+            <input type="range" min="0" max="100" value="30" class="volume-slider" id="volume-slider">
+        </div>
+        <div class="kakugan muted" id="audio-player" title="Toggle Music">
+            <svg class="sound-icon icon-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+            </svg>
+            <svg class="sound-icon icon-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <line x1="23" y1="9" x2="17" y2="15"></line>
+                <line x1="17" y1="9" x2="23" y2="15"></line>
+            </svg>
+        </div>
+    </div>
+
+    <section class="relative h-screen flex flex-col items-center justify-center text-center px-4">
+        <h1 class="kanji-bg font-jp" aria-hidden="true">喰</h1>
+        <h2 class="text-7xl md:text-9xl font-jp tracking-widest mb-4 relative z-10 text-bone">Lebot</h2>
+        <p class="text-sm md:text-base text-readable-dim tracking-[0.4em] uppercase relative z-10">Developer & Creator</p>
+        <div class="absolute bottom-10 text-xs text-readable-faint tracking-widest">SCROLL</div>
+    </section>
+
+    <section class="min-h-screen flex items-center justify-center px-6 md:px-20 py-20">
+        <div class="max-w-5xl grid md:grid-cols-2 gap-16 items-center">
+            <div>
+                <h3 class="text-3xl font-jp mb-6 tracking-wide" style="color: #c41e1e;">A Máscara</h3>
+                <p class="text-readable leading-relaxed text-lg font-light mb-6">
+                    "Você tá começando a entender agora? Você fica sentado aí culpando a si mesmo o tempo todo, mas fazer isso não vai mudar nada. Você não faz nada pra mudar, é tudo culpa sua."
+                </p>
+                <p class="font-jp tracking-wider text-right text-base italic" style="color: var(--rize);">
+                    — Rize Kamishiro
+                </p>
+            </div>
+            <div class="flex justify-center items-center">
+                <div class="higanbana-wrap">
+                    <svg class="w-64 h-64 md:w-80 md:h-80" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <g fill="none" stroke="#c41e1e" stroke-width="1.5" stroke-linecap="round">
+                            <circle cx="50" cy="50" r="3" fill="#ff0000" stroke="none" opacity="0.9"/>
+                            <path d="M50,50 Q60,30 50,10 Q40,30 50,50" />
+                            <path d="M50,50 Q70,40 85,25 Q65,45 50,50" />
+                            <path d="M50,50 Q75,60 90,70 Q70,65 50,50" />
+                            <path d="M50,50 Q60,75 50,90 Q40,75 50,50" />
+                            <path d="M50,50 Q30,75 10,70 Q25,60 50,50" />
+                            <path d="M50,50 Q20,45 15,25 Q35,40 50,50" />
+                            <path d="M50,50 Q55,20 65,5" stroke-width="0.5" opacity="0.7"/>
+                            <path d="M50,50 Q80,35 95,20" stroke-width="0.5" opacity="0.7"/>
+                            <path d="M50,50 Q85,65 95,85" stroke-width="0.5" opacity="0.7"/>
+                            <path d="M50,50 Q55,80 45,95" stroke-width="0.5" opacity="0.7"/>
+                            <path d="M50,50 Q20,65 5,80" stroke-width="0.5" opacity="0.7"/>
+                            <path d="M50,50 Q25,30 5,15" stroke-width="0.5" opacity="0.7"/>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="min-h-screen px-6 md:px-12 py-20 flex flex-col justify-center">
+        <div class="max-w-6xl mx-auto w-full">
+            <h3 class="text-3xl font-jp mb-4 text-center tracking-wide" style="color: #c41e1e;">O Banquete</h3>
+            <p class="text-center text-readable-faint text-sm tracking-widest uppercase mb-16">Projetos Selecionados</p>
+            <div class="carousel-wrapper" id="carousel">
+                <div class="carousel-stage" id="carousel-stage"></div>
+                <button class="carousel-nav prev" id="carousel-prev" aria-label="Anterior">
+                    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                </button>
+                <button class="carousel-nav next" id="carousel-next" aria-label="Próximo">
+                    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </button>
+                <div class="carousel-dots" id="carousel-dots"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="min-h-[70vh] flex flex-col items-center justify-center px-6 py-20">
+        <h3 class="text-3xl font-jp mb-4 tracking-wide text-center" style="color: #c41e1e;">Conexões</h3>
+        <p class="text-center text-readable-faint text-sm tracking-widest uppercase mb-12">Onde me encontrar</p>
+        
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-5 max-w-6xl w-full">
+            <a href="https://www.instagram.com/https.jvalves/" target="_blank" rel="noopener" class="social-card rounded-sm p-6 flex flex-col items-center text-center cursor-pointer block group">
+                <svg class="social-icon w-10 h-10 mb-3" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                </svg>
+                <div class="social-label">Instagram</div>
+                <div class="social-handle">@https.jvalves</div>
+            </a>
+
+            <a href="https://www.twitch.tv/Lebotz_gg" target="_blank" rel="noopener" class="social-card rounded-sm p-6 flex flex-col items-center text-center cursor-pointer block group">
+                <svg class="social-icon w-10 h-10 mb-3" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/>
+                </svg>
+                <div class="social-label">Twitch</div>
+                <div class="social-handle">Lebotz_gg</div>
+            </a>
+
+            <a href="https://www.tiktok.com/@lebot_gg" target="_blank" rel="noopener" class="social-card rounded-sm p-6 flex flex-col items-center text-center cursor-pointer block group">
+                <svg class="social-icon w-10 h-10 mb-3" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5.8 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.84-.1Z"/>
+                </svg>
+                <div class="social-label">TikTok</div>
+                <div class="social-handle">@lebot_gg</div>
+            </a>
+
+            <a href="https://open.spotify.com/user/o2fbtdnh53z6t6ca4v6wez8rz" target="_blank" rel="noopener" class="social-card rounded-sm p-6 flex flex-col items-center text-center cursor-pointer block group">
+                <svg class="social-icon w-10 h-10 mb-3" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.42 1.56-.301.42-1.02.599-1.561.3z"/>
+                </svg>
+                <div class="social-label">Spotify</div>
+                <div class="social-handle">Perfil</div>
+            </a>
+
+            <div class="social-card rounded-sm p-6 flex flex-col items-center text-center cursor-pointer group" id="discord-card" data-username="Lebot.gg">
+                <svg class="social-icon w-10 h-10 mb-3" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/>
+                </svg>
+                <div class="social-label">Discord</div>
+                <div class="social-handle">Lebot.gg</div>
+                <div class="copied-toast">Copiado!</div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-12 text-center text-readable-faint text-xs tracking-widest">
+        <p>LEBOT © <span class="font-jp" style="color: #c41e1e;">喰</span></p>
+    </footer>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // ===== VIDEO LOOP =====
+            const bgVideo = document.getElementById('bg-video');
+            if (bgVideo) {
+                bgVideo.addEventListener('ended', () => {
+                    bgVideo.currentTime = 0;
+                    bgVideo.play().catch(() => {});
+                });
+                const playPromise = bgVideo.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(() => {
+                        document.addEventListener('click', () => {
+                            bgVideo.play().catch(() => {});
+                        }, { once: true });
+                    });
+                }
+            }
+
+            // ===== CURSOR =====
+            const cursor = document.getElementById('cursor');
+            let rafId = null, pendingX = 0, pendingY = 0;
+
+            document.addEventListener('mousemove', (e) => {
+                pendingX = e.clientX - 8;
+                pendingY = e.clientY - 8;
+                if (!rafId) {
+                    rafId = requestAnimationFrame(() => {
+                        cursor.style.transform = `translate3d(${pendingX}px, ${pendingY}px, 0)`;
+                        rafId = null;
+                    });
+                }
+            }, { passive: true });
+
+            document.addEventListener('mouseover', (e) => {
+                if (e.target.closest('a, .ghoul-card, .kakugan, .volume-slider, .entry-overlay, .carousel-nav, .carousel-dot, .project-card, .rize-count, .social-card')) {
+                    cursor.classList.add('hover');
+                }
+            });
+            document.addEventListener('mouseout', (e) => {
+                if (e.target.closest('a, .ghoul-card, .kakugan, .volume-slider, .entry-overlay, .carousel-nav, .carousel-dot, .project-card, .rize-count, .social-card')) {
+                    cursor.classList.remove('hover');
+                }
+            });
+
+            // ===== AUDIO =====
+            const audio = document.getElementById('bg-audio');
+            const audioSource = document.getElementById('audio-source');
+            const player = document.getElementById('audio-player');
+            const volumeSlider = document.getElementById('volume-slider');
+            const entryOverlay = document.getElementById('entry-overlay');
+            const audioContainer = document.getElementById('audio-container');
+            let isPlaying = false, hasInteracted = false;
+            const playlist = ['musica.mp3', 'musica2.mp3'];
+            let currentTrack = 0;
+
+            audio.volume = 0.3;
+            updateSliderBg(30);
+
+            function startAudio() {
+                if (hasInteracted) return;
+                hasInteracted = true;
+                audio.play().then(() => {
+                    isPlaying = true;
+                    player.classList.remove('muted');
+                    player.classList.add('playing');
+                    entryOverlay.classList.add('hidden');
+                }).catch(() => {
+                    entryOverlay.classList.remove('hidden');
+                });
+            }
+
+            window.addEventListener('load', startAudio, { once: true });
+            entryOverlay.addEventListener('click', () => {
+                hasInteracted = false;
+                startAudio();
+            }, { once: true });
+
+            player.addEventListener('click', () => {
+                if (isPlaying) {
+                    audio.pause();
+                    player.classList.add('muted');
+                    player.classList.remove('playing');
+                } else {
+                    audio.play();
+                    player.classList.remove('muted');
+                    player.classList.add('playing');
+                }
+                isPlaying = !isPlaying;
+            });
+
+            audio.addEventListener('ended', () => {
+                currentTrack = (currentTrack + 1) % playlist.length;
+                audioSource.src = playlist[currentTrack];
+                audio.load();
+                if (isPlaying) audio.play();
+            });
+
+            volumeSlider.addEventListener('input', (e) => {
+                const vol = e.target.value / 100;
+                audio.volume = vol;
+                updateSliderBg(e.target.value);
+                if (vol === 0) player.classList.add('muted');
+                else if (isPlaying) player.classList.remove('muted');
+            });
+
+            let volumeExpandTimer;
+            audioContainer.addEventListener('touchstart', () => {
+                audioContainer.classList.add('expanded');
+                clearTimeout(volumeExpandTimer);
+            }, { passive: true });
+            audioContainer.addEventListener('touchend', () => {
+                volumeExpandTimer = setTimeout(() => {
+                    audioContainer.classList.remove('expanded');
+                }, 3000);
+            }, { passive: true });
+
+            function updateSliderBg(val) {
+                volumeSlider.style.background = `linear-gradient(to right, #c41e1e 0%, #c41e1e ${val}%, #222 ${val}%, #222 100%)`;
+            }
+
+            // ===== DISCORD COPY =====
+            const discordCard = document.getElementById('discord-card');
+            discordCard.addEventListener('click', async () => {
+                const username = discordCard.dataset.username;
+                try {
+                    await navigator.clipboard.writeText(username);
+                } catch {
+                    const ta = document.createElement('textarea');
+                    ta.value = username;
+                    document.body.appendChild(ta);
+                    ta.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(ta);
+                }
+                discordCard.classList.add('copied');
+                if (navigator.vibrate) navigator.vibrate(30);
+                setTimeout(() => discordCard.classList.remove('copied'), 1500);
+            });
+
+            // ===== TAB VISIBILITY =====
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    document.body.classList.add('tab-hidden');
+                } else {
+                    document.body.classList.remove('tab-hidden');
+                    if (isPlaying && hasInteracted && audio.paused) {
+                        audio.play().catch(() => {});
+                    }
+                }
+            });
+
+            // ===== SMOOTH SCROLL =====
+            const lenis = new Lenis({
+                duration: 1.2,
+                smoothWheel: true,
+                wheelMultiplier: 1,
+                touchMultiplier: 2
+            });
+
+            function raf(time) {
+                lenis.raf(time);
+                requestAnimationFrame(raf);
+            }
+            requestAnimationFrame(raf);
+
+            // ===== GSAP =====
+            gsap.registerPlugin(ScrollTrigger);
+            gsap.to("#video-overlay", {
+                opacity: 0.75,
+                ease: "none",
+                scrollTrigger: {
+                    trigger: "body",
+                    start: "top top",
+                    end: "100vh top",
+                    scrub: 0.5
+                }
+            });
+
+            // ===== CARROSSEL =====
+            const projects = [
+                { kanji: '一', num: '01 / PROJECT', title: 'Kagune', desc: 'Sistema modular de animações WebGL inspirado na fluidez orgânica dos Kagunes. Shaders customizados com física procedural.', tags: ['Three.js', 'GLSL', 'React'], year: '2023' },
+                { kanji: '二', num: '02 / PROJECT', title: 'Anteiku', desc: 'Plataforma de curadoria de arte digital com atmosfera sombria. Interface imersiva construída para destacar o trabalho de artistas independentes.', tags: ['Next.js', 'GSAP', 'Sanity'], year: '2024' },
+                { kanji: '三', num: '03 / PROJECT', title: 'Quinque', desc: 'Ferramenta de produtividade minimalista focada em deep work. Design brutalista com performance extrema e offline-first.', tags: ['Svelte', 'Tauri', 'SQLite'], year: '2024' },
+                { kanji: '四', num: '04 / PROJECT', title: 'Aogiri', desc: 'Rede social descentralizada para criadores. Arquitetura peer-to-peer com criptografia ponta-a-ponta e identidade soberana.', tags: ['Rust', 'WebRTC', 'IPFS'], year: '2024' },
+                { kanji: '五', num: '05 / PROJECT', title: 'Cochlea', desc: 'Visualizador de áudio generativo em tempo real. Transforma frequências sonoras em paisagens 3D reativas ao som ambiente.', tags: ['Web Audio', 'Three.js', 'WASM'], year: '2025' }
+            ];
+
+            const stage = document.getElementById('carousel-stage');
+            const dotsContainer = document.getElementById('carousel-dots');
+            let activeIndex = 0, isAnimating = false;
+
+            const fragment = document.createDocumentFragment();
+            projects.forEach((p, i) => {
+                const card = document.createElement('div');
+                card.className = 'project-card';
+                card.dataset.index = i;
+                card.innerHTML = `
+                    <div class="card-kanji font-jp">${p.kanji}</div>
+                    <div>
+                        <div class="card-number">${p.num}</div>
+                        <h4 class="card-title">${p.title}</h4>
+                        <p class="card-desc">${p.desc}</p>
+                        <div class="card-tags">${p.tags.map(t => `<span class="card-tag">${t}</span>`).join('')}</div>
+                    </div>
+                    <div class="card-footer">
+                        <span class="card-year">${p.year}</span>
+                        <span class="card-cta">Explorar <span class="card-cta-arrow"></span></span>
+                    </div>
+                `;
+                card.addEventListener('click', () => {
+                    const idx = parseInt(card.dataset.index);
+                    if (idx !== activeIndex) goTo(idx);
+                });
+                fragment.appendChild(card);
+
+                const dot = document.createElement('div');
+                dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
+                dot.addEventListener('click', () => goTo(i));
+                dotsContainer.appendChild(dot);
+            });
+            stage.appendChild(fragment);
+
+            const cards = stage.querySelectorAll('.project-card');
+            const dots = dotsContainer.querySelectorAll('.carousel-dot');
+
+            function updateCarousel() {
+                const isMobile = window.innerWidth < 768;
+                cards.forEach((card, i) => {
+                    const offset = i - activeIndex;
+                    const absOff = Math.abs(offset);
+
+                    if (absOff > 2) {
+                        card.style.visibility = 'hidden';
+                        card.style.transform = 'translate3d(0,0,0) scale(0.5)';
+                        card.style.opacity = 0;
+                        card.style.zIndex = 1;
+                        card.style.pointerEvents = 'none';
+                        card.classList.remove('active');
+                        return;
+                    } else {
+                        card.style.visibility = 'visible';
+                    }
+
+                    let tx, sc, op, z;
+                    if (isMobile) {
+                        tx = offset * 200;
+                        sc = offset === 0 ? 1 : 0.75;
+                        op = offset === 0 ? 1 : 0.4;
+                        z = 10 - absOff;
+                    } else {
+                        tx = offset * 320;
+                        sc = offset === 0 ? 1 : (absOff === 1 ? 0.82 : 0.68);
+                        op = offset === 0 ? 1 : (absOff === 1 ? 0.55 : 0.25);
+                        z = 10 - absOff;
+                    }
+
+                    card.style.transform = `translate3d(${tx}px, 0, 0) scale(${sc})`;
+                    card.style.opacity = op;
+                    card.style.zIndex = z;
+                    card.style.pointerEvents = absOff === 0 ? 'auto' : 'none';
+
+                    if (offset === 0) card.classList.add('active');
+                    else card.classList.remove('active');
+                });
+
+                dots.forEach((d, i) => d.classList.toggle('active', i === activeIndex));
+            }
+
+            function goTo(index) {
+                if (isAnimating || index === activeIndex) return;
+                isAnimating = true;
+                activeIndex = index;
+                updateCarousel();
+                setTimeout(() => { isAnimating = false; }, 700);
+            }
+
+            function next() { goTo((activeIndex + 1) % projects.length); }
+            function prev() { goTo((activeIndex - 1 + projects.length) % projects.length); }
+
+            document.getElementById('carousel-next').addEventListener('click', next);
+            document.getElementById('carousel-prev').addEventListener('click', prev);
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight') next();
+                if (e.key === 'ArrowLeft') prev();
+            });
+
+            let dragStart = null;
+            const wrapper = document.getElementById('carousel');
+            wrapper.addEventListener('pointerdown', (e) => { dragStart = e.clientX; }, { passive: true });
+            wrapper.addEventListener('pointerup', (e) => {
+                if (dragStart === null) return;
+                const diff = e.clientX - dragStart;
+                if (Math.abs(diff) > 60) {
+                    if (diff < 0) next(); else prev();
+                }
+                dragStart = null;
+            }, { passive: true });
+
+            let wheelCooldown = false;
+            wrapper.addEventListener('wheel', (e) => {
+                if (wheelCooldown) return;
+                if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 30) {
+                    if (e.deltaX > 0) next(); else prev();
+                    wheelCooldown = true;
+                    setTimeout(() => { wheelCooldown = false; }, 900);
+                }
+            }, { passive: true });
+
+            updateCarousel();
+
+            let resizeTimer;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(updateCarousel, 150);
+            });
+
+            // ===== CENTOPEIA CANVAS PROFISSIONAL =====
+            class Centipede {
+                constructor(canvas) {
+                    this.canvas = canvas;
+                    this.ctx = canvas.getContext('2d');
+                    this.segments = [];
+                    this.numSegments = 20;
+                    this.segmentSpacing = 18;
+                    this.running = false;
+                    this.path = [];
+                    this.pathIndex = 0;
+                    this.resize();
+                    window.addEventListener('resize', () => this.resize());
+                }
+
+                resize() {
+                    this.canvas.width = window.innerWidth;
+                    this.canvas.height = window.innerHeight;
+                }
+
+                // Gera path sinuoso pela tela
+                generatePath() {
+                    this.path = [];
+                    const w = this.canvas.width;
+                    const h = this.canvas.height;
+                    const points = [
+                        { x: -100, y: h * 0.4 },
+                        { x: w * 0.15, y: h * 0.35 },
+                        { x: w * 0.3, y: h * 0.55 },
+                        { x: w * 0.45, y: h * 0.3 },
+                        { x: w * 0.6, y: h * 0.5 },
+                        { x: w * 0.75, y: h * 0.35 },
+                        { x: w * 0.9, y: h * 0.55 },
+                        { x: w + 100, y: h * 0.4 }
+                    ];
+                    
+                    // Interpola pontos entre os keyframes para movimento suave
+                    for (let i = 0; i < points.length - 1; i++) {
+                        const steps = 60;
+                        for (let j = 0; j < steps; j++) {
+                            const t = j / steps;
+                            // Curva de Catmull-Rom simplificada
+                            const p0 = points[Math.max(0, i - 1)];
+                            const p1 = points[i];
+                            const p2 = points[Math.min(points.length - 1, i + 1)];
+                            const p3 = points[Math.min(points.length - 1, i + 2)];
+                            
+                            const x = 0.5 * ((2 * p1.x) +
+                                (-p0.x + p2.x) * t +
+                                (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * t * t +
+                                (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * t * t * t);
+                            const y = 0.5 * ((2 * p1.y) +
+                                (-p0.y + p2.y) * t +
+                                (2 * p0.y - 5 * p1.y + 4 * p2.y - p3.y) * t * t +
+                                (-p0.y + 3 * p1.y - 3 * p2.y + p3.y) * t * t * t);
+                            
+                            this.path.push({ x, y });
+                        }
+                    }
+                    this.path.push(points[points.length - 1]);
+                }
+
+                start() {
+                    this.generatePath();
+                    this.pathIndex = 0;
+                    this.segments = [];
+                    
+                    // Inicializa segmentos na posição inicial
+                    for (let i = 0; i < this.numSegments; i++) {
+                        this.segments.push({
+                            x: this.path[0].x - i * this.segmentSpacing,
+                            y: this.path[0].y,
+                            angle: 0
+                        });
+                    }
+                    
+                    this.running = true;
+                    this.canvas.classList.add('active');
+                    this.animate();
+                }
+
+                stop() {
+                    this.running = false;
+                    this.canvas.classList.remove('active');
+                }
+
+                animate() {
+                    if (!this.running) return;
+                    
+                    // Move o head ao longo do path
+                    if (this.pathIndex < this.path.length - 1) {
+                        this.pathIndex += 2; // velocidade
+                    } else {
+                        this.stop();
+                        return;
+                    }
+
+                    const target = this.path[Math.min(this.pathIndex, this.path.length - 1)];
+                    
+                    // Atualiza head
+                    this.segments[0].x += (target.x - this.segments[0].x) * 0.15;
+                    this.segments[0].y += (target.y - this.segments[0].y) * 0.15;
+
+                    // Follow the leader: cada segmento segue o anterior
+                    for (let i = 1; i < this.segments.length; i++) {
+                        const prev = this.segments[i - 1];
+                        const curr = this.segments[i];
+                        const dx = prev.x - curr.x;
+                        const dy = prev.y - curr.y;
+                        const angle = Math.atan2(dy, dx);
+                        curr.angle = angle;
+                        curr.x = prev.x - Math.cos(angle) * this.segmentSpacing;
+                        curr.y = prev.y - Math.sin(angle) * this.segmentSpacing;
+                    }
+
+                    // Atualiza ângulo do head
+                    if (this.segments.length > 1) {
+                        this.segments[0].angle = Math.atan2(
+                            this.segments[1].y - this.segments[0].y,
+                            this.segments[1].x - this.segments[0].x
+                        ) + Math.PI;
+                    }
+
+                    this.draw();
+                    requestAnimationFrame(() => this.animate());
+                }
+
+                draw() {
+                    const ctx = this.ctx;
+                    ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                    // Sombra/glow
+                    ctx.shadowColor = 'rgba(255, 0, 0, 0.6)';
+                    ctx.shadowBlur = 15;
+
+                    // Desenha pernas primeiro (atrás do corpo)
+                    this.drawLegs();
+
+                    // Desenha segmentos do corpo (do último ao primeiro)
+                    for (let i = this.segments.length - 1; i >= 0; i--) {
+                        this.drawSegment(i);
+                    }
+
+                    // Cabeça (primeiro segmento, desenhado por último)
+                    this.drawHead();
+                }
+
+                drawSegment(i) {
+                    const seg = this.segments[i];
+                    const ctx = this.ctx;
+                    const progress = i / this.segments.length;
+                    const size = 12 - progress * 4; // diminui em direção à cauda
+
+                    ctx.save();
+                    ctx.translate(seg.x, seg.y);
+                    ctx.rotate(seg.angle);
+
+                    // Corpo do segmento (oval)
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, size, size * 0.7, 0, 0, Math.PI * 2);
+                    
+                    const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, size);
+                    gradient.addColorStop(0, '#6a0000');
+                    gradient.addColorStop(0.6, '#4a0000');
+                    gradient.addColorStop(1, '#2a0000');
+                    ctx.fillStyle = gradient;
+                    ctx.fill();
+
+                    // Borda
+                    ctx.strokeStyle = '#8a0303';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+
+                    ctx.restore();
+                }
+
+                drawHead() {
+                    const head = this.segments[0];
+                    const ctx = this.ctx;
+
+                    ctx.save();
+                    ctx.translate(head.x, head.y);
+                    ctx.rotate(head.angle);
+
+                    // Cabeça maior
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, 16, 12, 0, 0, Math.PI * 2);
+                    const headGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 16);
+                    headGradient.addColorStop(0, '#8a0000');
+                    headGradient.addColorStop(1, '#4a0000');
+                    ctx.fillStyle = headGradient;
+                    ctx.fill();
+                    ctx.strokeStyle = '#c41e1e';
+                    ctx.lineWidth = 1.5;
+                    ctx.stroke();
+
+                    // Olhos
+                    ctx.shadowBlur = 0;
+                    ctx.beginPath();
+                    ctx.arc(-4, -5, 3, 0, Math.PI * 2);
+                    ctx.arc(4, -5, 3, 0, Math.PI * 2);
+                    ctx.fillStyle = '#ff0000';
+                    ctx.fill();
+
+                    // Brilho dos olhos
+                    ctx.beginPath();
+                    ctx.arc(-4, -5, 1, 0, Math.PI * 2);
+                    ctx.arc(4, -5, 1, 0, Math.PI * 2);
+                    ctx.fillStyle = '#ffaaaa';
+                    ctx.fill();
+
+                    // Mandíbulas
+                    ctx.strokeStyle = '#c41e1e';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(-8, 4);
+                    ctx.quadraticCurveTo(-12, 10, -10, 14);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(8, 4);
+                    ctx.quadraticCurveTo(12, 10, 10, 14);
+                    ctx.stroke();
+
+                    // Antenas
+                    ctx.strokeStyle = '#c41e1e';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.moveTo(-6, -10);
+                    ctx.quadraticCurveTo(-15, -20, -20, -25);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(6, -10);
+                    ctx.quadraticCurveTo(15, -20, 20, -25);
+                    ctx.stroke();
+
+                    ctx.restore();
+                }
+
+                drawLegs() {
+                    const ctx = this.ctx;
+                    ctx.shadowBlur = 0;
+                    ctx.strokeStyle = '#6a0000';
+                    ctx.lineWidth = 1.5;
+
+                    // Desenha pernas para cada segmento (exceto cabeça e cauda)
+                    for (let i = 1; i < this.segments.length - 1; i++) {
+                        const seg = this.segments[i];
+                        const progress = i / this.segments.length;
+                        const legLength = 15 - progress * 8;
+                        const perpAngle = seg.angle + Math.PI / 2;
+
+                        // Ondulação das pernas baseada no tempo e posição
+                        const wave = Math.sin(Date.now() * 0.01 + i * 0.3) * 0.3;
+
+                        // Perna esquerda
+                        ctx.beginPath();
+                        ctx.moveTo(seg.x, seg.y);
+                        ctx.lineTo(
+                            seg.x + Math.cos(perpAngle + wave) * legLength,
+                            seg.y + Math.sin(perpAngle + wave) * legLength
+                        );
+                        ctx.stroke();
+
+                        // Perna direita
+                        ctx.beginPath();
+                        ctx.moveTo(seg.x, seg.y);
+                        ctx.lineTo(
+                            seg.x + Math.cos(-perpAngle - wave) * legLength,
+                            seg.y + Math.sin(-perpAngle - wave) * legLength
+                        );
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            // ===== KANEKI EASTER EGG =====
+            const rizeCount = document.getElementById('rize-count');
+            const kanekiContainer = document.getElementById('kaneki-container');
+            const glitchOverlay = document.getElementById('glitch-overlay');
+            const darkenOverlay = document.getElementById('darken-overlay');
+            const chainsOverlay = document.getElementById('chains-overlay');
+            const centipedeCanvas = document.getElementById('centipede-canvas');
+            
+            const centipede = new Centipede(centipedeCanvas);
+            
+            let longPressTimer = null;
+            let kanekiActive = false;
+            let kanekiCooldown = false;
+            const isTouchDevice = window.matchMedia('(hover: none)').matches;
+
+            function triggerKaneki() {
+                if (kanekiActive || kanekiCooldown) return;
+                
+                kanekiActive = true;
+                kanekiCooldown = true;
+
+                darkenOverlay.classList.add('active');
+                chainsOverlay.classList.add('active');
+                glitchOverlay.classList.add('active');
+                
+                // Centopeia profissional
+                setTimeout(() => centipede.start(), 200);
+                
+                setTimeout(() => {
+                    kanekiContainer.classList.remove('exiting');
+                    kanekiContainer.classList.add('entering');
+                }, 600);
+
+                setTimeout(() => glitchOverlay.classList.remove('active'), 800);
+
+                setTimeout(() => {
+                    glitchOverlay.classList.add('active');
+                    setTimeout(() => glitchOverlay.classList.remove('active'), 400);
+                }, 3500);
+
+                setTimeout(() => {
+                    glitchOverlay.classList.add('active');
+                    setTimeout(() => glitchOverlay.classList.remove('active'), 300);
+                    
+                    kanekiContainer.classList.remove('entering');
+                    kanekiContainer.classList.add('exiting');
+                    
+                    setTimeout(() => chainsOverlay.classList.remove('active'), 400);
+                    setTimeout(() => darkenOverlay.classList.remove('active'), 800);
+                    
+                    kanekiActive = false;
+                }, 6000);
+
+                setTimeout(() => {
+                    centipede.stop();
+                    kanekiCooldown = false;
+                }, 8500);
+
+                if (navigator.vibrate) navigator.vibrate([50, 100, 50]);
+            }
+
+            if (isTouchDevice) {
+                rizeCount.addEventListener('touchstart', (e) => {
+                    longPressTimer = setTimeout(triggerKaneki, 500);
+                }, { passive: true });
+                rizeCount.addEventListener('touchend', () => clearTimeout(longPressTimer), { passive: true });
+                rizeCount.addEventListener('touchmove', () => clearTimeout(longPressTimer), { passive: true });
+            } else {
+                rizeCount.addEventListener('click', triggerKaneki);
+            }
+        })();
+    </script>
+</body>
+</html>
