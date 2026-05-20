@@ -1717,8 +1717,11 @@
                     }
 
                     const headPos = this.getPositionAtDistance(this.distanceTraveled);
-                    this.segments[0].x = headPos.x;
-                    this.segments[0].y = headPos.y;
+                    const prevPos = this.getPositionAtDistance(this.distanceTraveled - this.segmentSpacing);
+                    
+                    const smoothing = 0.15; // Pulls head closer to body
+                    this.segments[0].x += (headPos.x - this.segments[0].x) * smoothing;
+                    this.segments[0].y += (headPos.y - this.segments[0].y) * smoothing;
 
                     for (let i = 1; i < this.segments.length; i++) {
                         const segDist = this.distanceTraveled - i * this.segmentSpacing;
@@ -1727,9 +1730,9 @@
                         const prev = this.segments[i - 1];
                         const curr = this.segments[i];
                         
-                        const smoothing = 0.35;
-                        curr.x += (pos.x - curr.x) * smoothing;
-                        curr.y += (pos.y - curr.y) * smoothing;
+                        const segSmoothing = 0.35;
+                        curr.x += (pos.x - curr.x) * segSmoothing;
+                        curr.y += (pos.y - curr.y) * segSmoothing;
                         
                         const dx = prev.x - curr.x;
                         const dy = prev.y - curr.y;
@@ -1837,8 +1840,8 @@
 
                     ctx.beginPath();
                     ctx.moveTo(14, 0);
-                    ctx.bezierCurveTo(16, 11, 4, 15, -14, 12);
-                    ctx.bezierCurveTo(-18, 8, -18, -8, -14, -12);
+                    ctx.bezierCurveTo(16, 11, 4, 15, -20, 12); // Extended back to -20
+                    ctx.bezierCurveTo(-24, 8, -24, -8, -20, -12); // Extended back to -20
                     ctx.bezierCurveTo(4, -15, 16, -11, 14, 0);
                     ctx.closePath();
 
