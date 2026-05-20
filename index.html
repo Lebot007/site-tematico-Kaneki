@@ -47,7 +47,8 @@
             width: 16px; height: 16px;
             border: 2px solid var(--bone);
             border-radius: 50%;
-            position: fixed; top: 0; left: 0;            pointer-events: none;
+            position: fixed; top: 0; left: 0;
+            pointer-events: none;
             z-index: 10000;
             mix-blend-mode: difference;
             will-change: transform;
@@ -96,7 +97,8 @@
             transform: skewX(2deg) rotate(1deg);
             font-style: italic;
         }
-        .mobile-hint {            display: none;
+        .mobile-hint {
+            display: none;
             font-size: 0.6rem;
             letter-spacing: 0.2em;
             color: rgba(196, 30, 30, 0.5);
@@ -145,7 +147,8 @@
             width: 0; overflow: hidden; opacity: 0;
             transition: width 0.4s ease, opacity 0.3s ease;
             display: flex; align-items: center;
-        }        .audio-container:hover .volume-slider-container,
+        }
+        .audio-container:hover .volume-slider-container,
         .audio-container.expanded .volume-slider-container { width: 100px; opacity: 1; }
         .volume-slider {
             -webkit-appearance: none; appearance: none;
@@ -194,7 +197,8 @@
             position: relative;
             animation: float-flower 8s ease-in-out infinite;
         }
-        .higanbana-wrap::before {            content: '';
+        .higanbana-wrap::before {
+            content: '';
             position: absolute; inset: -20px;
             background: radial-gradient(circle, rgba(255, 0, 0, 0.25), transparent 60%);
             border-radius: 50%;
@@ -243,7 +247,8 @@
             width: 100%; height: 100%;
             display: flex; align-items: center; justify-content: center;
         }
-        .project-card {            position: absolute;
+        .project-card {
+            position: absolute;
             width: 420px; max-width: 85vw; height: 540px;
             background: linear-gradient(145deg, rgba(20, 8, 8, 0.9), rgba(10, 4, 4, 0.98));
             border: 1px solid rgba(196, 30, 30, 0.2);
@@ -292,7 +297,8 @@
             z-index: 1;
         }
         .project-card::after {
-            content: ''; position: absolute; inset: 0;            border-radius: inherit;
+            content: ''; position: absolute; inset: 0;
+            border-radius: inherit;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
             opacity: 0;
             transition: opacity 0.7s ease;
@@ -341,7 +347,8 @@
             text-transform: uppercase;
             margin-bottom: 16px;
             font-style: italic;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.95);        }
+            text-shadow: 0 2px 8px rgba(0,0,0,0.95);
+        }
         .card-desc {
             color: #d8d8d8; font-size: 0.92rem;
             line-height: 1.6; margin-bottom: 20px; flex-grow: 1;
@@ -390,7 +397,8 @@
             transform: rotate(45deg);
         }
 
-        .carousel-nav {            position: absolute; top: 50%;
+        .carousel-nav {
+            position: absolute; top: 50%;
             transform: translateY(-50%);
             width: 50px; height: 50px;
             background: rgba(10, 4, 4, 0.85);
@@ -439,7 +447,8 @@
             position: relative;
             contain: layout style paint;
             -webkit-tap-highlight-color: transparent;
-        }        .social-card::after {
+        }
+        .social-card::after {
             content: '';
             position: absolute; inset: -1px;
             border-radius: inherit;
@@ -488,6 +497,7 @@
             text-transform: uppercase;
         }
         .social-card.copied .copied-toast { opacity: 1; }
+
         .kaneki-container {
             position: fixed;
             right: 0;
@@ -537,7 +547,8 @@
             position: fixed; inset: 0;
             background: radial-gradient(ellipse at center, rgba(0,0,0,0.4), rgba(0,0,0,0.85));
             z-index: 9994;
-            opacity: 0;            pointer-events: none;
+            opacity: 0;
+            pointer-events: none;
             transition: opacity 1s ease;
         }
         .darken-overlay.active { opacity: 1; }
@@ -586,7 +597,8 @@
             position: fixed; inset: 0;
             z-index: 9993;
             pointer-events: none;
-            opacity: 0;            transition: opacity 0.8s ease;
+            opacity: 0;
+            transition: opacity 0.8s ease;
         }
         .chains-overlay.active { opacity: 1; }
         
@@ -598,14 +610,24 @@
         
         .chain-link {
             fill: none;
-            stroke: #8a0303;
-            stroke-width: 1.5;
-            filter: drop-shadow(0 0 4px rgba(255, 0, 0, 0.5));
+            stroke: url(#chainGradient);
+            stroke-width: 3;
+            filter: drop-shadow(0 0 6px rgba(255, 0, 0, 0.6)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
         }
-        .chain-link-accent {
+        .chain-link-inner {
+            fill: none;
+            stroke: #000;
+            stroke-width: 1.5;
+            opacity: 0.7;
+        }
+        .chain-link-highlight {
             fill: none;
             stroke: #c41e1e;
-            stroke-width: 0.5;
+            stroke-width: 0.8;
+            opacity: 0.9;
+        }
+        .chain-rust {
+            fill: #3a0000;
             opacity: 0.6;
         }
         
@@ -635,7 +657,8 @@
 
         section { content-visibility: auto; contain-intrinsic-size: auto 100vh; }
 
-        @media (hover: none), (pointer: coarse) {            .cursor { display: none !important; }
+        @media (hover: none), (pointer: coarse) {
+            .cursor { display: none !important; }
             body, a, button, .kakugan, .carousel-nav, .carousel-dot, .rize-count, .social-card, .project-card, .entry-overlay, .volume-slider {
                 cursor: auto !important;
             }
@@ -664,6 +687,9 @@
             .volume-slider::-moz-range-thumb { width: 20px; height: 20px; background: var(--bone); border-radius: 50%; border: 2px solid var(--blood-bright); cursor: pointer; }
             .carousel-dot { width: 10px; height: 10px; cursor: pointer; }
             .carousel-dot.active { width: 28px; }
+            
+            .chain-link { stroke-width: 2.5; }
+            .chain-link-inner { stroke-width: 1.2; }
         }
 
         @media (max-width: 768px) {
@@ -685,6 +711,7 @@
             .audio-container { bottom: 15px; right: 15px; }
             .rize-count { bottom: 70px; right: 15px; font-size: 1.3rem; }
         }
+
         @media (max-width: 480px) {
             .carousel-wrapper { height: 540px; }
             .project-card { width: 280px; height: 500px; }
@@ -732,25 +759,292 @@
     <div class="glitch-overlay" id="glitch-overlay"></div>
     
     <div class="chains-overlay" id="chains-overlay">
-        <svg class="chain-group chain-tl" width="120" height="400" viewBox="0 0 120 400">
-            <g class="chain-link"><ellipse cx="60" cy="20" rx="14" ry="20"/><ellipse cx="60" cy="60" rx="14" ry="20"/><ellipse cx="60" cy="100" rx="14" ry="20"/><ellipse cx="60" cy="140" rx="14" ry="20"/><ellipse cx="60" cy="180" rx="14" ry="20"/><ellipse cx="60" cy="220" rx="14" ry="20"/><ellipse cx="60" cy="260" rx="14" ry="20"/><ellipse cx="60" cy="300" rx="14" ry="20"/><ellipse cx="60" cy="340" rx="14" ry="20"/><ellipse cx="60" cy="380" rx="14" ry="20"/></g>            <g class="chain-link-accent"><ellipse cx="60" cy="20" rx="10" ry="16"/><ellipse cx="60" cy="60" rx="10" ry="16"/><ellipse cx="60" cy="100" rx="10" ry="16"/><ellipse cx="60" cy="140" rx="10" ry="16"/><ellipse cx="60" cy="180" rx="10" ry="16"/><ellipse cx="60" cy="220" rx="10" ry="16"/><ellipse cx="60" cy="260" rx="10" ry="16"/><ellipse cx="60" cy="300" rx="10" ry="16"/><ellipse cx="60" cy="340" rx="10" ry="16"/><ellipse cx="60" cy="380" rx="10" ry="16"/></g>
+        <!-- Definições de gradientes e filtros para correntes grotescas -->
+        <svg width="0" height="0" style="position: absolute;">
+            <defs>
+                <linearGradient id="chainGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#4a0000;stop-opacity:1" />
+                    <stop offset="50%" style="stop-color:#8a0303;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#3a0000;stop-opacity:1" />
+                </linearGradient>
+                <linearGradient id="chainGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#5a0000;stop-opacity:1" />
+                    <stop offset="50%" style="stop-color:#9a1313;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#4a0000;stop-opacity:1" />
+                </linearGradient>
+                <filter id="chainRust">
+                    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" result="noise"/>
+                    <feColorMatrix type="matrix" values="0 0 0 0 0.2 0 0 0 0 0 0 0 0 0 0 0 0 0 0.3 0" in="noise" result="rustNoise"/>
+                    <feComposite operator="in" in="rustNoise" in2="SourceGraphic" result="rustTexture"/>
+                    <feMerge>
+                        <feMergeNode in="SourceGraphic"/>
+                        <feMergeNode in="rustTexture"/>
+                    </feMerge>
+                </filter>
+            </defs>
         </svg>
-        <svg class="chain-group chain-tr" width="120" height="380" viewBox="0 0 120 380">
-            <g class="chain-link"><ellipse cx="60" cy="20" rx="13" ry="18"/><ellipse cx="60" cy="56" rx="13" ry="18"/><ellipse cx="60" cy="92" rx="13" ry="18"/><ellipse cx="60" cy="128" rx="13" ry="18"/><ellipse cx="60" cy="164" rx="13" ry="18"/><ellipse cx="60" cy="200" rx="13" ry="18"/><ellipse cx="60" cy="236" rx="13" ry="18"/><ellipse cx="60" cy="272" rx="13" ry="18"/><ellipse cx="60" cy="308" rx="13" ry="18"/><ellipse cx="60" cy="344" rx="13" ry="18"/></g>
-            <g class="chain-link-accent"><ellipse cx="60" cy="20" rx="9" ry="14"/><ellipse cx="60" cy="56" rx="9" ry="14"/><ellipse cx="60" cy="92" rx="9" ry="14"/><ellipse cx="60" cy="128" rx="9" ry="14"/><ellipse cx="60" cy="164" rx="9" ry="14"/><ellipse cx="60" cy="200" rx="9" ry="14"/><ellipse cx="60" cy="236" rx="9" ry="14"/><ellipse cx="60" cy="272" rx="9" ry="14"/><ellipse cx="60" cy="308" rx="9" ry="14"/><ellipse cx="60" cy="344" rx="9" ry="14"/></g>
+        
+        <!-- Corrente Superior Esquerda -->
+        <svg class="chain-group chain-tl" width="140" height="450" viewBox="0 0 140 450">
+            <g class="chain-link">
+                <ellipse cx="70" cy="25" rx="18" ry="25"/>
+                <ellipse cx="70" cy="75" rx="18" ry="25"/>
+                <ellipse cx="70" cy="125" rx="18" ry="25"/>
+                <ellipse cx="70" cy="175" rx="18" ry="25"/>
+                <ellipse cx="70" cy="225" rx="18" ry="25"/>
+                <ellipse cx="70" cy="275" rx="18" ry="25"/>
+                <ellipse cx="70" cy="325" rx="18" ry="25"/>
+                <ellipse cx="70" cy="375" rx="18" ry="25"/>
+                <ellipse cx="70" cy="425" rx="18" ry="25"/>
+            </g>
+            <g class="chain-link-inner">
+                <ellipse cx="70" cy="25" rx="12" ry="18"/>
+                <ellipse cx="70" cy="75" rx="12" ry="18"/>
+                <ellipse cx="70" cy="125" rx="12" ry="18"/>
+                <ellipse cx="70" cy="175" rx="12" ry="18"/>
+                <ellipse cx="70" cy="225" rx="12" ry="18"/>
+                <ellipse cx="70" cy="275" rx="12" ry="18"/>
+                <ellipse cx="70" cy="325" rx="12" ry="18"/>
+                <ellipse cx="70" cy="375" rx="12" ry="18"/>
+                <ellipse cx="70" cy="425" rx="12" ry="18"/>
+            </g>
+            <g class="chain-link-highlight">
+                <path d="M 58 15 Q 52 25 58 35" />
+                <path d="M 58 65 Q 52 75 58 85" />
+                <path d="M 58 115 Q 52 125 58 135" />
+                <path d="M 58 165 Q 52 175 58 185" />
+                <path d="M 58 215 Q 52 225 58 235" />
+                <path d="M 58 265 Q 52 275 58 285" />
+                <path d="M 58 315 Q 52 325 58 335" />
+                <path d="M 58 365 Q 52 375 58 385" />
+                <path d="M 58 415 Q 52 425 58 435" />
+            </g>
+            <g class="chain-rust">
+                <circle cx="65" cy="20" r="2"/>
+                <circle cx="78" cy="80" r="1.5"/>
+                <circle cx="62" cy="130" r="2"/>
+                <circle cx="75" cy="180" r="1.5"/>
+                <circle cx="68" cy="230" r="2"/>
+                <circle cx="72" cy="280" r="1.5"/>
+                <circle cx="66" cy="330" r="2"/>
+                <circle cx="76" cy="380" r="1.5"/>
+                <circle cx="64" cy="430" r="2"/>
+            </g>
         </svg>
-        <svg class="chain-group chain-bl" width="120" height="360" viewBox="0 0 120 360">
-            <g class="chain-link"><ellipse cx="60" cy="20" rx="14" ry="20"/><ellipse cx="60" cy="60" rx="14" ry="20"/><ellipse cx="60" cy="100" rx="14" ry="20"/><ellipse cx="60" cy="140" rx="14" ry="20"/><ellipse cx="60" cy="180" rx="14" ry="20"/><ellipse cx="60" cy="220" rx="14" ry="20"/><ellipse cx="60" cy="260" rx="14" ry="20"/><ellipse cx="60" cy="300" rx="14" ry="20"/><ellipse cx="60" cy="340" rx="14" ry="20"/></g>
+        
+        <!-- Corrente Superior Direita -->
+        <svg class="chain-group chain-tr" width="140" height="430" viewBox="0 0 140 430">
+            <g class="chain-link">
+                <ellipse cx="70" cy="25" rx="17" ry="24"/>
+                <ellipse cx="70" cy="73" rx="17" ry="24"/>
+                <ellipse cx="70" cy="121" rx="17" ry="24"/>
+                <ellipse cx="70" cy="169" rx="17" ry="24"/>
+                <ellipse cx="70" cy="217" rx="17" ry="24"/>
+                <ellipse cx="70" cy="265" rx="17" ry="24"/>
+                <ellipse cx="70" cy="313" rx="17" ry="24"/>
+                <ellipse cx="70" cy="361" rx="17" ry="24"/>
+                <ellipse cx="70" cy="409" rx="17" ry="24"/>
+            </g>
+            <g class="chain-link-inner">
+                <ellipse cx="70" cy="25" rx="11" ry="17"/>
+                <ellipse cx="70" cy="73" rx="11" ry="17"/>
+                <ellipse cx="70" cy="121" rx="11" ry="17"/>
+                <ellipse cx="70" cy="169" rx="11" ry="17"/>
+                <ellipse cx="70" cy="217" rx="11" ry="17"/>
+                <ellipse cx="70" cy="265" rx="11" ry="17"/>
+                <ellipse cx="70" cy="313" rx="11" ry="17"/>
+                <ellipse cx="70" cy="361" rx="11" ry="17"/>
+                <ellipse cx="70" cy="409" rx="11" ry="17"/>
+            </g>
+            <g class="chain-link-highlight">
+                <path d="M 59 16 Q 53 25 59 34" />
+                <path d="M 59 64 Q 53 73 59 82" />
+                <path d="M 59 112 Q 53 121 59 130" />
+                <path d="M 59 160 Q 53 169 59 178" />
+                <path d="M 59 208 Q 53 217 59 226" />
+                <path d="M 59 256 Q 53 265 59 274" />
+                <path d="M 59 304 Q 53 313 59 322" />
+                <path d="M 59 352 Q 53 361 59 370" />
+                <path d="M 59 400 Q 53 409 59 418" />
+            </g>
+            <g class="chain-rust">
+                <circle cx="75" cy="30" r="1.5"/>
+                <circle cx="63" cy="78" r="2"/>
+                <circle cx="76" cy="126" r="1.5"/>
+                <circle cx="64" cy="174" r="2"/>
+                <circle cx="73" cy="222" r="1.5"/>
+                <circle cx="67" cy="270" r="2"/>
+                <circle cx="74" cy="318" r="1.5"/>
+                <circle cx="66" cy="366" r="2"/>
+            </g>
         </svg>
-        <svg class="chain-group chain-br" width="120" height="380" viewBox="0 0 120 380">
-            <g class="chain-link"><ellipse cx="60" cy="20" rx="13" ry="19"/><ellipse cx="60" cy="58" rx="13" ry="19"/><ellipse cx="60" cy="96" rx="13" ry="19"/><ellipse cx="60" cy="134" rx="13" ry="19"/><ellipse cx="60" cy="172" rx="13" ry="19"/><ellipse cx="60" cy="210" rx="13" ry="19"/><ellipse cx="60" cy="248" rx="13" ry="19"/><ellipse cx="60" cy="286" rx="13" ry="19"/><ellipse cx="60" cy="324" rx="13" ry="19"/><ellipse cx="60" cy="362" rx="13" ry="19"/></g>
+        
+        <!-- Corrente Inferior Esquerda -->
+        <svg class="chain-group chain-bl" width="140" height="410" viewBox="0 0 140 410">
+            <g class="chain-link">
+                <ellipse cx="70" cy="25" rx="18" ry="25"/>
+                <ellipse cx="70" cy="75" rx="18" ry="25"/>
+                <ellipse cx="70" cy="125" rx="18" ry="25"/>
+                <ellipse cx="70" cy="175" rx="18" ry="25"/>
+                <ellipse cx="70" cy="225" rx="18" ry="25"/>
+                <ellipse cx="70" cy="275" rx="18" ry="25"/>
+                <ellipse cx="70" cy="325" rx="18" ry="25"/>
+                <ellipse cx="70" cy="375" rx="18" ry="25"/>
+            </g>
+            <g class="chain-link-inner">
+                <ellipse cx="70" cy="25" rx="12" ry="18"/>
+                <ellipse cx="70" cy="75" rx="12" ry="18"/>
+                <ellipse cx="70" cy="125" rx="12" ry="18"/>
+                <ellipse cx="70" cy="175" rx="12" ry="18"/>
+                <ellipse cx="70" cy="225" rx="12" ry="18"/>
+                <ellipse cx="70" cy="275" rx="12" ry="18"/>
+                <ellipse cx="70" cy="325" rx="12" ry="18"/>
+                <ellipse cx="70" cy="375" rx="12" ry="18"/>
+            </g>
+            <g class="chain-link-highlight">
+                <path d="M 58 15 Q 52 25 58 35" />
+                <path d="M 58 65 Q 52 75 58 85" />
+                <path d="M 58 115 Q 52 125 58 135" />
+                <path d="M 58 165 Q 52 175 58 185" />
+                <path d="M 58 215 Q 52 225 58 235" />
+                <path d="M 58 265 Q 52 275 58 285" />
+                <path d="M 58 315 Q 52 325 58 335" />
+                <path d="M 58 365 Q 52 375 58 385" />
+            </g>
+            <g class="chain-rust">
+                <circle cx="68" cy="28" r="2"/>
+                <circle cx="74" cy="78" r="1.5"/>
+                <circle cx="66" cy="128" r="2"/>
+                <circle cx="76" cy="178" r="1.5"/>
+                <circle cx="64" cy="228" r="2"/>
+                <circle cx="72" cy="278" r="1.5"/>
+                <circle cx="68" cy="328" r="2"/>
+            </g>
         </svg>
-        <svg class="chain-group chain-mid-l" width="300" height="120" viewBox="0 0 300 120">
-            <g class="chain-link"><ellipse cx="20" cy="60" rx="20" ry="13"/><ellipse cx="60" cy="60" rx="20" ry="13"/><ellipse cx="100" cy="60" rx="20" ry="13"/><ellipse cx="140" cy="60" rx="20" ry="13"/><ellipse cx="180" cy="60" rx="20" ry="13"/><ellipse cx="220" cy="60" rx="20" ry="13"/><ellipse cx="260" cy="60" rx="20" ry="13"/></g>
-            <g class="chain-link-accent"><ellipse cx="20" cy="60" rx="16" ry="9"/><ellipse cx="60" cy="60" rx="16" ry="9"/><ellipse cx="100" cy="60" rx="16" ry="9"/><ellipse cx="140" cy="60" rx="16" ry="9"/><ellipse cx="180" cy="60" rx="16" ry="9"/><ellipse cx="220" cy="60" rx="16" ry="9"/><ellipse cx="260" cy="60" rx="16" ry="9"/></g>
+        
+        <!-- Corrente Inferior Direita -->
+        <svg class="chain-group chain-br" width="140" height="430" viewBox="0 0 140 430">
+            <g class="chain-link">
+                <ellipse cx="70" cy="25" rx="17" ry="24"/>
+                <ellipse cx="70" cy="73" rx="17" ry="24"/>
+                <ellipse cx="70" cy="121" rx="17" ry="24"/>
+                <ellipse cx="70" cy="169" rx="17" ry="24"/>
+                <ellipse cx="70" cy="217" rx="17" ry="24"/>
+                <ellipse cx="70" cy="265" rx="17" ry="24"/>
+                <ellipse cx="70" cy="313" rx="17" ry="24"/>
+                <ellipse cx="70" cy="361" rx="17" ry="24"/>
+                <ellipse cx="70" cy="409" rx="17" ry="24"/>
+            </g>
+            <g class="chain-link-inner">
+                <ellipse cx="70" cy="25" rx="11" ry="17"/>
+                <ellipse cx="70" cy="73" rx="11" ry="17"/>
+                <ellipse cx="70" cy="121" rx="11" ry="17"/>
+                <ellipse cx="70" cy="169" rx="11" ry="17"/>
+                <ellipse cx="70" cy="217" rx="11" ry="17"/>
+                <ellipse cx="70" cy="265" rx="11" ry="17"/>
+                <ellipse cx="70" cy="313" rx="11" ry="17"/>
+                <ellipse cx="70" cy="361" rx="11" ry="17"/>
+                <ellipse cx="70" cy="409" rx="11" ry="17"/>
+            </g>
+            <g class="chain-link-highlight">
+                <path d="M 59 16 Q 53 25 59 34" />
+                <path d="M 59 64 Q 53 73 59 82" />
+                <path d="M 59 112 Q 53 121 59 130" />
+                <path d="M 59 160 Q 53 169 59 178" />
+                <path d="M 59 208 Q 53 217 59 226" />
+                <path d="M 59 256 Q 53 265 59 274" />
+                <path d="M 59 304 Q 53 313 59 322" />
+                <path d="M 59 352 Q 53 361 59 370" />
+                <path d="M 59 400 Q 53 409 59 418" />
+            </g>
+            <g class="chain-rust">
+                <circle cx="73" cy="28" r="1.5"/>
+                <circle cx="65" cy="76" r="2"/>
+                <circle cx="74" cy="124" r="1.5"/>
+                <circle cx="66" cy="172" r="2"/>
+                <circle cx="72" cy="220" r="1.5"/>
+                <circle cx="68" cy="268" r="2"/>
+                <circle cx="75" cy="316" r="1.5"/>
+                <circle cx="67" cy="364" r="2"/>
+            </g>
         </svg>
-        <svg class="chain-group chain-mid-r" width="280" height="120" viewBox="0 0 280 120">
-            <g class="chain-link"><ellipse cx="20" cy="60" rx="19" ry="12"/><ellipse cx="58" cy="60" rx="19" ry="12"/><ellipse cx="96" cy="60" rx="19" ry="12"/><ellipse cx="134" cy="60" rx="19" ry="12"/><ellipse cx="172" cy="60" rx="19" ry="12"/><ellipse cx="210" cy="60" rx="19" ry="12"/><ellipse cx="248" cy="60" rx="19" ry="12"/></g>
+        
+        <!-- Corrente Média Esquerda -->
+        <svg class="chain-group chain-mid-l" width="350" height="140" viewBox="0 0 350 140">
+            <g class="chain-link">
+                <ellipse cx="25" cy="70" rx="25" ry="18"/>
+                <ellipse cx="75" cy="70" rx="25" ry="18"/>
+                <ellipse cx="125" cy="70" rx="25" ry="18"/>
+                <ellipse cx="175" cy="70" rx="25" ry="18"/>
+                <ellipse cx="225" cy="70" rx="25" ry="18"/>
+                <ellipse cx="275" cy="70" rx="25" ry="18"/>
+                <ellipse cx="325" cy="70" rx="25" ry="18"/>
+            </g>
+            <g class="chain-link-inner">
+                <ellipse cx="25" cy="70" rx="18" ry="12"/>
+                <ellipse cx="75" cy="70" rx="18" ry="12"/>
+                <ellipse cx="125" cy="70" rx="18" ry="12"/>
+                <ellipse cx="175" cy="70" rx="18" ry="12"/>
+                <ellipse cx="225" cy="70" rx="18" ry="12"/>
+                <ellipse cx="275" cy="70" rx="18" ry="12"/>
+                <ellipse cx="325" cy="70" rx="18" ry="12"/>
+            </g>
+            <g class="chain-link-highlight">
+                <path d="M 15 58 Q 25 52 35 58" />
+                <path d="M 65 58 Q 75 52 85 58" />
+                <path d="M 115 58 Q 125 52 135 58" />
+                <path d="M 165 58 Q 175 52 185 58" />
+                <path d="M 215 58 Q 225 52 235 58" />
+                <path d="M 265 58 Q 275 52 285 58" />
+                <path d="M 315 58 Q 325 52 335 58" />
+            </g>
+            <g class="chain-rust">
+                <circle cx="30" cy="65" r="2"/>
+                <circle cx="80" cy="75" r="1.5"/>
+                <circle cx="130" cy="68" r="2"/>
+                <circle cx="180" cy="72" r="1.5"/>
+                <circle cx="230" cy="66" r="2"/>
+                <circle cx="280" cy="74" r="1.5"/>
+            </g>
+        </svg>
+        
+        <!-- Corrente Média Direita -->
+        <svg class="chain-group chain-mid-r" width="330" height="140" viewBox="0 0 330 140">
+            <g class="chain-link">
+                <ellipse cx="25" cy="70" rx="24" ry="17"/>
+                <ellipse cx="73" cy="70" rx="24" ry="17"/>
+                <ellipse cx="121" cy="70" rx="24" ry="17"/>
+                <ellipse cx="169" cy="70" rx="24" ry="17"/>
+                <ellipse cx="217" cy="70" rx="24" ry="17"/>
+                <ellipse cx="265" cy="70" rx="24" ry="17"/>
+                <ellipse cx="313" cy="70" rx="24" ry="17"/>
+            </g>
+            <g class="chain-link-inner">
+                <ellipse cx="25" cy="70" rx="17" ry="11"/>
+                <ellipse cx="73" cy="70" rx="17" ry="11"/>
+                <ellipse cx="121" cy="70" rx="17" ry="11"/>
+                <ellipse cx="169" cy="70" rx="17" ry="11"/>
+                <ellipse cx="217" cy="70" rx="17" ry="11"/>
+                <ellipse cx="265" cy="70" rx="17" ry="11"/>
+                <ellipse cx="313" cy="70" rx="17" ry="11"/>
+            </g>
+            <g class="chain-link-highlight">
+                <path d="M 16 59 Q 25 53 34 59" />
+                <path d="M 64 59 Q 73 53 82 59" />
+                <path d="M 112 59 Q 121 53 130 59" />
+                <path d="M 160 59 Q 169 53 178 59" />
+                <path d="M 208 59 Q 217 53 226 59" />
+                <path d="M 256 59 Q 265 53 274 59" />
+                <path d="M 304 59 Q 313 53 322 59" />
+            </g>
+            <g class="chain-rust">
+                <circle cx="28" cy="73" r="1.5"/>
+                <circle cx="76" cy="67" r="2"/>
+                <circle cx="124" cy="74" r="1.5"/>
+                <circle cx="172" cy="66" r="2"/>
+                <circle cx="220" cy="72" r="1.5"/>
+                <circle cx="268" cy="68" r="2"/>
+            </g>
         </svg>
     </div>
 
@@ -782,7 +1076,8 @@
                 <line x1="23" y1="9" x2="17" y2="15"></line>
                 <line x1="17" y1="9" x2="23" y2="15"></line>
             </svg>
-        </div>    </div>
+        </div>
+    </div>
 
     <section class="relative h-screen flex flex-col items-center justify-center text-center px-4">
         <h1 class="kanji-bg font-jp" aria-hidden="true">喰</h1>
@@ -831,7 +1126,8 @@
             <h3 class="text-3xl font-jp mb-4 text-center tracking-wide" style="color: #c41e1e;">O Banquete</h3>
             <p class="text-center text-readable-faint text-sm tracking-widest uppercase mb-16">Arquivos Classificados</p>
             <div class="carousel-wrapper" id="carousel">
-                <div class="carousel-stage" id="carousel-stage"></div>                <button class="carousel-nav prev" id="carousel-prev" aria-label="Anterior">
+                <div class="carousel-stage" id="carousel-stage"></div>
+                <button class="carousel-nav prev" id="carousel-prev" aria-label="Anterior">
                     <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
                 </button>
                 <button class="carousel-nav next" id="carousel-next" aria-label="Próximo">
@@ -880,7 +1176,8 @@
             </a>
 
             <div class="social-card rounded-sm p-6 flex flex-col items-center text-center cursor-pointer group" id="discord-card" data-username="Lebot.gg">
-                <svg class="social-icon w-10 h-10 mb-3" viewBox="0 0 24 24" fill="currentColor">                    <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/>
+                <svg class="social-icon w-10 h-10 mb-3" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/>
                 </svg>
                 <div class="social-label">Discord</div>
                 <div class="social-handle">Lebot.gg</div>
@@ -929,7 +1226,8 @@
                             cursor.style.transform = `translate3d(${pendingX}px, ${pendingY}px, 0)`;
                             rafId = null;
                         });
-                    }                }, { passive: true });
+                    }
+                }, { passive: true });
 
                 document.addEventListener('mouseover', (e) => {
                     if (e.target.closest('a, .ghoul-card, .kakugan, .volume-slider, .entry-overlay, .carousel-nav, .carousel-dot, .project-card, .rize-count, .social-card')) {
@@ -978,7 +1276,8 @@
             }, { once: true });
             entryOverlay.addEventListener('touchend', (e) => {
                 e.preventDefault();
-                hasInteracted = false;                startAudio();
+                hasInteracted = false;
+                startAudio();
             }, { once: true });
 
             player.addEventListener('click', () => {
@@ -1027,7 +1326,8 @@
             const discordCard = document.getElementById('discord-card');
             discordCard.addEventListener('click', async (e) => {
                 e.preventDefault();
-                const username = discordCard.dataset.username;                try {
+                const username = discordCard.dataset.username;
+                try {
                     await navigator.clipboard.writeText(username);
                 } catch {
                     const ta = document.createElement('textarea');
@@ -1077,6 +1377,7 @@
                     scrub: 0.5
                 }
             });
+
             const projects = [
                 { 
                     kanji: '眼', 
@@ -1125,7 +1426,8 @@
                     subtitle: 'One-Eyed Owl · A Escritora',
                     desc: 'Líder da Aogiri Tree e autora sob o pseudônimo Sen Takatsuki. A primeira One-Eyed natural, possui um Kakuja completo que distorce sua forma em horror. Filha do Coruja, sua revolta moldou uma era de caos em Tokyo.', 
                     tags: ['Kakuja', 'Aogiri', 'One-Eyed', 'Owl', 'Sen Takatsuki'], 
-                    year: 'RC: ∞',                    img: 'Etoprofile.jpg'
+                    year: 'RC: ∞',
+                    img: 'Etoprofile.jpg'
                 }
             ];
 
@@ -1174,7 +1476,8 @@
 
             function updateCarousel() {
                 const isMobile = window.innerWidth < 768;
-                cards.forEach((card, i) => {                    const offset = i - activeIndex;
+                cards.forEach((card, i) => {
+                    const offset = i - activeIndex;
                     const absOff = Math.abs(offset);
 
                     if (absOff > 2) {
@@ -1224,6 +1527,7 @@
 
             function next() { goTo((activeIndex + 1) % projects.length); }
             function prev() { goTo((activeIndex - 1 + projects.length) % projects.length); }
+
             document.getElementById('carousel-next').addEventListener('click', next);
             document.getElementById('carousel-prev').addEventListener('click', prev);
 
@@ -1269,15 +1573,16 @@
                     this.ctx = canvas.getContext('2d', { alpha: true });
                     this.segments = [];
                     this.numSegments = isTouchDevice ? 28 : 35;
-                    this.segmentSpacing = 12;
+                    this.segmentSpacing = 10; // Reduzido para manter cabeça mais próxima do corpo
                     this.running = false;
                     this.path = [];
-                    this.distanceTraveled = 0;                    this.time = 0;
+                    this.distanceTraveled = 0;
+                    this.time = 0;
                     this.rafId = null;
                     this.lastTimestamp = 0;
-                    this.speed = 0; // pixels por ms
+                    this.speed = 0;
                     this.totalPathLength = 0;
-                    this.pathLengths = []; // distâncias acumuladas
+                    this.pathLengths = [];
                     this.exitThreshold = 0;
                     this.resize();
                     window.addEventListener('resize', () => this.resize(), { passive: true });
@@ -1298,7 +1603,6 @@
                     const w = window.innerWidth;
                     const h = window.innerHeight;
                     
-                    // Ponto de saída MUITO além da tela (garante que a cauda toda saia)
                     const exitX = w + 500;
                     
                     const points = [ 
@@ -1312,7 +1616,6 @@
                         { x: exitX, y: h * 0.4 } 
                     ];
                     
-                    // Gerar pontos interpolados com Catmull-Rom
                     for (let i = 0; i < points.length - 1; i++) {
                         const steps = 100;
                         for (let j = 0; j < steps; j++) {
@@ -1321,7 +1624,8 @@
                             const p1 = points[i];
                             const p2 = points[Math.min(points.length - 1, i + 1)];
                             const p3 = points[Math.min(points.length - 1, i + 2)];
-                                                        const x = 0.5 * ((2 * p1.x) + (-p0.x + p2.x) * t + (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * t * t + (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * t * t * t);
+                            
+                            const x = 0.5 * ((2 * p1.x) + (-p0.x + p2.x) * t + (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * t * t + (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * t * t * t);
                             const y = 0.5 * ((2 * p1.y) + (-p0.y + p2.y) * t + (2 * p0.y - 5 * p1.y + 4 * p2.y - p3.y) * t * t + (-p0.y + 3 * p1.y - 3 * p2.y + p3.y) * t * t * t);
                             
                             this.path.push({ x, y });
@@ -1329,7 +1633,6 @@
                     }
                     this.path.push(points[points.length - 1]);
 
-                    // Calcular distâncias acumuladas
                     let acc = 0;
                     this.pathLengths.push(0);
                     for (let i = 1; i < this.path.length; i++) {
@@ -1340,21 +1643,17 @@
                     }
                     this.totalPathLength = acc;
                     
-                    // Velocidade: percorrer toda a tela em ~5 segundos (mais natural)
                     const durationMs = 5500;
                     this.speed = this.totalPathLength / durationMs;
                     
-                    // Limiar de saída: quando a CAUDA toda saiu da tela
                     const tailLength = this.numSegments * this.segmentSpacing;
                     this.exitThreshold = this.totalPathLength - tailLength - 50;
                 }
 
-                // Obtém posição no path baseado na distância percorrida
                 getPositionAtDistance(dist) {
                     if (dist <= 0) return { x: this.path[0].x, y: this.path[0].y };
                     if (dist >= this.totalPathLength) return this.path[this.path.length - 1];
                     
-                    // Busca binária para encontrar o segmento
                     let lo = 0, hi = this.pathLengths.length - 1;
                     while (lo < hi - 1) {
                         const mid = (lo + hi) >> 1;
@@ -1370,7 +1669,8 @@
                     const p2 = this.path[hi];
                     
                     return {
-                        x: p1.x + (p2.x - p1.x) * t,                        y: p1.y + (p2.y - p1.y) * t
+                        x: p1.x + (p2.x - p1.x) * t,
+                        y: p1.y + (p2.y - p1.y) * t
                     };
                 }
 
@@ -1408,29 +1708,25 @@
                     if (!this.running) return;
                     
                     if (!this.lastTimestamp) this.lastTimestamp = timestamp;
-                    const deltaTime = Math.min(timestamp - this.lastTimestamp, 50); // cap em 50ms
+                    const deltaTime = Math.min(timestamp - this.lastTimestamp, 50);
                     this.lastTimestamp = timestamp;
                     
                     this.time += deltaTime * 0.005;
-                    
-                    // Avançar distância baseado em delta time (movimento uniforme)
                     this.distanceTraveled += this.speed * deltaTime;
                     
-                    // Verificar se a CAUDA toda saiu da tela
                     const tailDist = this.distanceTraveled - (this.numSegments - 1) * this.segmentSpacing;
                     const tailPos = this.getPositionAtDistance(tailDist);
-                    const screenWidth = window.innerWidth;                    
+                    const screenWidth = window.innerWidth;
+                    
                     if (tailPos.x > screenWidth + 50) {
                         this.stop();
                         return;
                     }
 
-                    // Atualizar cabeça
                     const headPos = this.getPositionAtDistance(this.distanceTraveled);
                     this.segments[0].x = headPos.x;
                     this.segments[0].y = headPos.y;
 
-                    // Follow the leader - cada segmento segue o anterior com espaçamento fixo
                     for (let i = 1; i < this.segments.length; i++) {
                         const segDist = this.distanceTraveled - i * this.segmentSpacing;
                         const pos = this.getPositionAtDistance(segDist);
@@ -1438,18 +1734,15 @@
                         const prev = this.segments[i - 1];
                         const curr = this.segments[i];
                         
-                        // Interpolação suave
                         const smoothing = 0.35;
                         curr.x += (pos.x - curr.x) * smoothing;
                         curr.y += (pos.y - curr.y) * smoothing;
                         
-                        // Calcular ângulo baseado no segmento anterior
                         const dx = prev.x - curr.x;
                         const dy = prev.y - curr.y;
                         curr.angle = Math.atan2(dy, dx);
                     }
 
-                    // Ângulo da cabeça
                     if (this.segments.length > 1) {
                         this.segments[0].angle = Math.atan2(
                             this.segments[1].y - this.segments[0].y,
@@ -1468,7 +1761,8 @@
                     ctx.clearRect(0, 0, w, h);
                     
                     this.drawLegs();
-                                        for (let i = this.segments.length - 1; i >= 1; i--) {
+                    
+                    for (let i = this.segments.length - 1; i >= 1; i--) {
                         this.drawSegment(i);
                     }
                     
@@ -1517,7 +1811,8 @@
                     ctx.moveTo(length * 0.8, 0);
                     ctx.lineTo(-length * 0.5, 0);
                     ctx.strokeStyle = 'rgba(0,0,0,0.7)';
-                    ctx.lineWidth = 1;                    ctx.stroke();
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
 
                     ctx.strokeStyle = '#1a0000';
                     ctx.lineWidth = 0.8;
@@ -1548,13 +1843,13 @@
                     }
 
                     ctx.beginPath();
-                    ctx.moveTo(14, 0);
-                    ctx.bezierCurveTo(16, 12, 6, 16, -10, 14);
-                    ctx.bezierCurveTo(-14, 10, -14, -10, -10, -14);
-                    ctx.bezierCurveTo(6, -16, 16, -12, 14, 0);
+                    ctx.moveTo(12, 0); // Ajustado para ficar mais próximo do corpo
+                    ctx.bezierCurveTo(14, 10, 5, 14, -8, 12);
+                    ctx.bezierCurveTo(-12, 8, -12, -8, -8, -12);
+                    ctx.bezierCurveTo(5, -14, 14, -10, 12, 0);
                     ctx.closePath();
 
-                    const headGrad = ctx.createRadialGradient(2, 0, 0, 0, 0, 16);
+                    const headGrad = ctx.createRadialGradient(2, 0, 0, 0, 0, 14);
                     headGrad.addColorStop(0, '#a80808');
                     headGrad.addColorStop(0.4, '#5a0000');
                     headGrad.addColorStop(1, '#050000');
@@ -1566,24 +1861,25 @@
                     ctx.lineWidth = 1.5;
                     ctx.stroke();
 
-                    ctx.fillStyle = '#000';                    for (let i = 0; i < 8; i++) {
+                    ctx.fillStyle = '#000';
+                    for (let i = 0; i < 8; i++) {
                         const angle = (i / 8) * Math.PI - Math.PI / 2;
-                        const ex = 3 + Math.cos(angle) * 5;
-                        const ey = 6 + Math.sin(angle) * 4;
+                        const ex = 3 + Math.cos(angle) * 4;
+                        const ey = 5 + Math.sin(angle) * 3;
                         ctx.beginPath();
-                        ctx.arc(ex, ey, 1.2, 0, Math.PI * 2);
+                        ctx.arc(ex, ey, 1, 0, Math.PI * 2);
                         ctx.fill();
                         ctx.beginPath();
-                        ctx.arc(ex, -ey, 1.2, 0, Math.PI * 2);
+                        ctx.arc(ex, -ey, 1, 0, Math.PI * 2);
                         ctx.fill();
                     }
 
                     ctx.fillStyle = '#ff1a1a';
                     ctx.beginPath();
-                    ctx.arc(4, 6, 0.6, 0, Math.PI * 2);
+                    ctx.arc(4, 5, 0.5, 0, Math.PI * 2);
                     ctx.fill();
                     ctx.beginPath();
-                    ctx.arc(4, -6, 0.6, 0, Math.PI * 2);
+                    ctx.arc(4, -5, 0.5, 0, Math.PI * 2);
                     ctx.fill();
 
                     ctx.restore();
@@ -1596,13 +1892,13 @@
                     ctx.lineCap = 'round';
 
                     ctx.beginPath();
-                    ctx.moveTo(10, 8);
-                    ctx.quadraticCurveTo(25 + wave * 15, 20 + wave * 10, 45 + wave * 25, 15 + wave * 30);
+                    ctx.moveTo(8, 6);
+                    ctx.quadraticCurveTo(20 + wave * 12, 16 + wave * 8, 38 + wave * 20, 12 + wave * 25);
                     ctx.stroke();
 
                     ctx.beginPath();
-                    ctx.moveTo(10, -8);
-                    ctx.quadraticCurveTo(25 - wave * 15, -20 - wave * 10, 45 - wave * 25, -15 - wave * 30);
+                    ctx.moveTo(8, -6);
+                    ctx.quadraticCurveTo(20 - wave * 12, -16 - wave * 8, 38 - wave * 20, -12 - wave * 25);
                     ctx.stroke();
 
                     ctx.strokeStyle = '#4a0000';
@@ -1610,12 +1906,13 @@
                     for(let j=1; j<=4; j++) {
                         const t = j/5;
                         ctx.beginPath();
-                        ctx.arc(10 + (35+wave*25)*t, 8 + (7+wave*30)*t, 1.5, 0, Math.PI*2);
+                        ctx.arc(8 + (30+wave*20)*t, 6 + (6+wave*25)*t, 1.2, 0, Math.PI*2);
                         ctx.stroke();
                         ctx.beginPath();
-                        ctx.arc(10 + (35-wave*25)*t, -8 + (-7-wave*30)*t, 1.5, 0, Math.PI*2);
+                        ctx.arc(8 + (30-wave*20)*t, -6 + (-6-wave*25)*t, 1.2, 0, Math.PI*2);
                         ctx.stroke();
-                    }                }
+                    }
+                }
 
                 drawForcipules(ctx) {
                     if (!isTouchDevice) {
@@ -1627,17 +1924,17 @@
                     ctx.lineWidth = 1.2;
 
                     ctx.beginPath();
-                    ctx.moveTo(12, 5);
-                    ctx.bezierCurveTo(22, 8, 30, 16, 26, 26);
-                    ctx.bezierCurveTo(22, 20, 16, 12, 8, 10);
+                    ctx.moveTo(10, 4);
+                    ctx.bezierCurveTo(18, 7, 26, 14, 22, 22);
+                    ctx.bezierCurveTo(18, 17, 13, 10, 7, 8);
                     ctx.closePath();
                     ctx.fill();
                     ctx.stroke();
 
                     ctx.beginPath();
-                    ctx.moveTo(12, -5);
-                    ctx.bezierCurveTo(22, -8, 30, -16, 26, -26);
-                    ctx.bezierCurveTo(22, -20, 16, -12, 8, -10);
+                    ctx.moveTo(10, -4);
+                    ctx.bezierCurveTo(18, -7, 26, -14, 22, -22);
+                    ctx.bezierCurveTo(18, -17, 13, -10, 7, -8);
                     ctx.closePath();
                     ctx.fill();
                     ctx.stroke();
@@ -1664,7 +1961,8 @@
                             const baseAngle = perpAngle * side;
                             
                             const j1X = seg.x + Math.cos(baseAngle) * 7;
-                            const j1Y = seg.y + Math.sin(baseAngle) * 7;                            
+                            const j1Y = seg.y + Math.sin(baseAngle) * 7;
+                            
                             const j2X = j1X + Math.cos(baseAngle + wave * side) * legLen1;
                             const j2Y = j1Y + Math.sin(baseAngle + wave * side) * legLen1;
                             
@@ -1713,7 +2011,8 @@
                 kanekiActive = true;
                 kanekiCooldown = true;
 
-                darkenOverlay.classList.add('active');                chainsOverlay.classList.add('active');
+                darkenOverlay.classList.add('active');
+                chainsOverlay.classList.add('active');
                 glitchOverlay.classList.add('active');
                 
                 setTimeout(() => centipede.start(), 200);
@@ -1762,7 +2061,8 @@
                     e.preventDefault();
                     triggerKaneki();
                 });
-            } else {                rizeCount.addEventListener('click', triggerKaneki);
+            } else {
+                rizeCount.addEventListener('click', triggerKaneki);
             }
         })();
     </script>
