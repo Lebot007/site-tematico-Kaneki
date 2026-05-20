@@ -47,8 +47,7 @@
             width: 16px; height: 16px;
             border: 2px solid var(--bone);
             border-radius: 50%;
-            position: fixed; top: 0; left: 0;
-            pointer-events: none;
+            position: fixed; top: 0; left: 0;            pointer-events: none;
             z-index: 10000;
             mix-blend-mode: difference;
             will-change: transform;
@@ -97,8 +96,7 @@
             transform: skewX(2deg) rotate(1deg);
             font-style: italic;
         }
-        .mobile-hint {
-            display: none;
+        .mobile-hint {            display: none;
             font-size: 0.6rem;
             letter-spacing: 0.2em;
             color: rgba(196, 30, 30, 0.5);
@@ -147,8 +145,7 @@
             width: 0; overflow: hidden; opacity: 0;
             transition: width 0.4s ease, opacity 0.3s ease;
             display: flex; align-items: center;
-        }
-        .audio-container:hover .volume-slider-container,
+        }        .audio-container:hover .volume-slider-container,
         .audio-container.expanded .volume-slider-container { width: 100px; opacity: 1; }
         .volume-slider {
             -webkit-appearance: none; appearance: none;
@@ -197,8 +194,7 @@
             position: relative;
             animation: float-flower 8s ease-in-out infinite;
         }
-        .higanbana-wrap::before {
-            content: '';
+        .higanbana-wrap::before {            content: '';
             position: absolute; inset: -20px;
             background: radial-gradient(circle, rgba(255, 0, 0, 0.25), transparent 60%);
             border-radius: 50%;
@@ -247,8 +243,7 @@
             width: 100%; height: 100%;
             display: flex; align-items: center; justify-content: center;
         }
-        .project-card {
-            position: absolute;
+        .project-card {            position: absolute;
             width: 420px; max-width: 85vw; height: 540px;
             background: linear-gradient(145deg, rgba(20, 8, 8, 0.9), rgba(10, 4, 4, 0.98));
             border: 1px solid rgba(196, 30, 30, 0.2);
@@ -262,22 +257,20 @@
             contain: layout style paint;
             will-change: transform, opacity;
         }
-        /* ===== IMAGEM DE FUNDO DO CARD - MAIS VISÍVEL ===== */
         .card-bg-image {
             position: absolute;
             inset: 0;
             background-size: cover;
             background-position: center top;
             background-repeat: no-repeat;
-            opacity: 0.55; /* era 0.35 */
+            opacity: 0.55;
             transition: opacity 0.7s ease, transform 0.7s ease;
             pointer-events: none;
         }
         .project-card.active .card-bg-image {
-            opacity: 0.75; /* era 0.55 */
+            opacity: 0.75;
             transform: scale(1.05);
         }
-        /* ===== OVERLAY MAIS TRANSPARENTE ===== */
         .card-bg-overlay {
             position: absolute;
             inset: 0;
@@ -299,8 +292,7 @@
             z-index: 1;
         }
         .project-card::after {
-            content: ''; position: absolute; inset: 0;
-            border-radius: inherit;
+            content: ''; position: absolute; inset: 0;            border-radius: inherit;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
             opacity: 0;
             transition: opacity 0.7s ease;
@@ -349,8 +341,7 @@
             text-transform: uppercase;
             margin-bottom: 16px;
             font-style: italic;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.95);
-        }
+            text-shadow: 0 2px 8px rgba(0,0,0,0.95);        }
         .card-desc {
             color: #d8d8d8; font-size: 0.92rem;
             line-height: 1.6; margin-bottom: 20px; flex-grow: 1;
@@ -399,29 +390,29 @@
             transform: rotate(45deg);
         }
 
-        .carousel-nav {
-            position: absolute; top: 50%;
+        .carousel-nav {            position: absolute; top: 50%;
             transform: translateY(-50%);
             width: 50px; height: 50px;
-            background: rgba(10, 4, 4, 0.7);
-            border: 1px solid rgba(196, 30, 30, 0.3);
+            background: rgba(10, 4, 4, 0.85);
+            border: 1px solid rgba(196, 30, 30, 0.4);
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             cursor: none; z-index: 10;
-            transition: background 0.3s, border-color 0.3s;
+            transition: background 0.3s, border-color 0.3s, transform 0.2s;
             color: var(--blood-bright);
             -webkit-tap-highlight-color: transparent;
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(10px);
         }
         .carousel-nav:hover {
-            background: rgba(196, 30, 30, 0.15);
+            background: rgba(196, 30, 30, 0.2);
             border-color: var(--blood-bright);
         }
+        .carousel-nav:active { transform: translateY(-50%) scale(0.92); }
         .carousel-nav.prev { left: 20px; }
         .carousel-nav.next { right: 20px; }
         .carousel-nav svg {
             width: 20px; height: 20px;
-            stroke: currentColor; stroke-width: 1.5; fill: none;
+            stroke: currentColor; stroke-width: 2; fill: none;
         }
 
         .carousel-dots {
@@ -448,8 +439,7 @@
             position: relative;
             contain: layout style paint;
             -webkit-tap-highlight-color: transparent;
-        }
-        .social-card::after {
+        }        .social-card::after {
             content: '';
             position: absolute; inset: -1px;
             border-radius: inherit;
@@ -498,7 +488,6 @@
             text-transform: uppercase;
         }
         .social-card.copied .copied-toast { opacity: 1; }
-
         .kaneki-container {
             position: fixed;
             right: 0;
@@ -548,8 +537,7 @@
             position: fixed; inset: 0;
             background: radial-gradient(ellipse at center, rgba(0,0,0,0.4), rgba(0,0,0,0.85));
             z-index: 9994;
-            opacity: 0;
-            pointer-events: none;
+            opacity: 0;            pointer-events: none;
             transition: opacity 1s ease;
         }
         .darken-overlay.active { opacity: 1; }
@@ -598,8 +586,7 @@
             position: fixed; inset: 0;
             z-index: 9993;
             pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.8s ease;
+            opacity: 0;            transition: opacity 0.8s ease;
         }
         .chains-overlay.active { opacity: 1; }
         
@@ -643,14 +630,12 @@
             pointer-events: none;
             opacity: 0;
             transition: opacity 0.5s ease;
-            will-change: opacity;
         }
         #centipede-canvas.active { opacity: 1; }
 
         section { content-visibility: auto; contain-intrinsic-size: auto 100vh; }
 
-        @media (hover: none), (pointer: coarse) {
-            .cursor { display: none !important; }
+        @media (hover: none), (pointer: coarse) {            .cursor { display: none !important; }
             body, a, button, .kakugan, .carousel-nav, .carousel-dot, .rize-count, .social-card, .project-card, .entry-overlay, .volume-slider {
                 cursor: auto !important;
             }
@@ -662,10 +647,8 @@
             }
             .ghoul-card:hover::after, .social-card:hover::after { opacity: 0; }
             .social-card:hover .social-icon { color: var(--bone); transform: none; }
-            .carousel-nav:hover { background: rgba(10, 4, 4, 0.7); border-color: rgba(196, 30, 30, 0.3); }
             .rize-count:hover { filter: none; }
             .social-card:active { transform: scale(0.97); background: rgba(25, 8, 8, 0.85); border-color: #c41e1e; }
-            .carousel-nav:active { background: rgba(196, 30, 30, 0.15); border-color: var(--blood-bright); }
             .kakugan:active { transform: scale(0.9); }
 
             .audio-container {
@@ -679,22 +662,22 @@
             .volume-slider { height: 6px; }
             .volume-slider::-webkit-slider-thumb { width: 20px; height: 20px; cursor: pointer; }
             .volume-slider::-moz-range-thumb { width: 20px; height: 20px; background: var(--bone); border-radius: 50%; border: 2px solid var(--blood-bright); cursor: pointer; }
-            .carousel-nav { width: 48px; height: 48px; cursor: pointer; }
             .carousel-dot { width: 10px; height: 10px; cursor: pointer; }
             .carousel-dot.active { width: 28px; }
         }
 
         @media (max-width: 768px) {
             .carousel-wrapper { height: 560px; }
-            .project-card { width: 320px; height: 520px; }
+            .project-card { width: 300px; height: 520px; }
             .card-content { padding: 28px 24px; }
             .card-title { font-size: 1.8rem; }
             .card-subtitle { font-size: 0.75rem; margin-bottom: 12px; }
             .card-kanji { font-size: 7rem; }
             .card-desc { font-size: 0.85rem; line-height: 1.55; }
             .card-tag { font-size: 0.6rem; padding: 3px 8px; }
-            .carousel-nav.prev { left: 5px; }
-            .carousel-nav.next { right: 5px; }
+            .carousel-nav.prev { left: -8px; }
+            .carousel-nav.next { right: -8px; }
+            .carousel-nav { width: 42px; height: 42px; }
             .kaneki-container { height: 65vh; }
             .kaneki-container img { max-width: 70vw; }
             .mobile-hint { display: inline-block; }
@@ -702,15 +685,18 @@
             .audio-container { bottom: 15px; right: 15px; }
             .rize-count { bottom: 70px; right: 15px; font-size: 1.3rem; }
         }
-
         @media (max-width: 480px) {
             .carousel-wrapper { height: 540px; }
-            .project-card { width: 85vw; max-width: 340px; height: 500px; }
+            .project-card { width: 280px; height: 500px; }
             .card-content { padding: 24px 20px; }
             .card-title { font-size: 1.6rem; }
             .card-kanji { font-size: 6rem; }
             .card-number { font-size: 0.75rem; }
             .card-number::before { width: 16px; }
+            .carousel-nav.prev { left: -4px; }
+            .carousel-nav.next { right: -4px; }
+            .carousel-nav { width: 38px; height: 38px; }
+            .carousel-nav svg { width: 16px; height: 16px; }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -747,8 +733,7 @@
     
     <div class="chains-overlay" id="chains-overlay">
         <svg class="chain-group chain-tl" width="120" height="400" viewBox="0 0 120 400">
-            <g class="chain-link"><ellipse cx="60" cy="20" rx="14" ry="20"/><ellipse cx="60" cy="60" rx="14" ry="20"/><ellipse cx="60" cy="100" rx="14" ry="20"/><ellipse cx="60" cy="140" rx="14" ry="20"/><ellipse cx="60" cy="180" rx="14" ry="20"/><ellipse cx="60" cy="220" rx="14" ry="20"/><ellipse cx="60" cy="260" rx="14" ry="20"/><ellipse cx="60" cy="300" rx="14" ry="20"/><ellipse cx="60" cy="340" rx="14" ry="20"/><ellipse cx="60" cy="380" rx="14" ry="20"/></g>
-            <g class="chain-link-accent"><ellipse cx="60" cy="20" rx="10" ry="16"/><ellipse cx="60" cy="60" rx="10" ry="16"/><ellipse cx="60" cy="100" rx="10" ry="16"/><ellipse cx="60" cy="140" rx="10" ry="16"/><ellipse cx="60" cy="180" rx="10" ry="16"/><ellipse cx="60" cy="220" rx="10" ry="16"/><ellipse cx="60" cy="260" rx="10" ry="16"/><ellipse cx="60" cy="300" rx="10" ry="16"/><ellipse cx="60" cy="340" rx="10" ry="16"/><ellipse cx="60" cy="380" rx="10" ry="16"/></g>
+            <g class="chain-link"><ellipse cx="60" cy="20" rx="14" ry="20"/><ellipse cx="60" cy="60" rx="14" ry="20"/><ellipse cx="60" cy="100" rx="14" ry="20"/><ellipse cx="60" cy="140" rx="14" ry="20"/><ellipse cx="60" cy="180" rx="14" ry="20"/><ellipse cx="60" cy="220" rx="14" ry="20"/><ellipse cx="60" cy="260" rx="14" ry="20"/><ellipse cx="60" cy="300" rx="14" ry="20"/><ellipse cx="60" cy="340" rx="14" ry="20"/><ellipse cx="60" cy="380" rx="14" ry="20"/></g>            <g class="chain-link-accent"><ellipse cx="60" cy="20" rx="10" ry="16"/><ellipse cx="60" cy="60" rx="10" ry="16"/><ellipse cx="60" cy="100" rx="10" ry="16"/><ellipse cx="60" cy="140" rx="10" ry="16"/><ellipse cx="60" cy="180" rx="10" ry="16"/><ellipse cx="60" cy="220" rx="10" ry="16"/><ellipse cx="60" cy="260" rx="10" ry="16"/><ellipse cx="60" cy="300" rx="10" ry="16"/><ellipse cx="60" cy="340" rx="10" ry="16"/><ellipse cx="60" cy="380" rx="10" ry="16"/></g>
         </svg>
         <svg class="chain-group chain-tr" width="120" height="380" viewBox="0 0 120 380">
             <g class="chain-link"><ellipse cx="60" cy="20" rx="13" ry="18"/><ellipse cx="60" cy="56" rx="13" ry="18"/><ellipse cx="60" cy="92" rx="13" ry="18"/><ellipse cx="60" cy="128" rx="13" ry="18"/><ellipse cx="60" cy="164" rx="13" ry="18"/><ellipse cx="60" cy="200" rx="13" ry="18"/><ellipse cx="60" cy="236" rx="13" ry="18"/><ellipse cx="60" cy="272" rx="13" ry="18"/><ellipse cx="60" cy="308" rx="13" ry="18"/><ellipse cx="60" cy="344" rx="13" ry="18"/></g>
@@ -797,8 +782,7 @@
                 <line x1="23" y1="9" x2="17" y2="15"></line>
                 <line x1="17" y1="9" x2="23" y2="15"></line>
             </svg>
-        </div>
-    </div>
+        </div>    </div>
 
     <section class="relative h-screen flex flex-col items-center justify-center text-center px-4">
         <h1 class="kanji-bg font-jp" aria-hidden="true">喰</h1>
@@ -847,8 +831,7 @@
             <h3 class="text-3xl font-jp mb-4 text-center tracking-wide" style="color: #c41e1e;">O Banquete</h3>
             <p class="text-center text-readable-faint text-sm tracking-widest uppercase mb-16">Arquivos Classificados</p>
             <div class="carousel-wrapper" id="carousel">
-                <div class="carousel-stage" id="carousel-stage"></div>
-                <button class="carousel-nav prev" id="carousel-prev" aria-label="Anterior">
+                <div class="carousel-stage" id="carousel-stage"></div>                <button class="carousel-nav prev" id="carousel-prev" aria-label="Anterior">
                     <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
                 </button>
                 <button class="carousel-nav next" id="carousel-next" aria-label="Próximo">
@@ -897,8 +880,7 @@
             </a>
 
             <div class="social-card rounded-sm p-6 flex flex-col items-center text-center cursor-pointer group" id="discord-card" data-username="Lebot.gg">
-                <svg class="social-icon w-10 h-10 mb-3" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/>
+                <svg class="social-icon w-10 h-10 mb-3" viewBox="0 0 24 24" fill="currentColor">                    <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/>
                 </svg>
                 <div class="social-label">Discord</div>
                 <div class="social-handle">Lebot.gg</div>
@@ -947,8 +929,7 @@
                             cursor.style.transform = `translate3d(${pendingX}px, ${pendingY}px, 0)`;
                             rafId = null;
                         });
-                    }
-                }, { passive: true });
+                    }                }, { passive: true });
 
                 document.addEventListener('mouseover', (e) => {
                     if (e.target.closest('a, .ghoul-card, .kakugan, .volume-slider, .entry-overlay, .carousel-nav, .carousel-dot, .project-card, .rize-count, .social-card')) {
@@ -997,8 +978,7 @@
             }, { once: true });
             entryOverlay.addEventListener('touchend', (e) => {
                 e.preventDefault();
-                hasInteracted = false;
-                startAudio();
+                hasInteracted = false;                startAudio();
             }, { once: true });
 
             player.addEventListener('click', () => {
@@ -1047,8 +1027,7 @@
             const discordCard = document.getElementById('discord-card');
             discordCard.addEventListener('click', async (e) => {
                 e.preventDefault();
-                const username = discordCard.dataset.username;
-                try {
+                const username = discordCard.dataset.username;                try {
                     await navigator.clipboard.writeText(username);
                 } catch {
                     const ta = document.createElement('textarea');
@@ -1098,7 +1077,6 @@
                     scrub: 0.5
                 }
             });
-
             const projects = [
                 { 
                     kanji: '眼', 
@@ -1147,8 +1125,7 @@
                     subtitle: 'One-Eyed Owl · A Escritora',
                     desc: 'Líder da Aogiri Tree e autora sob o pseudônimo Sen Takatsuki. A primeira One-Eyed natural, possui um Kakuja completo que distorce sua forma em horror. Filha do Coruja, sua revolta moldou uma era de caos em Tokyo.', 
                     tags: ['Kakuja', 'Aogiri', 'One-Eyed', 'Owl', 'Sen Takatsuki'], 
-                    year: 'RC: ∞',
-                    img: 'Etoprofile.jpg'
+                    year: 'RC: ∞',                    img: 'Etoprofile.jpg'
                 }
             ];
 
@@ -1197,8 +1174,7 @@
 
             function updateCarousel() {
                 const isMobile = window.innerWidth < 768;
-                cards.forEach((card, i) => {
-                    const offset = i - activeIndex;
+                cards.forEach((card, i) => {                    const offset = i - activeIndex;
                     const absOff = Math.abs(offset);
 
                     if (absOff > 2) {
@@ -1215,7 +1191,7 @@
 
                     let tx, sc, op, z;
                     if (isMobile) {
-                        tx = offset * Math.min(230, window.innerWidth * 0.65);
+                        tx = offset * Math.min(230, window.innerWidth * 0.68);
                         sc = offset === 0 ? 1 : 0.78;
                         op = offset === 0 ? 1 : 0.35;
                         z = 10 - absOff;
@@ -1248,7 +1224,6 @@
 
             function next() { goTo((activeIndex + 1) % projects.length); }
             function prev() { goTo((activeIndex - 1 + projects.length) % projects.length); }
-
             document.getElementById('carousel-next').addEventListener('click', next);
             document.getElementById('carousel-prev').addEventListener('click', prev);
 
@@ -1287,20 +1262,23 @@
                 resizeTimer = setTimeout(updateCarousel, 150);
             });
 
+            // ===== CENTOPEIA - MOVIMENTO SUAVE E UNIFORME =====
             class Centipede {
                 constructor(canvas) {
                     this.canvas = canvas;
                     this.ctx = canvas.getContext('2d', { alpha: true });
                     this.segments = [];
-                    this.numSegments = 35;
+                    this.numSegments = isTouchDevice ? 28 : 35;
                     this.segmentSpacing = 12;
                     this.running = false;
                     this.path = [];
-                    this.pathIndex = 0;
-                    this.time = 0;
-                    this.velocity = 0;
-                    this.exitX = 0;
+                    this.distanceTraveled = 0;                    this.time = 0;
                     this.rafId = null;
+                    this.lastTimestamp = 0;
+                    this.speed = 0; // pixels por ms
+                    this.totalPathLength = 0;
+                    this.pathLengths = []; // distâncias acumuladas
+                    this.exitThreshold = 0;
                     this.resize();
                     window.addEventListener('resize', () => this.resize(), { passive: true });
                 }
@@ -1316,63 +1294,105 @@
 
                 generatePath() {
                     this.path = [];
+                    this.pathLengths = [];
                     const w = window.innerWidth;
                     const h = window.innerHeight;
-                    this.exitX = w + 200;
+                    
+                    // Ponto de saída MUITO além da tela (garante que a cauda toda saia)
+                    const exitX = w + 500;
                     
                     const points = [ 
-                        { x: -100, y: h * 0.4 }, 
+                        { x: -150, y: h * 0.4 }, 
                         { x: w * 0.15, y: h * 0.35 }, 
                         { x: w * 0.3, y: h * 0.6 }, 
                         { x: w * 0.45, y: h * 0.25 }, 
                         { x: w * 0.6, y: h * 0.55 }, 
                         { x: w * 0.75, y: h * 0.3 }, 
                         { x: w * 0.9, y: h * 0.6 }, 
-                        { x: this.exitX, y: h * 0.4 } 
+                        { x: exitX, y: h * 0.4 } 
                     ];
                     
+                    // Gerar pontos interpolados com Catmull-Rom
                     for (let i = 0; i < points.length - 1; i++) {
-                        const steps = 80;
+                        const steps = 100;
                         for (let j = 0; j < steps; j++) {
                             const t = j / steps;
                             const p0 = points[Math.max(0, i - 1)];
                             const p1 = points[i];
                             const p2 = points[Math.min(points.length - 1, i + 1)];
                             const p3 = points[Math.min(points.length - 1, i + 2)];
-                            
-                            const x = 0.5 * ((2 * p1.x) + (-p0.x + p2.x) * t + (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * t * t + (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * t * t * t);
+                                                        const x = 0.5 * ((2 * p1.x) + (-p0.x + p2.x) * t + (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * t * t + (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * t * t * t);
                             const y = 0.5 * ((2 * p1.y) + (-p0.y + p2.y) * t + (2 * p0.y - 5 * p1.y + 4 * p2.y - p3.y) * t * t + (-p0.y + 3 * p1.y - 3 * p2.y + p3.y) * t * t * t);
                             
                             this.path.push({ x, y });
                         }
                     }
                     this.path.push(points[points.length - 1]);
+
+                    // Calcular distâncias acumuladas
+                    let acc = 0;
+                    this.pathLengths.push(0);
+                    for (let i = 1; i < this.path.length; i++) {
+                        const dx = this.path[i].x - this.path[i-1].x;
+                        const dy = this.path[i].y - this.path[i-1].y;
+                        acc += Math.sqrt(dx * dx + dy * dy);
+                        this.pathLengths.push(acc);
+                    }
+                    this.totalPathLength = acc;
+                    
+                    // Velocidade: percorrer toda a tela em ~5 segundos (mais natural)
+                    const durationMs = 5500;
+                    this.speed = this.totalPathLength / durationMs;
+                    
+                    // Limiar de saída: quando a CAUDA toda saiu da tela
+                    const tailLength = this.numSegments * this.segmentSpacing;
+                    this.exitThreshold = this.totalPathLength - tailLength - 50;
+                }
+
+                // Obtém posição no path baseado na distância percorrida
+                getPositionAtDistance(dist) {
+                    if (dist <= 0) return { x: this.path[0].x, y: this.path[0].y };
+                    if (dist >= this.totalPathLength) return this.path[this.path.length - 1];
+                    
+                    // Busca binária para encontrar o segmento
+                    let lo = 0, hi = this.pathLengths.length - 1;
+                    while (lo < hi - 1) {
+                        const mid = (lo + hi) >> 1;
+                        if (this.pathLengths[mid] <= dist) lo = mid;
+                        else hi = mid;
+                    }
+                    
+                    const segStart = this.pathLengths[lo];
+                    const segEnd = this.pathLengths[hi];
+                    const t = (dist - segStart) / (segEnd - segStart);
+                    
+                    const p1 = this.path[lo];
+                    const p2 = this.path[hi];
+                    
+                    return {
+                        x: p1.x + (p2.x - p1.x) * t,                        y: p1.y + (p2.y - p1.y) * t
+                    };
                 }
 
                 start() {
                     this.generatePath();
-                    this.pathIndex = 0;
+                    this.distanceTraveled = 0;
+                    this.time = 0;
+                    this.lastTimestamp = 0;
                     this.segments = [];
                     
-                    const totalFrames = 240;
-                    const totalSteps = this.path.length;
-                    this.velocity = totalSteps / totalFrames;
-                    
-                    if (window.innerWidth < 768) {
-                        this.velocity *= 1.15;
-                    }
-                    
                     for (let i = 0; i < this.numSegments; i++) {
+                        const pos = this.getPositionAtDistance(-i * this.segmentSpacing);
                         this.segments.push({
-                            x: this.path[0].x - i * this.segmentSpacing,
-                            y: this.path[0].y,
+                            x: pos.x,
+                            y: pos.y,
                             angle: 0
                         });
                     }
                     
                     this.running = true;
                     this.canvas.classList.add('active');
-                    this.animate();
+                    this.rafId = requestAnimationFrame((t) => this.animate(t));
                 }
 
                 stop() {
@@ -1384,41 +1404,52 @@
                     this.canvas.classList.remove('active');
                 }
 
-                animate() {
+                animate(timestamp) {
                     if (!this.running) return;
                     
-                    this.time += 0.2;
-                    this.pathIndex += this.velocity;
+                    if (!this.lastTimestamp) this.lastTimestamp = timestamp;
+                    const deltaTime = Math.min(timestamp - this.lastTimestamp, 50); // cap em 50ms
+                    this.lastTimestamp = timestamp;
                     
-                    const headX = this.segments[0] ? this.segments[0].x : 0;
-                    if (this.pathIndex >= this.path.length - 1 || headX > this.exitX - 50) {
+                    this.time += deltaTime * 0.005;
+                    
+                    // Avançar distância baseado em delta time (movimento uniforme)
+                    this.distanceTraveled += this.speed * deltaTime;
+                    
+                    // Verificar se a CAUDA toda saiu da tela
+                    const tailDist = this.distanceTraveled - (this.numSegments - 1) * this.segmentSpacing;
+                    const tailPos = this.getPositionAtDistance(tailDist);
+                    const screenWidth = window.innerWidth;                    
+                    if (tailPos.x > screenWidth + 50) {
                         this.stop();
                         return;
                     }
 
-                    const idx = Math.min(Math.floor(this.pathIndex), this.path.length - 1);
-                    const nextIdx = Math.min(idx + 1, this.path.length - 1);
-                    const frac = this.pathIndex - idx;
-                    
-                    const target = {
-                        x: this.path[idx].x + (this.path[nextIdx].x - this.path[idx].x) * frac,
-                        y: this.path[idx].y + (this.path[nextIdx].y - this.path[idx].y) * frac
-                    };
-                    
-                    this.segments[0].x += (target.x - this.segments[0].x) * 0.25;
-                    this.segments[0].y += (target.y - this.segments[0].y) * 0.25;
+                    // Atualizar cabeça
+                    const headPos = this.getPositionAtDistance(this.distanceTraveled);
+                    this.segments[0].x = headPos.x;
+                    this.segments[0].y = headPos.y;
 
+                    // Follow the leader - cada segmento segue o anterior com espaçamento fixo
                     for (let i = 1; i < this.segments.length; i++) {
+                        const segDist = this.distanceTraveled - i * this.segmentSpacing;
+                        const pos = this.getPositionAtDistance(segDist);
+                        
                         const prev = this.segments[i - 1];
                         const curr = this.segments[i];
+                        
+                        // Interpolação suave
+                        const smoothing = 0.35;
+                        curr.x += (pos.x - curr.x) * smoothing;
+                        curr.y += (pos.y - curr.y) * smoothing;
+                        
+                        // Calcular ângulo baseado no segmento anterior
                         const dx = prev.x - curr.x;
                         const dy = prev.y - curr.y;
-                        const angle = Math.atan2(dy, dx);
-                        curr.angle = angle;
-                        curr.x = prev.x - Math.cos(angle) * this.segmentSpacing;
-                        curr.y = prev.y - Math.sin(angle) * this.segmentSpacing;
+                        curr.angle = Math.atan2(dy, dx);
                     }
 
+                    // Ângulo da cabeça
                     if (this.segments.length > 1) {
                         this.segments[0].angle = Math.atan2(
                             this.segments[1].y - this.segments[0].y,
@@ -1427,7 +1458,7 @@
                     }
 
                     this.draw();
-                    this.rafId = requestAnimationFrame(() => this.animate());
+                    this.rafId = requestAnimationFrame((t) => this.animate(t));
                 }
 
                 draw() {
@@ -1437,8 +1468,7 @@
                     ctx.clearRect(0, 0, w, h);
                     
                     this.drawLegs();
-                    
-                    for (let i = this.segments.length - 1; i >= 1; i--) {
+                                        for (let i = this.segments.length - 1; i >= 1; i--) {
                         this.drawSegment(i);
                     }
                     
@@ -1456,9 +1486,11 @@
                     ctx.translate(seg.x, seg.y);
                     ctx.rotate(seg.angle);
 
-                    ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
-                    ctx.shadowBlur = 6;
-                    ctx.shadowOffsetY = 3;
+                    if (!isTouchDevice) {
+                        ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+                        ctx.shadowBlur = 6;
+                        ctx.shadowOffsetY = 3;
+                    }
 
                     ctx.beginPath();
                     ctx.moveTo(length, 0);
@@ -1485,8 +1517,7 @@
                     ctx.moveTo(length * 0.8, 0);
                     ctx.lineTo(-length * 0.5, 0);
                     ctx.strokeStyle = 'rgba(0,0,0,0.7)';
-                    ctx.lineWidth = 1;
-                    ctx.stroke();
+                    ctx.lineWidth = 1;                    ctx.stroke();
 
                     ctx.strokeStyle = '#1a0000';
                     ctx.lineWidth = 0.8;
@@ -1511,8 +1542,10 @@
                     this.drawAntennae(ctx);
                     this.drawForcipules(ctx);
 
-                    ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
-                    ctx.shadowBlur = 8;
+                    if (!isTouchDevice) {
+                        ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+                        ctx.shadowBlur = 8;
+                    }
 
                     ctx.beginPath();
                     ctx.moveTo(14, 0);
@@ -1533,8 +1566,7 @@
                     ctx.lineWidth = 1.5;
                     ctx.stroke();
 
-                    ctx.fillStyle = '#000';
-                    for (let i = 0; i < 8; i++) {
+                    ctx.fillStyle = '#000';                    for (let i = 0; i < 8; i++) {
                         const angle = (i / 8) * Math.PI - Math.PI / 2;
                         const ex = 3 + Math.cos(angle) * 5;
                         const ey = 6 + Math.sin(angle) * 4;
@@ -1583,12 +1615,13 @@
                         ctx.beginPath();
                         ctx.arc(10 + (35-wave*25)*t, -8 + (-7-wave*30)*t, 1.5, 0, Math.PI*2);
                         ctx.stroke();
-                    }
-                }
+                    }                }
 
                 drawForcipules(ctx) {
-                    ctx.shadowColor = 'rgba(255, 0, 0, 0.4)';
-                    ctx.shadowBlur = 6;
+                    if (!isTouchDevice) {
+                        ctx.shadowColor = 'rgba(255, 0, 0, 0.4)';
+                        ctx.shadowBlur = 6;
+                    }
                     ctx.fillStyle = '#050000';
                     ctx.strokeStyle = '#5a0000';
                     ctx.lineWidth = 1.2;
@@ -1631,8 +1664,7 @@
                             const baseAngle = perpAngle * side;
                             
                             const j1X = seg.x + Math.cos(baseAngle) * 7;
-                            const j1Y = seg.y + Math.sin(baseAngle) * 7;
-                            
+                            const j1Y = seg.y + Math.sin(baseAngle) * 7;                            
                             const j2X = j1X + Math.cos(baseAngle + wave * side) * legLen1;
                             const j2Y = j1Y + Math.sin(baseAngle + wave * side) * legLen1;
                             
@@ -1681,8 +1713,7 @@
                 kanekiActive = true;
                 kanekiCooldown = true;
 
-                darkenOverlay.classList.add('active');
-                chainsOverlay.classList.add('active');
+                darkenOverlay.classList.add('active');                chainsOverlay.classList.add('active');
                 glitchOverlay.classList.add('active');
                 
                 setTimeout(() => centipede.start(), 200);
@@ -1713,9 +1744,9 @@
                 }, 6000);
 
                 setTimeout(() => {
-                    centipede.stop();
+                    if (centipede.running) centipede.stop();
                     kanekiCooldown = false;
-                }, 8500);
+                }, 9500);
 
                 if (navigator.vibrate) navigator.vibrate([50, 100, 50]);
             }
@@ -1731,8 +1762,7 @@
                     e.preventDefault();
                     triggerKaneki();
                 });
-            } else {
-                rizeCount.addEventListener('click', triggerKaneki);
+            } else {                rizeCount.addEventListener('click', triggerKaneki);
             }
         })();
     </script>
