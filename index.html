@@ -47,8 +47,7 @@
             width: 16px; height: 16px;
             border: 2px solid var(--bone);
             border-radius: 50%;
-            position: fixed; top: 0; left: 0;
-            pointer-events: none;
+            position: fixed; top: 0; left: 0;            pointer-events: none;
             z-index: 10000;
             mix-blend-mode: difference;
             will-change: transform;
@@ -97,8 +96,7 @@
             transform: skewX(2deg) rotate(1deg);
             font-style: italic;
         }
-        .mobile-hint {
-            display: none;
+        .mobile-hint {            display: none;
             font-size: 0.6rem;
             letter-spacing: 0.2em;
             color: rgba(196, 30, 30, 0.5);
@@ -147,8 +145,7 @@
             width: 0; overflow: hidden; opacity: 0;
             transition: width 0.4s ease, opacity 0.3s ease;
             display: flex; align-items: center;
-        }
-        .audio-container:hover .volume-slider-container,
+        }        .audio-container:hover .volume-slider-container,
         .audio-container.expanded .volume-slider-container { width: 100px; opacity: 1; }
         .volume-slider {
             -webkit-appearance: none; appearance: none;
@@ -197,8 +194,7 @@
             position: relative;
             animation: float-flower 8s ease-in-out infinite;
         }
-        .higanbana-wrap::before {
-            content: '';
+        .higanbana-wrap::before {            content: '';
             position: absolute; inset: -20px;
             background: radial-gradient(circle, rgba(255, 0, 0, 0.25), transparent 60%);
             border-radius: 50%;
@@ -247,8 +243,7 @@
             width: 100%; height: 100%;
             display: flex; align-items: center; justify-content: center;
         }
-        .project-card {
-            position: absolute;
+        .project-card {            position: absolute;
             width: 420px; max-width: 85vw; height: 540px;
             background: linear-gradient(145deg, rgba(20, 8, 8, 0.9), rgba(10, 4, 4, 0.98));
             border: 1px solid rgba(196, 30, 30, 0.2);
@@ -297,8 +292,7 @@
             z-index: 1;
         }
         .project-card::after {
-            content: ''; position: absolute; inset: 0;
-            border-radius: inherit;
+            content: ''; position: absolute; inset: 0;            border-radius: inherit;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
             opacity: 0;
             transition: opacity 0.7s ease;
@@ -347,8 +341,7 @@
             text-transform: uppercase;
             margin-bottom: 16px;
             font-style: italic;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.95);
-        }
+            text-shadow: 0 2px 8px rgba(0,0,0,0.95);        }
         .card-desc {
             color: #d8d8d8; font-size: 0.92rem;
             line-height: 1.6; margin-bottom: 20px; flex-grow: 1;
@@ -397,8 +390,7 @@
             transform: rotate(45deg);
         }
 
-        .carousel-nav {
-            position: absolute; top: 50%;
+        .carousel-nav {            position: absolute; top: 50%;
             transform: translateY(-50%);
             width: 50px; height: 50px;
             background: rgba(10, 4, 4, 0.85);
@@ -447,8 +439,7 @@
             position: relative;
             contain: layout style paint;
             -webkit-tap-highlight-color: transparent;
-        }
-        .social-card::after {
+        }        .social-card::after {
             content: '';
             position: absolute; inset: -1px;
             border-radius: inherit;
@@ -497,7 +488,6 @@
             text-transform: uppercase;
         }
         .social-card.copied .copied-toast { opacity: 1; }
-
         .kaneki-container {
             position: fixed;
             right: 0;
@@ -547,8 +537,7 @@
             position: fixed; inset: 0;
             background: radial-gradient(ellipse at center, rgba(0,0,0,0.4), rgba(0,0,0,0.85));
             z-index: 9994;
-            opacity: 0;
-            pointer-events: none;
+            opacity: 0;            pointer-events: none;
             transition: opacity 1s ease;
         }
         .darken-overlay.active { opacity: 1; }
@@ -597,8 +586,7 @@
             position: fixed; inset: 0;
             z-index: 9993;
             pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.8s ease;
+            opacity: 0;            transition: opacity 0.8s ease;
         }
         .chains-overlay.active { opacity: 1; }
         
@@ -647,8 +635,7 @@
 
         #centipede-canvas {
             position: fixed;
-            inset: 0;
-            z-index: 9997;
+            inset: 0;            z-index: 9997;
             pointer-events: none;
             opacity: 0;
             transition: opacity 0.5s ease;
@@ -697,8 +684,7 @@
             .carousel-wrapper { height: 560px; }
             .project-card { width: 300px; height: 520px; }
             .card-content { padding: 28px 24px; }
-            .card-title { font-size: 1.8rem; }
-            .card-subtitle { font-size: 0.75rem; margin-bottom: 12px; }
+            .card-title { font-size: 1.8rem; }            .card-subtitle { font-size: 0.75rem; margin-bottom: 12px; }
             .card-kanji { font-size: 7rem; }
             .card-desc { font-size: 0.85rem; line-height: 1.55; }
             .card-tag { font-size: 0.6rem; padding: 3px 8px; }
@@ -747,8 +733,7 @@
     <div class="vignette"></div>
     <div class="cursor" id="cursor"></div>
 
-    <video id="bg-video" autoplay muted loop playsinline preload="metadata" webkit-playsinline class="fixed inset-0 w-full h-full object-cover z-[-2] opacity-60">
-        <source src="video.mp4" type="video/mp4">
+    <video id="bg-video" autoplay muted loop playsinline preload="metadata" webkit-playsinline class="fixed inset-0 w-full h-full object-cover z-[-2] opacity-60">        <source src="video.mp4" type="video/mp4">
     </video>
     <div id="video-overlay" class="fixed inset-0 bg-black z-[-1]" style="opacity: 0.2;"></div>
 
@@ -797,8 +782,7 @@
                 <ellipse cx="70" cy="425" rx="18" ry="25"/>
             </g>
             <g class="chain-link-inner">
-                <ellipse cx="70" cy="25" rx="12" ry="18"/>
-                <ellipse cx="70" cy="75" rx="12" ry="18"/>
+                <ellipse cx="70" cy="25" rx="12" ry="18"/>                <ellipse cx="70" cy="75" rx="12" ry="18"/>
                 <ellipse cx="70" cy="125" rx="12" ry="18"/>
                 <ellipse cx="70" cy="175" rx="12" ry="18"/>
                 <ellipse cx="70" cy="225" rx="12" ry="18"/>
@@ -847,8 +831,7 @@
                 <ellipse cx="70" cy="25" rx="11" ry="17"/>
                 <ellipse cx="70" cy="73" rx="11" ry="17"/>
                 <ellipse cx="70" cy="121" rx="11" ry="17"/>
-                <ellipse cx="70" cy="169" rx="11" ry="17"/>
-                <ellipse cx="70" cy="217" rx="11" ry="17"/>
+                <ellipse cx="70" cy="169" rx="11" ry="17"/>                <ellipse cx="70" cy="217" rx="11" ry="17"/>
                 <ellipse cx="70" cy="265" rx="11" ry="17"/>
                 <ellipse cx="70" cy="313" rx="11" ry="17"/>
                 <ellipse cx="70" cy="361" rx="11" ry="17"/>
@@ -897,8 +880,7 @@
                 <ellipse cx="70" cy="275" rx="12" ry="18"/>
                 <ellipse cx="70" cy="325" rx="12" ry="18"/>
                 <ellipse cx="70" cy="375" rx="12" ry="18"/>
-            </g>
-            <g class="chain-link-highlight">
+            </g>            <g class="chain-link-highlight">
                 <path d="M 58 15 Q 52 25 58 35" />
                 <path d="M 58 65 Q 52 75 58 85" />
                 <path d="M 58 115 Q 52 125 58 135" />
@@ -947,8 +929,7 @@
                 <path d="M 59 64 Q 53 73 59 82" />
                 <path d="M 59 112 Q 53 121 59 130" />
                 <path d="M 59 160 Q 53 169 59 178" />
-                <path d="M 59 208 Q 53 217 59 226" />
-                <path d="M 59 256 Q 53 265 59 274" />
+                <path d="M 59 208 Q 53 217 59 226" />                <path d="M 59 256 Q 53 265 59 274" />
                 <path d="M 59 304 Q 53 313 59 322" />
                 <path d="M 59 352 Q 53 361 59 370" />
                 <path d="M 59 400 Q 53 409 59 418" />
@@ -997,8 +978,7 @@
                 <circle cx="30" cy="65" r="2"/>
                 <circle cx="80" cy="75" r="1.5"/>
                 <circle cx="130" cy="68" r="2"/>
-                <circle cx="180" cy="72" r="1.5"/>
-                <circle cx="230" cy="66" r="2"/>
+                <circle cx="180" cy="72" r="1.5"/>                <circle cx="230" cy="66" r="2"/>
                 <circle cx="280" cy="74" r="1.5"/>
             </g>
         </svg>
@@ -1047,7 +1027,6 @@
     <div class="kaneki-container" id="kaneki-container">
         <img src="kanekituc.png" alt="" loading="lazy">
     </div>
-
     <div class="rize-count" id="rize-count">
         <span class="thousand">1000</span>
         <span class="minus">-</span>
@@ -1097,8 +1076,7 @@
                         <g fill="none" stroke="#c41e1e" stroke-width="1.5" stroke-linecap="round">
                             <circle cx="50" cy="50" r="3" fill="#ff0000" stroke="none" opacity="0.9"/>
                             <path d="M50,50 Q60,30 50,10 Q40,30 50,50" />
-                            <path d="M50,50 Q70,40 85,25 Q65,45 50,50" />
-                            <path d="M50,50 Q75,60 90,70 Q70,65 50,50" />
+                            <path d="M50,50 Q70,40 85,25 Q65,45 50,50" />                            <path d="M50,50 Q75,60 90,70 Q70,65 50,50" />
                             <path d="M50,50 Q60,75 50,90 Q40,75 50,50" />
                             <path d="M50,50 Q30,75 10,70 Q25,60 50,50" />
                             <path d="M50,50 Q20,45 15,25 Q35,40 50,50" />
@@ -1147,8 +1125,7 @@
 
             <a href="https://www.twitch.tv/Lebotz_gg" target="_blank" rel="noopener" class="social-card rounded-sm p-6 flex flex-col items-center text-center cursor-pointer block group">
                 <svg class="social-icon w-10 h-10 mb-3" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/>
-                </svg>
+                    <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/>                </svg>
                 <div class="social-label">Twitch</div>
                 <div class="social-handle">Lebotz_gg</div>
             </a>
@@ -1197,8 +1174,7 @@
             if (bgVideo) {
                 bgVideo.addEventListener('ended', () => {
                     bgVideo.currentTime = 0;
-                    bgVideo.play().catch(() => {});
-                });
+                    bgVideo.play().catch(() => {});                });
                 const playPromise = bgVideo.play();
                 if (playPromise !== undefined) {
                     playPromise.catch(() => {
@@ -1247,8 +1223,7 @@
             const playlist = ['musica.mp3', 'musica2.mp3'];
             let currentTrack = 0;
 
-            audio.volume = 0.3;
-            updateSliderBg(30);
+            audio.volume = 0.3;            updateSliderBg(30);
 
             function startAudio() {
                 if (hasInteracted) return;
@@ -1297,8 +1272,7 @@
             volumeSlider.addEventListener('input', (e) => {
                 const vol = e.target.value / 100;
                 audio.volume = vol;
-                updateSliderBg(e.target.value);
-                if (vol === 0) player.classList.add('muted');
+                updateSliderBg(e.target.value);                if (vol === 0) player.classList.add('muted');
                 else if (isPlaying) player.classList.remove('muted');
             });
 
@@ -1347,8 +1321,7 @@
                 }
             });
 
-            const lenis = new Lenis({
-                duration: 1.2,
+            const lenis = new Lenis({                duration: 1.2,
                 smoothWheel: true,
                 wheelMultiplier: 1,
                 touchMultiplier: 2
@@ -1397,8 +1370,7 @@
                     kanji: '兎', 
                     num: 'DOSSIÊ 03', 
                     title: 'Touka Kirishima', 
-                    subtitle: 'Rabbit · A Garçonete',
-                    desc: 'Garçonete da Anteiku e ghoul com codinome "Coelho". Seu Ukaku libera rajadas de cristais endurecidos, mas sacrifica resistência por velocidade explosiva. Temperamento feroz escondendo um coração que aprendeu a amar humanos.', 
+                    subtitle: 'Rabbit · A Garçonete',                    desc: 'Garçonete da Anteiku e ghoul com codinome "Coelho". Seu Ukaku libera rajadas de cristais endurecidos, mas sacrifica resistência por velocidade explosiva. Temperamento feroz escondendo um coração que aprendeu a amar humanos.', 
                     tags: ['Ukaku', 'Anteiku', 'Rabbit', 'Koukaku Jr.'], 
                     year: 'RC: 748',
                     img: 'toukaprofile.jpg'
@@ -1447,8 +1419,7 @@
                             <div class="card-tags">${p.tags.map(t => `<span class="card-tag">${t}</span>`).join('')}</div>
                         </div>
                         <div class="card-footer">
-                            <span class="card-year">${p.year}</span>
-                            <span class="card-cta">Analisar <span class="card-cta-arrow"></span></span>
+                            <span class="card-year">${p.year}</span>                            <span class="card-cta">Analisar <span class="card-cta-arrow"></span></span>
                         </div>
                     </div>
                 `;
@@ -1498,7 +1469,6 @@
                         op = offset === 0 ? 1 : (absOff === 1 ? 0.55 : 0.25);
                         z = 10 - absOff;
                     }
-
                     card.style.transform = `translate3d(${tx}px, 0, 0) scale(${sc})`;
                     card.style.opacity = op;
                     card.style.zIndex = z;
@@ -1547,8 +1517,7 @@
                 if (wheelCooldown) return;
                 if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 30) {
                     if (e.deltaX > 0) next(); else prev();
-                    wheelCooldown = true;
-                    setTimeout(() => { wheelCooldown = false; }, 900);
+                    wheelCooldown = true;                    setTimeout(() => { wheelCooldown = false; }, 900);
                 }
             }, { passive: true });
 
@@ -1597,8 +1566,7 @@
                     const h = window.innerHeight;
                     
                     const exitX = w + 500;
-                    
-                    const points = [ 
+                                        const points = [ 
                         { x: -150, y: h * 0.4 }, 
                         { x: w * 0.15, y: h * 0.35 }, 
                         { x: w * 0.3, y: h * 0.6 }, 
@@ -1647,8 +1615,7 @@
                     if (dist <= 0) return { x: this.path[0].x, y: this.path[0].y };
                     if (dist >= this.totalPathLength) return this.path[this.path.length - 1];
                     
-                    let lo = 0, hi = this.pathLengths.length - 1;
-                    while (lo < hi - 1) {
+                    let lo = 0, hi = this.pathLengths.length - 1;                    while (lo < hi - 1) {
                         const mid = (lo + hi) >> 1;
                         if (this.pathLengths[mid] <= dist) lo = mid;
                         else hi = mid;
@@ -1697,8 +1664,7 @@
                     this.canvas.classList.remove('active');
                 }
 
-                animate(timestamp) {
-                    if (!this.running) return;
+                animate(timestamp) {                    if (!this.running) return;
                     
                     if (!this.lastTimestamp) this.lastTimestamp = timestamp;
                     const deltaTime = Math.min(timestamp - this.lastTimestamp, 50);
@@ -1720,17 +1686,22 @@
                     this.segments[0].x = headPos.x;
                     this.segments[0].y = headPos.y;
 
+                    // FIXED: Adaptive smoothing based on deltaTime to eliminate head-body gap
+                    // Higher smoothing factor = segments follow more tightly
+                    // Formula: 1 - (1-baseSmooth)^(deltaTime/16) normalizes to 60fps equivalent
+                    const baseSmooth = 0.72;
+                    const smoothing = 1 - Math.pow(1 - baseSmooth, deltaTime / 16);
+
                     for (let i = 1; i < this.segments.length; i++) {
                         const segDist = this.distanceTraveled - i * this.segmentSpacing;
                         const pos = this.getPositionAtDistance(segDist);
                         
-                        const prev = this.segments[i - 1];
                         const curr = this.segments[i];
                         
-                        const smoothing = 0.35;
                         curr.x += (pos.x - curr.x) * smoothing;
                         curr.y += (pos.y - curr.y) * smoothing;
                         
+                        const prev = this.segments[i - 1];
                         const dx = prev.x - curr.x;
                         const dy = prev.y - curr.y;
                         curr.angle = Math.atan2(dy, dx);
@@ -1742,7 +1713,6 @@
                             this.segments[1].x - this.segments[0].x
                         ) + Math.PI;
                     }
-
                     this.draw();
                     this.rafId = requestAnimationFrame((t) => this.animate(t));
                 }
@@ -1792,8 +1762,7 @@
                     grad.addColorStop(0.5, '#7a0303');
                     grad.addColorStop(0.7, '#4a0000');
                     grad.addColorStop(1, '#0a0000');
-                    ctx.fillStyle = grad;
-                    ctx.fill();
+                    ctx.fillStyle = grad;                    ctx.fill();
 
                     ctx.shadowBlur = 0;
                     ctx.strokeStyle = '#000';
@@ -1842,8 +1811,7 @@
                     ctx.bezierCurveTo(4, -15, 16, -11, 14, 0);
                     ctx.closePath();
 
-                    const headGrad = ctx.createRadialGradient(2, 0, 0, 0, 0, 16);
-                    headGrad.addColorStop(0, '#a80808');
+                    const headGrad = ctx.createRadialGradient(2, 0, 0, 0, 0, 16);                    headGrad.addColorStop(0, '#a80808');
                     headGrad.addColorStop(0.4, '#5a0000');
                     headGrad.addColorStop(1, '#050000');
                     ctx.fillStyle = headGrad;
@@ -1893,7 +1861,6 @@
                     ctx.moveTo(8, -6);
                     ctx.quadraticCurveTo(20 - wave * 12, -16 - wave * 8, 38 - wave * 20, -12 - wave * 25);
                     ctx.stroke();
-
                     ctx.strokeStyle = '#4a0000';
                     ctx.lineWidth = 0.5;
                     for(let j=1; j<=4; j++) {
@@ -1942,8 +1909,7 @@
 
                     for (let i = 1; i < this.segments.length - 1; i++) {
                         const seg = this.segments[i];
-                        const progress = i / this.segments.length;
-                        const legLen1 = 9;
+                        const progress = i / this.segments.length;                        const legLen1 = 9;
                         const legLen2 = 14 - progress * 6;
                         const perpAngle = seg.angle + Math.PI / 2;
                         const phase = this.time * 3 + i * 0.7;
@@ -1992,8 +1958,7 @@
             const chainsOverlay = document.getElementById('chains-overlay');
             const centipedeCanvas = document.getElementById('centipede-canvas');
             
-            const centipede = new Centipede(centipedeCanvas);
-            
+            const centipede = new Centipede(centipedeCanvas);            
             let longPressTimer = null;
             let kanekiActive = false;
             let kanekiCooldown = false;
@@ -2042,7 +2007,6 @@
 
                 if (navigator.vibrate) navigator.vibrate([50, 100, 50]);
             }
-
             if (isTouchDevice) {
                 rizeCount.addEventListener('touchstart', (e) => {
                     longPressTimer = setTimeout(triggerKaneki, 500);
