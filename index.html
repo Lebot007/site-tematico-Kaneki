@@ -20,6 +20,13 @@
             --rize: #a855f7;
             --player-bg: rgba(8, 2, 2, 0.72);
             --player-border: rgba(196, 30, 30, 0.18);
+
+            /* === SISTEMA DA FLOR INTERATIVA === */
+            --flower-color: #ff2e2e;
+            --flower-glow: rgba(255, 46, 46, 0.55);
+            --flower-glow-soft: rgba(255, 46, 46, 0.25);
+            --text-accent: #ff2e2e;
+            --text-dim: #d4d4d4;
         }
         *, *::before, *::after { box-sizing: border-box; }
         html { -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }
@@ -333,16 +340,222 @@
             z-index: 0; pointer-events: none; user-select: none;
         }
 
-        .higanbana-wrap { position: relative; animation: float-flower 8s ease-in-out infinite; }
-        .higanbana-wrap::before {
-            content: ''; position: absolute; inset: -20px;
-            background: radial-gradient(circle, rgba(255, 0, 0, 0.25), transparent 60%);
-            border-radius: 50%; z-index: -1; filter: blur(20px);
+        /* ============================================
+           SISTEMA DA FLOR INTERATIVA (HIGANBANA)
+           ============================================ */
+        .higanbana-stage {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            padding: 2rem 1rem;
+            min-height: 420px;
+            justify-content: center;
         }
+
+        .higanbana-wrap {
+            position: relative;
+            animation: float-flower 8s ease-in-out infinite;
+            cursor: none;
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            -webkit-tap-highlight-color: transparent;
+        }
+        .higanbana-wrap::before {
+            /* Glow primário dinâmico */
+            content: '';
+            position: absolute;
+            inset: -40px;
+            background: radial-gradient(circle, var(--flower-glow), transparent 65%);
+            border-radius: 50%;
+            z-index: -2;
+            filter: blur(30px);
+            transition: 
+                background 1.2s cubic-bezier(0.22, 1, 0.36, 1),
+                filter 1.2s cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 1.2s ease,
+                transform 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+            opacity: 0.75;
+            animation: glow-pulse 4s ease-in-out infinite;
+        }
+        .higanbana-wrap::after {
+            /* Glow secundário (bloom suave) */
+            content: '';
+            position: absolute;
+            inset: -80px;
+            background: radial-gradient(circle, var(--flower-glow-soft), transparent 70%);
+            border-radius: 50%;
+            z-index: -3;
+            filter: blur(60px);
+            transition: background 1.2s cubic-bezier(0.22, 1, 0.36, 1), opacity 1.2s ease;
+            opacity: 0.5;
+        }
+
         @keyframes float-flower {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-12px); }
         }
+
+        @keyframes glow-pulse {
+            0%, 100% { opacity: 0.65; transform: scale(1); }
+            50% { opacity: 0.95; transform: scale(1.08); }
+        }
+
+        /* Hover states */
+        .higanbana-wrap:hover {
+            transform: scale(1.08);
+        }
+        .higanbana-wrap:hover::before {
+            opacity: 1;
+            filter: blur(25px);
+            transform: scale(1.25);
+        }
+        .higanbana-wrap:hover::after {
+            opacity: 0.85;
+        }
+
+        .higanbana-wrap:active {
+            transform: scale(0.96);
+        }
+
+        .higanbana-wrap.is-transitioning {
+            animation: flower-swap-bloom 1.4s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .higanbana-wrap.is-transitioning::before {
+            animation: glow-burst 1.4s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        @keyframes flower-swap-bloom {
+            0% { transform: scale(1) rotate(0deg); filter: blur(0px); }
+            35% { transform: scale(1.22) rotate(8deg); filter: blur(2px) brightness(1.4); }
+            70% { transform: scale(0.95) rotate(-3deg); filter: blur(0px); }
+            100% { transform: scale(1) rotate(0deg); filter: blur(0px); }
+        }
+
+        @keyframes glow-burst {
+            0% { transform: scale(1); opacity: 0.7; filter: blur(30px); }
+            40% { transform: scale(1.8); opacity: 1; filter: blur(50px); }
+            70% { transform: scale(1.4); opacity: 0.9; filter: blur(35px); }
+            100% { transform: scale(1); opacity: 0.75; filter: blur(30px); }
+        }
+
+        .higanbana-svg {
+            width: 16rem;
+            height: 16rem;
+            transition: filter 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+            will-change: transform, filter;
+        }
+        @media (min-width: 768px) {
+            .higanbana-svg { width: 20rem; height: 20rem; }
+        }
+
+        .higanbana-petal {
+            fill: none;
+            stroke: var(--flower-color);
+            stroke-width: 1.5;
+            stroke-linecap: round;
+            transition: stroke 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .higanbana-core {
+            fill: var(--flower-color);
+            transition: fill 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        /* Indicador de "click to change" */
+        .flower-hint {
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.6rem;
+            letter-spacing: 0.4em;
+            color: rgba(212, 212, 212, 0.4);
+            text-transform: uppercase;
+            pointer-events: none;
+            transition: opacity 0.4s ease, color 0.4s ease;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .higanbana-wrap:hover + .flower-hint,
+        .higanbana-wrap:hover ~ .flower-hint {
+            color: var(--flower-color);
+            opacity: 1;
+        }
+
+        /* Sistema de Frases */
+        .quote-container {
+            max-width: 640px;
+            width: 100%;
+            position: relative;
+            text-align: left;
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        @media (min-width: 768px) {
+            .quote-container { text-align: left; }
+        }
+
+        .quote-text {
+            font-family: 'Noto Serif JP', serif;
+            font-size: 1.1rem;
+            line-height: 1.75;
+            color: var(--text-dim);
+            font-weight: 400;
+            margin-bottom: 1.25rem;
+            position: relative;
+            will-change: transform, opacity, filter;
+            transition: color 1s ease;
+        }
+        @media (min-width: 768px) {
+            .quote-text { font-size: 1.25rem; }
+        }
+
+        .quote-text::before {
+            content: '"';
+            font-family: 'Noto Serif JP', serif;
+            font-size: 3rem;
+            color: var(--text-accent);
+            position: absolute;
+            top: -1.5rem;
+            left: -1rem;
+            opacity: 0.4;
+            transition: color 1s ease;
+            line-height: 1;
+        }
+
+        .quote-author {
+            font-family: 'Noto Serif JP', serif;
+            font-size: 0.95rem;
+            letter-spacing: 0.15em;
+            color: var(--text-accent);
+            font-style: italic;
+            position: relative;
+            padding-left: 1.5rem;
+            will-change: transform, opacity, filter;
+            transition: color 1s ease;
+        }
+        @media (min-width: 768px) {
+            .quote-author { font-size: 1rem; }
+        }
+
+        .quote-author::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 1rem;
+            height: 1px;
+            background: var(--text-accent);
+            transition: background 1s ease, width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .quote-author:hover::before {
+            width: 2rem;
+        }
+
+        /* ============================================
+           FIM DO SISTEMA DA FLOR
+           ============================================ */
 
         .entry-overlay {
             position: fixed; inset: 0; background: rgba(5, 5, 5, 0.95); z-index: 9999;
@@ -567,7 +780,7 @@
 
         @media (hover: none), (pointer: coarse) {
             .cursor { display: none !important; }
-            body, a, button, .carousel-nav, .carousel-dot, .rize-count, .social-card, .project-card, .entry-overlay, .player-btn, .player-toggle, .player-progress-bar, .player-volume-btn, .player-volume-slider { cursor: auto !important; }
+            body, a, button, .carousel-nav, .carousel-dot, .rize-count, .social-card, .project-card, .entry-overlay, .player-btn, .player-toggle, .player-progress-bar, .player-volume-btn, .player-volume-slider, .higanbana-wrap { cursor: auto !important; }
             * { -webkit-tap-highlight-color: transparent; }
             .ghoul-card:hover, .social-card:hover { transform: none; background: rgba(15, 5, 5, 0.75); border-color: rgba(138, 3, 3, 0.35); }
             .ghoul-card:hover::after, .social-card:hover::after { opacity: 0; }
@@ -582,6 +795,15 @@
             .chain-link-inner { stroke-width: 1.2; }
             .player-progress-thumb { transform: translate(-50%, -50%) scale(1); }
             .player-volume-thumb { transform: translate(-50%, -50%) scale(1); }
+            
+            /* Touch feedback para a flor */
+            .higanbana-wrap.touch-active {
+                transform: scale(1.05);
+            }
+            .higanbana-wrap.touch-active::before {
+                transform: scale(1.2);
+                opacity: 1;
+            }
         }
 
         @media (max-width: 1024px) {
@@ -643,6 +865,26 @@
             .rize-count-fixed-mobile {
                 display: none;
             }
+
+            /* Mobile: flor e quote em coluna */
+            .higanbana-stage {
+                gap: 2.5rem;
+                min-height: auto;
+                padding: 1.5rem 0.5rem;
+            }
+            .quote-container {
+                text-align: center;
+                min-height: 200px;
+            }
+            .quote-text { font-size: 1rem; }
+            .quote-text::before { left: 50%; transform: translateX(-50%); top: -2rem; }
+            .quote-author { padding-left: 0; padding-top: 1rem; }
+            .quote-author::before { 
+                top: 0; 
+                left: 50%; 
+                transform: translateX(-50%); 
+                width: 2rem; 
+            }
         }
 
         @media (max-width: 480px) {
@@ -673,10 +915,15 @@
             .player-volume-wrap { gap: 6px; }
             
             .rize-count { margin-top: 2rem; font-size: 1rem; padding: 6px 12px; }
+
+            .higanbana-svg { width: 14rem; height: 14rem; }
+            .quote-text { font-size: 0.95rem; line-height: 1.65; }
+            .quote-author { font-size: 0.85rem; }
         }
 
         @media (max-width: 375px) {
             section:first-of-type h2.text-7xl { font-size: 3.5rem; }
+            .higanbana-svg { width: 12rem; height: 12rem; }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -786,21 +1033,46 @@
         <div class="absolute bottom-10 text-xs text-readable-faint tracking-widest">SCROLL</div>
     </section>
 
-    <section class="min-h-screen flex items-center justify-center px-6 md:px-20 py-20">
-        <div class="max-w-5xl grid md:grid-cols-2 gap-16 items-center">
-            <div>
-                <h3 class="text-3xl font-jp mb-6 tracking-wide" style="color: #c41e1e;">A Máscara</h3>
-                <p class="text-readable leading-relaxed text-lg font-light mb-6">"Você tá começando a entender agora? Você fica sentado aí culpando a si mesmo o tempo todo, mas fazer isso não vai mudar nada. Você não faz nada pra mudar, é tudo culpa sua."</p>
-                <p class="font-jp tracking-wider text-right text-base italic" style="color: var(--rize);">— Rize Kamishiro</p>
+    <!-- ============================================
+         SEÇÃO: A MÁSCARA (SISTEMA DA FLOR INTERATIVA)
+         ============================================ -->
+    <section class="min-h-screen flex items-center justify-center px-4 md:px-20 py-20">
+        <div class="max-w-6xl w-full">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl md:text-4xl font-jp mb-4 tracking-wide" style="color: #c41e1e;">A Máscara</h3>
+                <p class="text-readable-faint text-xs tracking-[0.4em] uppercase">Fragmentos da Alma Ghoul</p>
             </div>
-            <div class="flex justify-center items-center">
-                <div class="higanbana-wrap">
-                    <svg class="w-64 h-64 md:w-80 md:h-80" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                        <g fill="none" stroke="#c41e1e" stroke-width="1.5" stroke-linecap="round">
-                            <circle cx="50" cy="50" r="3" fill="#ff0000" stroke="none" opacity="0.9"/>
-                            <path d="M50,50 Q60,30 50,10 Q40,30 50,50" /><path d="M50,50 Q70,40 85,25 Q65,45 50,50" /><path d="M50,50 Q75,60 90,70 Q70,65 50,50" /><path d="M50,50 Q60,75 50,90 Q40,75 50,50" /><path d="M50,50 Q30,75 10,70 Q25,60 50,50" /><path d="M50,50 Q20,45 15,25 Q35,40 50,50" />
-                        </g>
-                    </svg>
+
+            <div class="higanbana-stage">
+                <div class="quote-container" id="quote-container">
+                    <p class="quote-text" id="quote-text">Carregando...</p>
+                    <p class="quote-author" id="quote-author">— </p>
+                </div>
+
+                <div class="relative flex justify-center items-center">
+                    <div class="higanbana-wrap" id="higanbana-flower" role="button" tabindex="0" aria-label="Trocar frase">
+                        <svg class="higanbana-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <g>
+                                <circle class="higanbana-core" cx="50" cy="50" r="3" opacity="0.95"/>
+                                <path class="higanbana-petal" d="M50,50 Q60,30 50,10 Q40,30 50,50" />
+                                <path class="higanbana-petal" d="M50,50 Q70,40 85,25 Q65,45 50,50" />
+                                <path class="higanbana-petal" d="M50,50 Q75,60 90,70 Q70,65 50,50" />
+                                <path class="higanbana-petal" d="M50,50 Q60,75 50,90 Q40,75 50,50" />
+                                <path class="higanbana-petal" d="M50,50 Q30,75 10,70 Q25,60 50,50" />
+                                <path class="higanbana-petal" d="M50,50 Q20,45 15,25 Q35,40 50,50" />
+                                <!-- Estames internos -->
+                                <g class="higanbana-petal" stroke-width="0.8" opacity="0.7">
+                                    <path d="M50,50 Q52,42 50,35" />
+                                    <path d="M50,50 Q58,46 62,40" />
+                                    <path d="M50,50 Q58,54 62,60" />
+                                    <path d="M50,50 Q52,58 50,65" />
+                                    <path d="M50,50 Q42,58 38,62" />
+                                    <path d="M50,50 Q42,46 38,40" />
+                                </g>
+                            </g>
+                        </svg>
+                    </div>
+                    <div class="flower-hint">TOQUE PARA MUDAR</div>
                 </div>
             </div>
         </div>
@@ -873,7 +1145,7 @@
                         });
                     }
                 }, { passive: true });
-                const hoverTargets = 'a, .ghoul-card, .carousel-nav, .carousel-dot, .rize-count, .social-card, .project-card, .entry-overlay, .player-btn, .player-toggle, .player-progress-bar, .player-volume-btn, .player-volume-slider';
+                const hoverTargets = 'a, .ghoul-card, .carousel-nav, .carousel-dot, .rize-count, .social-card, .project-card, .entry-overlay, .player-btn, .player-toggle, .player-progress-bar, .player-volume-btn, .player-volume-slider, .higanbana-wrap';
                 document.addEventListener('mouseover', (e) => { if (e.target.closest(hoverTargets)) cursor.classList.add('hover'); });
                 document.addEventListener('mouseout', (e) => { if (e.target.closest(hoverTargets)) cursor.classList.remove('hover'); });
             } else if (cursor) { cursor.style.display = 'none'; }
@@ -1447,6 +1719,220 @@
             } else {
                 rizeCount.addEventListener('click', triggerKaneki);
             }
+
+            /* ============================================
+               SISTEMA DA FLOR INTERATIVA (HIGANBANA)
+               ============================================ */
+            (function initHiganbanaSystem() {
+                // Banco de frases icônicas de Tokyo Ghoul
+                // Apenas frases canonicamente verificadas
+                const QUOTES = [
+                    // ============ KANEKI KEN (vermelho) ============
+                    { character: 'Ken Kaneki', color: '#ff2e2e', glow: 'rgba(255, 46, 46, 0.55)', glowSoft: 'rgba(255, 46, 46, 0.25)', quote: 'Se você fosse escrever uma história comigo como protagonista, com certeza seria… uma tragédia.' },
+                    { character: 'Ken Kaneki', color: '#ff2e2e', glow: 'rgba(255, 46, 46, 0.55)', glowSoft: 'rgba(255, 46, 46, 0.25)', quote: 'Eu não vou recuar. Eu vou seguir em frente. Como uma centopeia.' },
+                    { character: 'Ken Kaneki', color: '#ff2e2e', glow: 'rgba(255, 46, 46, 0.55)', glowSoft: 'rgba(255, 46, 46, 0.25)', quote: 'Você foi meu professor e meu pai. Eu estava tão feliz...' },
+                    { character: 'Ken Kaneki', color: '#ff2e2e', glow: 'rgba(255, 46, 46, 0.55)', glowSoft: 'rgba(255, 46, 46, 0.25)', quote: 'Não posso proteger ninguém. Nem mesmo eu mesmo.' },
+                    { character: 'Ken Kaneki', color: '#ff2e2e', glow: 'rgba(255, 46, 46, 0.55)', glowSoft: 'rgba(255, 46, 46, 0.25)', quote: 'Quanto mais eu aprendia, menos eu entendia.' },
+
+                    // ============ RIZE KAMISHIRO (roxo) ============
+                    { character: 'Rize Kamishiro', color: '#a855f7', glow: 'rgba(168, 85, 247, 0.55)', glowSoft: 'rgba(168, 85, 247, 0.25)', quote: 'Você tá começando a entender agora? Você fica sentado aí culpando a si mesmo o tempo todo, mas fazer isso não vai mudar nada. Você não faz nada pra mudar, é tudo culpa sua.' },
+                    { character: 'Rize Kamishiro', color: '#a855f7', glow: 'rgba(168, 85, 247, 0.55)', glowSoft: 'rgba(168, 85, 247, 0.25)', quote: 'Quando você é fraco, tudo parece difícil.' },
+
+                    // ============ TOUKA KIRISHIMA (azul) ============
+                    { character: 'Touka Kirishima', color: '#3b82f6', glow: 'rgba(59, 130, 246, 0.55)', glowSoft: 'rgba(59, 130, 246, 0.25)', quote: 'Depois de engolir, você fica coberto de sangue e vísceras. Esse é o nosso destino como ghouls.' },
+                    { character: 'Touka Kirishima', color: '#3b82f6', glow: 'rgba(59, 130, 246, 0.55)', glowSoft: 'rgba(59, 130, 246, 0.25)', quote: 'Você vai morrer rápido desse jeito. Seja mais cuidadoso.' },
+
+                    // ============ KISHOU ARIMA (branco/cinza) ============
+                    { character: 'Kishou Arima', color: '#e5e7eb', glow: 'rgba(229, 231, 235, 0.45)', glowSoft: 'rgba(229, 231, 235, 0.2)', quote: '645 vezes eu poderia ter te ferido fatalmente. E 645 vezes decidi não fazer isso.' },
+                    { character: 'Kishou Arima', color: '#e5e7eb', glow: 'rgba(229, 231, 235, 0.45)', glowSoft: 'rgba(229, 231, 235, 0.2)', quote: 'Já estou cansado de fingir.' },
+
+                    // ============ THE BLACK REAPER (preto com glow vermelho — Kaneki versão Ceifador) ============
+                    { character: 'The Black Reaper', color: '#450a0a', glow: 'rgba(127, 29, 29, 0.7)', glowSoft: 'rgba(127, 29, 29, 0.3)', quote: 'Boa noite, Haise.' },
+                    { character: 'The Black Reaper', color: '#450a0a', glow: 'rgba(127, 29, 29, 0.7)', glowSoft: 'rgba(127, 29, 29, 0.3)', quote: 'Você sempre foi fraco.' },
+                    { character: 'The Black Reaper', color: '#450a0a', glow: 'rgba(127, 29, 29, 0.7)', glowSoft: 'rgba(127, 29, 29, 0.3)', quote: 'Eu sou você. E você é eu.' },
+
+                    // ============ HAISE SASAKI (ciano) ============
+                    { character: 'Haise Sasaki', color: '#06b6d4', glow: 'rgba(6, 182, 212, 0.55)', glowSoft: 'rgba(6, 182, 212, 0.25)', quote: 'Estou realmente feliz vivendo assim.' },
+                    { character: 'Haise Sasaki', color: '#06b6d4', glow: 'rgba(6, 182, 212, 0.55)', glowSoft: 'rgba(6, 182, 212, 0.25)', quote: 'Não me pergunte quem eu sou.' },
+
+                    // ============ HIDEYOSHI NAGACHIKA (amarelo suave) ============
+                    { character: 'Hide', color: '#fbbf24', glow: 'rgba(251, 191, 36, 0.55)', glowSoft: 'rgba(251, 191, 36, 0.25)', quote: 'Você é meu melhor amigo. Por isso vou estar sempre ao seu lado.' },
+
+                    // ============ SHUU TSUKIYAMA (magenta) ============
+                    { character: 'Shuu Tsukiyama', color: '#ec4899', glow: 'rgba(236, 72, 153, 0.55)', glowSoft: 'rgba(236, 72, 153, 0.25)', quote: 'Você é um verdadeiro gourmet, Kaneki.' },
+
+                    // ============ AMON KOUTAROU (âmbar) ============
+                    { character: 'Amon Koutarou', color: '#f59e0b', glow: 'rgba(245, 158, 11, 0.55)', glowSoft: 'rgba(245, 158, 11, 0.25)', quote: 'Investigadores como eu existem para proteger os humanos.' },
+
+                    // ============ URIE (cinza ardósia) ============
+                    { character: 'Urie', color: '#94a3b8', glow: 'rgba(148, 163, 184, 0.5)', glowSoft: 'rgba(148, 163, 184, 0.22)', quote: 'Vamos nos tornar terroristas, beleza?' },
+
+                    // ============ ETO YOSHIMURA (verde) ============
+                    { character: 'Eto Yoshimura', color: '#22c55e', glow: 'rgba(34, 197, 94, 0.5)', glowSoft: 'rgba(34, 197, 94, 0.22)', quote: 'O pássaro sai do ovo. O ovo é o mundo. Para nascer, deve-se primeiro destruir um mundo.' },
+
+                    // ============ YOSHIMURA (bege) ============
+                    { character: 'Yoshimura', color: '#a8a29e', glow: 'rgba(168, 162, 158, 0.45)', glowSoft: 'rgba(168, 162, 158, 0.2)', quote: 'Os fortes devoram os fracos. É a lei absoluta do mundo.' }
+                ];
+
+                const flowerEl = document.getElementById('higanbana-flower');
+                const quoteTextEl = document.getElementById('quote-text');
+                const quoteAuthorEl = document.getElementById('quote-author');
+                const root = document.documentElement;
+
+                if (!flowerEl || !quoteTextEl || !quoteAuthorEl) return;
+
+                let currentIndex = -1;
+                let isTransitioning = false;
+
+                // Função: escolher próxima frase aleatória SEM repetir a anterior
+                function pickNextQuote(forceKaneki = false) {
+                    if (forceKaneki) {
+                        // Apenas frases do Kaneki, aleatória entre elas
+                        const kanekiQuotes = QUOTES.filter(q => q.character === 'Ken Kaneki');
+                        const rand = Math.floor(Math.random() * kanekiQuotes.length);
+                        const picked = kanekiQuotes[rand];
+                        currentIndex = QUOTES.indexOf(picked);
+                        return picked;
+                    }
+
+                    // Escolher aleatória, evitando repetição imediata
+                    let nextIdx;
+                    let attempts = 0;
+                    do {
+                        nextIdx = Math.floor(Math.random() * QUOTES.length);
+                        attempts++;
+                    } while (nextIdx === currentIndex && attempts < 15);
+
+                    currentIndex = nextIdx;
+                    return QUOTES[currentIndex];
+                }
+
+                // Função: aplicar cores dinâmicas (CSS variables)
+                function applyThemeColors(quote) {
+                    root.style.setProperty('--flower-color', quote.color);
+                    root.style.setProperty('--flower-glow', quote.glow);
+                    root.style.setProperty('--flower-glow-soft', quote.glowSoft);
+                    root.style.setProperty('--text-accent', quote.color);
+                }
+
+                // Função: animar a troca cinematográfica
+                function transitionToQuote(newQuote) {
+                    if (isTransitioning) return;
+                    isTransitioning = true;
+
+                    const tl = gsap.timeline({
+                        onComplete: () => {
+                            isTransitioning = false;
+                            flowerEl.classList.remove('is-transitioning');
+                        }
+                    });
+
+                    // Ativa a animação bloom da flor
+                    flowerEl.classList.add('is-transitioning');
+
+                    // 1. Saída do texto atual (fade + blur + movimento)
+                    tl.to([quoteTextEl, quoteAuthorEl], {
+                        opacity: 0,
+                        filter: 'blur(12px)',
+                        y: -12,
+                        duration: 0.55,
+                        ease: 'power2.in'
+                    });
+
+                    // 2. No meio da transição: trocar conteúdo e cores
+                    tl.call(() => {
+                        quoteTextEl.textContent = newQuote.quote;
+                        quoteAuthorEl.textContent = `${newQuote.character}`;
+                        applyThemeColors(newQuote);
+                    }, [], '+=0.05');
+
+                    // 3. Reset posição para entrada
+                    tl.set([quoteTextEl, quoteAuthorEl], {
+                        y: 18,
+                        filter: 'blur(12px)'
+                    });
+
+                    // 4. Entrada do novo texto (fade + blur out + movimento)
+                    tl.to([quoteTextEl, quoteAuthorEl], {
+                        opacity: 1,
+                        filter: 'blur(0px)',
+                        y: 0,
+                        duration: 0.85,
+                        ease: 'power3.out',
+                        stagger: 0.12
+                    });
+
+                    // Feedback háptico (mobile)
+                    if (navigator.vibrate) {
+                        navigator.vibrate(15);
+                    }
+                }
+
+                // Inicialização: primeira frase sempre do Kaneki
+                function initFirstQuote() {
+                    const firstQuote = pickNextQuote(true);
+                    quoteTextEl.textContent = firstQuote.quote;
+                    quoteAuthorEl.textContent = `${firstQuote.character}`;
+                    applyThemeColors(firstQuote);
+
+                    // Animação de entrada suave
+                    gsap.from(quoteTextEl, {
+                        opacity: 0,
+                        filter: 'blur(15px)',
+                        y: 20,
+                        duration: 1.4,
+                        ease: 'power3.out',
+                        delay: 0.2
+                    });
+                    gsap.from(quoteAuthorEl, {
+                        opacity: 0,
+                        filter: 'blur(15px)',
+                        y: 20,
+                        duration: 1.4,
+                        ease: 'power3.out',
+                        delay: 0.45
+                    });
+                    gsap.from(flowerEl, {
+                        scale: 0.7,
+                        opacity: 0,
+                        filter: 'blur(20px)',
+                        duration: 1.6,
+                        ease: 'power3.out',
+                        delay: 0.1
+                    });
+                }
+
+                // Event: click/touch na flor
+                function handleFlowerInteraction(e) {
+                    if (e) e.preventDefault();
+                    const nextQuote = pickNextQuote(false);
+                    transitionToQuote(nextQuote);
+                }
+
+                flowerEl.addEventListener('click', handleFlowerInteraction);
+                flowerEl.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleFlowerInteraction();
+                    }
+                });
+
+                // Touch feedback para mobile
+                if (isTouchDevice) {
+                    flowerEl.addEventListener('touchstart', () => {
+                        flowerEl.classList.add('touch-active');
+                    }, { passive: true });
+                    flowerEl.addEventListener('touchend', () => {
+                        setTimeout(() => flowerEl.classList.remove('touch-active'), 150);
+                    }, { passive: true });
+                    flowerEl.addEventListener('touchcancel', () => {
+                        flowerEl.classList.remove('touch-active');
+                    }, { passive: true });
+                }
+
+                // Inicia o sistema
+                initFirstQuote();
+            })();
         })();
     </script>
 </body>
