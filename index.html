@@ -47,8 +47,7 @@
         }
         .font-jp { font-family: 'Noto Serif JP', serif; }
 
-        .noise-overlay {
-            position: fixed; inset: 0; z-index: 9998; pointer-events: none;
+        .noise-overlay {            position: fixed; inset: 0; z-index: 9998; pointer-events: none;
             opacity: 0.05;
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
             mix-blend-mode: overlay;
@@ -97,8 +96,7 @@
             cursor: none;
             user-select: none;
             -webkit-user-select: none;
-            transition: filter 0.3s, opacity 0.3s, transform 0.3s ease;
-            padding: 10px 14px;
+            transition: filter 0.3s, opacity 0.3s, transform 0.3s ease;            padding: 10px 14px;
             background: rgba(5, 2, 2, 0.6);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
@@ -147,8 +145,7 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.02) inset;
             transition: 
                 transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), 
-                left 0.6s cubic-bezier(0.22, 1, 0.36, 1), 
-                right 0.6s cubic-bezier(0.22, 1, 0.36, 1), 
+                left 0.6s cubic-bezier(0.22, 1, 0.36, 1),                 right 0.6s cubic-bezier(0.22, 1, 0.36, 1), 
                 width 0.6s cubic-bezier(0.22, 1, 0.36, 1), 
                 padding 0.6s cubic-bezier(0.22, 1, 0.36, 1), 
                 opacity 0.4s ease, 
@@ -197,8 +194,7 @@
         .music-player.playing .player-cover {
             animation: cover-pulse 3s ease-in-out infinite;
             box-shadow: 0 4px 16px rgba(196, 30, 30, 0.4), 0 0 0 1px rgba(196, 30, 30, 0.3) inset;
-        }
-        @keyframes cover-pulse {
+        }        @keyframes cover-pulse {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.03); }
         }
@@ -247,8 +243,7 @@
             background: var(--bone); border: 2px solid var(--blood-bright); border-radius: 50%;
             transform: translate(-50%, -50%) scale(0); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
             box-shadow: 0 0 8px rgba(196, 30, 30, 0.6); pointer-events: none;
-        }
-        .player-progress-bar:hover .player-progress-thumb,
+        }        .player-progress-bar:hover .player-progress-thumb,
         .player-progress-bar.dragging .player-progress-thumb { transform: translate(-50%, -50%) scale(1); }
 
         .player-time {
@@ -297,8 +292,7 @@
         }
         .player-volume-fill {
             position: absolute; top: 0; left: 0; height: 100%; width: 30%;
-            background: linear-gradient(90deg, var(--blood-bright), #ff3333); border-radius: 2px; transition: width 0.1s ease;
-        }
+            background: linear-gradient(90deg, var(--blood-bright), #ff3333); border-radius: 2px; transition: width 0.1s ease;        }
         .player-volume-thumb {
             position: absolute; top: 50%; left: 30%; width: 10px; height: 10px;
             background: var(--bone); border: 2px solid var(--blood-bright); border-radius: 50%;
@@ -347,8 +341,7 @@
         }
 
         .higanbana-stage {
-            position: relative;
-            display: flex;
+            position: relative;            display: flex;
             flex-direction: column;
             align-items: center;
             gap: 2rem;
@@ -397,8 +390,7 @@
             50% { transform: translateY(-12px); }
         }
 
-        @keyframes glow-pulse {
-            0%, 100% { opacity: 0.65; transform: scale(1); }
+        @keyframes glow-pulse {            0%, 100% { opacity: 0.65; transform: scale(1); }
             50% { opacity: 0.95; transform: scale(1.08); }
         }
 
@@ -448,7 +440,6 @@
         @media (min-width: 768px) {
             .higanbana-svg { width: 20rem; height: 20rem; }
         }
-
         .higanbana-petal {
             fill: none;
             stroke: var(--flower-color);
@@ -497,8 +488,7 @@
         .quote-text {
             font-family: 'Noto Serif JP', serif;
             font-size: 1.1rem;
-            line-height: 1.75;
-            color: var(--text-dim);
+            line-height: 1.75;            color: var(--text-dim);
             font-weight: 400;
             margin-bottom: 1.25rem;
             position: relative;
@@ -547,8 +537,7 @@
             background: var(--text-accent);
             transition: background 1s ease, width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
         }
-        .quote-author:hover::before {
-            width: 2rem;
+        .quote-author:hover::before {            width: 2rem;
         }
 
         .entry-overlay {
@@ -597,8 +586,7 @@
             opacity: 0; transition: opacity 0.7s ease; pointer-events: none; z-index: 1;
         }
         .project-card::after {
-            content: ''; position: absolute; inset: 0; border-radius: inherit;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); opacity: 0; transition: opacity 0.7s ease; pointer-events: none;
+            content: ''; position: absolute; inset: 0; border-radius: inherit;            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); opacity: 0; transition: opacity 0.7s ease; pointer-events: none;
         }
         .project-card.active { border-color: rgba(196, 30, 30, 0.6); }
         .project-card.active::before { opacity: 1; }
@@ -647,8 +635,7 @@
         .card-cta {
             display: flex; align-items: center; gap: 8px; font-size: 0.7rem; letter-spacing: 0.25em;
             color: var(--blood-bright); text-transform: uppercase; opacity: 0; transform: translateX(-10px);
-            transition: opacity 0.5s ease 0.2s, transform 0.5s ease 0.2s; font-weight: 500;
-        }
+            transition: opacity 0.5s ease 0.2s, transform 0.5s ease 0.2s; font-weight: 500;        }
         .project-card.active .card-cta { opacity: 1; transform: translateX(0); }
         .card-cta-arrow { width: 24px; height: 1px; background: var(--blood-bright); position: relative; }
         .card-cta-arrow::after {
@@ -698,7 +685,6 @@
             transition: opacity 0.3s; z-index: 10; text-transform: uppercase;
         }
         .social-card.copied .copied-toast { opacity: 1; }
-
         .kaneki-container {
             position: fixed; right: 0; bottom: 0; height: 85vh; max-height: 700px; width: auto;
             pointer-events: none; z-index: 9996; transform: translateX(100%);
@@ -747,8 +733,7 @@
             75% { transform: translateX(8px) skewX(-3deg); }
         }
 
-        .chains-overlay { position: fixed; inset: 0; z-index: 9993; pointer-events: none; opacity: 0; transition: opacity 0.8s ease; }
-        .chains-overlay.active { opacity: 1; }
+        .chains-overlay { position: fixed; inset: 0; z-index: 9993; pointer-events: none; opacity: 0; transition: opacity 0.8s ease; }        .chains-overlay.active { opacity: 1; }
         .chain-group { position: absolute; transform-origin: center; will-change: transform; }
         .chain-link { fill: none; stroke: url(#chainGradient); stroke-width: 3; filter: drop-shadow(0 0 6px rgba(255, 0, 0, 0.6)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8)); }
         .chain-link-inner { fill: none; stroke: #000; stroke-width: 1.5; opacity: 0.7; }
@@ -798,7 +783,6 @@
                 opacity: 1;
             }
         }
-
         @media (max-width: 1024px) {
             .music-player { width: 340px; padding: 12px; }
             .player-cover-wrap { width: 50px; height: 50px; }
@@ -847,8 +831,7 @@
             .rize-count {
                 position: relative;
                 bottom: auto;
-                right: auto;
-                margin-top: 2.5rem;
+                right: auto;                margin-top: 2.5rem;
                 font-size: 1.1rem;
                 padding: 8px 14px;
                 opacity: 0.9;
@@ -897,8 +880,7 @@
                 left: 10px;
                 transform: translateX(0) translate3d(0, 0, 0); 
             }
-            .player-cover-wrap { width: 40px; height: 40px; }
-            .player-track-name { font-size: 0.82rem; }
+            .player-cover-wrap { width: 40px; height: 40px; }            .player-track-name { font-size: 0.82rem; }
             .player-track-artist { font-size: 0.64rem; }
             .player-controls { gap: 12px; }
             .player-btn svg { width: 16px; height: 16px; }
@@ -947,8 +929,7 @@
     </audio>
 
     <div class="music-player" id="music-player">
-        <button class="player-toggle" id="player-toggle" aria-label="Toggle player">
-            <svg viewBox="0 0 12 12"><path d="M2 4L6 8L10 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <button class="player-toggle" id="player-toggle" aria-label="Toggle player">            <svg viewBox="0 0 12 12"><path d="M2 4L6 8L10 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
         <div class="player-top">
             <div class="player-cover-wrap">
@@ -997,8 +978,7 @@
             </defs>
         </svg>
         <svg class="chain-group chain-tl" width="140" height="450" viewBox="0 0 140 450"><g class="chain-link"><ellipse cx="70" cy="25" rx="18" ry="25"/><ellipse cx="70" cy="75" rx="18" ry="25"/><ellipse cx="70" cy="125" rx="18" ry="25"/><ellipse cx="70" cy="175" rx="18" ry="25"/><ellipse cx="70" cy="225" rx="18" ry="25"/><ellipse cx="70" cy="275" rx="18" ry="25"/><ellipse cx="70" cy="325" rx="18" ry="25"/><ellipse cx="70" cy="375" rx="18" ry="25"/><ellipse cx="70" cy="425" rx="18" ry="25"/></g></svg>
-        <svg class="chain-group chain-tr" width="140" height="430" viewBox="0 0 140 430"><g class="chain-link"><ellipse cx="70" cy="25" rx="17" ry="24"/><ellipse cx="70" cy="73" rx="17" ry="24"/><ellipse cx="70" cy="121" rx="17" ry="24"/><ellipse cx="70" cy="169" rx="17" ry="24"/><ellipse cx="70" cy="217" rx="17" ry="24"/><ellipse cx="70" cy="265" rx="17" ry="24"/><ellipse cx="70" cy="313" rx="17" ry="24"/><ellipse cx="70" cy="361" rx="17" ry="24"/><ellipse cx="70" cy="409" rx="17" ry="24"/></g></svg>
-        <svg class="chain-group chain-bl" width="140" height="410" viewBox="0 0 140 410"><g class="chain-link"><ellipse cx="70" cy="25" rx="18" ry="25"/><ellipse cx="70" cy="75" rx="18" ry="25"/><ellipse cx="70" cy="125" rx="18" ry="25"/><ellipse cx="70" cy="175" rx="18" ry="25"/><ellipse cx="70" cy="225" rx="18" ry="25"/><ellipse cx="70" cy="275" rx="18" ry="25"/><ellipse cx="70" cy="325" rx="18" ry="25"/><ellipse cx="70" cy="375" rx="18" ry="25"/></g></svg>
+        <svg class="chain-group chain-tr" width="140" height="430" viewBox="0 0 140 430"><g class="chain-link"><ellipse cx="70" cy="25" rx="17" ry="24"/><ellipse cx="70" cy="73" rx="17" ry="24"/><ellipse cx="70" cy="121" rx="17" ry="24"/><ellipse cx="70" cy="169" rx="17" ry="24"/><ellipse cx="70" cy="217" rx="17" ry="24"/><ellipse cx="70" cy="265" rx="17" ry="24"/><ellipse cx="70" cy="313" rx="17" ry="24"/><ellipse cx="70" cy="361" rx="17" ry="24"/><ellipse cx="70" cy="409" rx="17" ry="24"/></g></svg>        <svg class="chain-group chain-bl" width="140" height="410" viewBox="0 0 140 410"><g class="chain-link"><ellipse cx="70" cy="25" rx="18" ry="25"/><ellipse cx="70" cy="75" rx="18" ry="25"/><ellipse cx="70" cy="125" rx="18" ry="25"/><ellipse cx="70" cy="175" rx="18" ry="25"/><ellipse cx="70" cy="225" rx="18" ry="25"/><ellipse cx="70" cy="275" rx="18" ry="25"/><ellipse cx="70" cy="325" rx="18" ry="25"/><ellipse cx="70" cy="375" rx="18" ry="25"/></g></svg>
         <svg class="chain-group chain-br" width="140" height="430" viewBox="0 0 140 430"><g class="chain-link"><ellipse cx="70" cy="25" rx="17" ry="24"/><ellipse cx="70" cy="73" rx="17" ry="24"/><ellipse cx="70" cy="121" rx="17" ry="24"/><ellipse cx="70" cy="169" rx="17" ry="24"/><ellipse cx="70" cy="217" rx="17" ry="24"/><ellipse cx="70" cy="265" rx="17" ry="24"/><ellipse cx="70" cy="313" rx="17" ry="24"/><ellipse cx="70" cy="361" rx="17" ry="24"/><ellipse cx="70" cy="409" rx="17" ry="24"/></g></svg>
         <svg class="chain-group chain-mid-l" width="350" height="140" viewBox="0 0 350 140"><g class="chain-link"><ellipse cx="25" cy="70" rx="25" ry="18"/><ellipse cx="75" cy="70" rx="25" ry="18"/><ellipse cx="125" cy="70" rx="25" ry="18"/><ellipse cx="175" cy="70" rx="25" ry="18"/><ellipse cx="225" cy="70" rx="25" ry="18"/><ellipse cx="275" cy="70" rx="25" ry="18"/><ellipse cx="325" cy="70" rx="25" ry="18"/></g></svg>
         <svg class="chain-group chain-mid-r" width="330" height="140" viewBox="0 0 330 140"><g class="chain-link"><ellipse cx="25" cy="70" rx="24" ry="17"/><ellipse cx="73" cy="70" rx="24" ry="17"/><ellipse cx="121" cy="70" rx="24" ry="17"/><ellipse cx="169" cy="70" rx="24" ry="17"/><ellipse cx="217" cy="70" rx="24" ry="17"/><ellipse cx="265" cy="70" rx="24" ry="17"/><ellipse cx="313" cy="70" rx="24" ry="17"/></g></svg>
@@ -1047,8 +1027,7 @@
                                 <path class="higanbana-petal" d="M50,50 Q70,40 85,25 Q65,45 50,50" />
                                 <path class="higanbana-petal" d="M50,50 Q75,60 90,70 Q70,65 50,50" />
                                 <path class="higanbana-petal" d="M50,50 Q60,75 50,90 Q40,75 50,50" />
-                                <path class="higanbana-petal" d="M50,50 Q30,75 10,70 Q25,60 50,50" />
-                                <path class="higanbana-petal" d="M50,50 Q20,45 15,25 Q35,40 50,50" />
+                                <path class="higanbana-petal" d="M50,50 Q30,75 10,70 Q25,60 50,50" />                                <path class="higanbana-petal" d="M50,50 Q20,45 15,25 Q35,40 50,50" />
                                 <g class="higanbana-petal" stroke-width="0.8" opacity="0.7">
                                     <path d="M50,50 Q52,42 50,35" />
                                     <path d="M50,50 Q58,46 62,40" />
@@ -1097,8 +1076,7 @@
             </a>
             <a href="https://open.spotify.com/user/o2fbtdnh53z6t6ca4v6wez8rz" target="_blank" rel="noopener" class="social-card rounded-sm p-6 flex flex-col items-center text-center cursor-pointer block group">
                 <svg class="social-icon w-10 h-10 mb-3" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.42 1.56-.301.42-1.02.599-1.561.3z"/></svg>
-                <div class="social-label">Spotify</div><div class="social-handle">Perfil</div>
-            </a>
+                <div class="social-label">Spotify</div><div class="social-handle">Perfil</div>            </a>
             <div class="social-card rounded-sm p-6 flex flex-col items-center text-center cursor-pointer group" id="discord-card" data-username="Lebot.gg">
                 <svg class="social-icon w-10 h-10 mb-3" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>
                 <div class="social-label">Discord</div><div class="social-handle">Lebot.gg</div><div class="copied-toast">Copiado!</div>
@@ -1147,8 +1125,7 @@
                 { src: 'musica.mp3', img: 'music1image.jpg', name: 'Nuts', artist: 'Lil Peep' },
                 { src: 'musica2.mp3', img: 'music2image.jpg', name: 'CONSUME', artist: 'Chase Atlantic' },
                 { src: 'musica3.mp3', img: 'music3image.jpg', name: 'SWIM', artist: 'Chase Atlantic' }
-            ];
-            let currentTrack = 0, isPlaying = false;
+            ];            let currentTrack = 0, isPlaying = false;
 
             const musicPlayer = document.getElementById('music-player');
             const playerToggle = document.getElementById('player-toggle');
@@ -1197,8 +1174,7 @@
 
             function updatePlayIcon() {
                 playerPlayIcon.innerHTML = isPlaying ? ICON_PAUSE : ICON_PLAY;
-                musicPlayer.classList.toggle('playing', isPlaying);
-            }
+                musicPlayer.classList.toggle('playing', isPlaying);            }
             
             function updateVolumeIcon(vol) {
                 if (vol === 0) playerVolumeIcon.innerHTML = ICON_VOLUME_MUTE;
@@ -1247,7 +1223,6 @@
                     });
                 }
             }
-
             window.addEventListener('load', () => {
                 updateTrackInfo();
                 audio.muted = true;
@@ -1297,8 +1272,7 @@
 
             let isSeeking = false;
             function seekTo(e) {
-                const rect = playerProgressBar.getBoundingClientRect();
-                const clientX = e.clientX ?? (e.touches && e.touches[0]?.clientX);
+                const rect = playerProgressBar.getBoundingClientRect();                const clientX = e.clientX ?? (e.touches && e.touches[0]?.clientX);
                 if (clientX == null) return;
                 let pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
                 if (audio.duration) {
@@ -1347,8 +1321,7 @@
             const discordCard = document.getElementById('discord-card');
             discordCard.addEventListener('click', async (e) => {
                 e.preventDefault();
-                const username = discordCard.dataset.username;
-                try { await navigator.clipboard.writeText(username); } 
+                const username = discordCard.dataset.username;                try { await navigator.clipboard.writeText(username); } 
                 catch {
                     const ta = document.createElement('textarea'); ta.value = username;
                     document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
@@ -1398,7 +1371,6 @@
                 dotsContainer.appendChild(dot);
             });
             stage.appendChild(fragment);
-
             const cards = stage.querySelectorAll('.project-card');
             const dots = dotsContainer.querySelectorAll('.carousel-dot');
 
@@ -1448,7 +1420,6 @@
                 if (Math.abs(diff) > 50) { if (diff < 0) next(); else prev(); }
                 dragStart = null;
             }, { passive: true });
-
             let wheelCooldown = false;
             wrapper.addEventListener('wheel', (e) => {
                 if (wheelCooldown) return;
@@ -1497,8 +1468,7 @@
                         }
                     }
                     this.path.push(points[points.length - 1]);
-                    let acc = 0; this.pathLengths.push(0);
-                    for (let i = 1; i < this.path.length; i++) {
+                    let acc = 0; this.pathLengths.push(0);                    for (let i = 1; i < this.path.length; i++) {
                         const dx = this.path[i].x - this.path[i-1].x, dy = this.path[i].y - this.path[i-1].y;
                         acc += Math.sqrt(dx * dx + dy * dy); this.pathLengths.push(acc);
                     }
@@ -1547,8 +1517,7 @@
                     if (this.segments.length > 1) this.segments[0].angle = Math.atan2(this.segments[1].y - this.segments[0].y, this.segments[1].x - this.segments[0].x) + Math.PI;
                     this.draw(); this.rafId = requestAnimationFrame((t) => this.animate(t));
                 }
-                draw() {
-                    const ctx = this.ctx, w = window.innerWidth, h = window.innerHeight;
+                draw() {                    const ctx = this.ctx, w = window.innerWidth, h = window.innerHeight;
                     ctx.clearRect(0, 0, w, h); this.drawLegs();
                     for (let i = this.segments.length - 1; i >= 1; i--) this.drawSegment(i);
                     this.drawHead();
@@ -1597,8 +1566,7 @@
                     ctx.beginPath(); ctx.ellipse(9.5, -5, 1, 0.8, 0, 0, Math.PI * 2); ctx.fill();
                     ctx.beginPath(); ctx.ellipse(9.5, 5, 1, 0.8, 0, 0, Math.PI * 2); ctx.fill();
                     
-                    ctx.strokeStyle = '#1a0000'; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
-                    ctx.beginPath(); ctx.moveTo(14, -4);
+                    ctx.strokeStyle = '#1a0000'; ctx.lineWidth = 2.5; ctx.lineCap = 'round';                    ctx.beginPath(); ctx.moveTo(14, -4);
                     ctx.quadraticCurveTo(22, -8, 26, -12);
                     ctx.quadraticCurveTo(28, -8, 24, -6); ctx.stroke();
                     ctx.beginPath(); ctx.moveTo(14, -2);
@@ -1647,8 +1615,7 @@
             function triggerKaneki() {
                 if (kanekiActive || kanekiCooldown) return;
                 kanekiActive = true; kanekiCooldown = true;
-                darkenOverlay.classList.add('active'); chainsOverlay.classList.add('active'); glitchOverlay.classList.add('active');
-                setTimeout(() => centipede.start(), 200);
+                darkenOverlay.classList.add('active'); chainsOverlay.classList.add('active'); glitchOverlay.classList.add('active');                setTimeout(() => centipede.start(), 200);
                 setTimeout(() => { kanekiContainer.classList.remove('exiting'); kanekiContainer.classList.add('entering'); }, 600);
                 setTimeout(() => glitchOverlay.classList.remove('active'), 800);
                 setTimeout(() => { glitchOverlay.classList.add('active'); setTimeout(() => glitchOverlay.classList.remove('active'), 400); }, 3500);
@@ -1697,8 +1664,7 @@
                     { character: 'Touka Kirishima', color: '#3b82f6', glow: 'rgba(59, 130, 246, 0.55)', glowSoft: 'rgba(59, 130, 246, 0.25)', quote: 'Depois de engolir, você fica coberto de sangue e vísceras. Esse é o nosso destino como ghouls.' },
                     { character: 'Touka Kirishima', color: '#3b82f6', glow: 'rgba(59, 130, 246, 0.55)', glowSoft: 'rgba(59, 130, 246, 0.25)', quote: 'Você vai morrer rápido desse jeito. Seja mais cuidadoso.' },
                     { character: 'Kishou Arima', color: '#e5e7eb', glow: 'rgba(229, 231, 235, 0.45)', glowSoft: 'rgba(229, 231, 235, 0.2)', quote: '645 vezes eu poderia ter te ferido fatalmente. E 645 vezes decidi não fazer isso.' },
-                    { character: 'Kishou Arima', color: '#e5e7eb', glow: 'rgba(229, 231, 235, 0.45)', glowSoft: 'rgba(229, 231, 235, 0.2)', quote: 'Já estou cansado de fingir.' },
-                    { character: 'The Black Reaper', color: '#A0826D', glow: 'rgba(160, 130, 109, 0.7)', glowSoft: 'rgba(160, 130, 109, 0.3)', quote: 'Boa noite, Haise.' },
+                    { character: 'Kishou Arima', color: '#e5e7eb', glow: 'rgba(229, 231, 235, 0.45)', glowSoft: 'rgba(229, 231, 235, 0.2)', quote: 'Já estou cansado de fingir.' },                    { character: 'The Black Reaper', color: '#A0826D', glow: 'rgba(160, 130, 109, 0.7)', glowSoft: 'rgba(160, 130, 109, 0.3)', quote: 'Boa noite, Haise.' },
                     { character: 'The Black Reaper', color: '#A0826D', glow: 'rgba(160, 130, 109, 0.7)', glowSoft: 'rgba(160, 130, 109, 0.3)', quote: 'Você sempre foi fraco.' },
                     { character: 'The Black Reaper', color: '#A0826D', glow: 'rgba(160, 130, 109, 0.7)', glowSoft: 'rgba(160, 130, 109, 0.3)', quote: 'Eu sou você. E você é eu.' },
                     { character: 'Haise Sasaki', color: '#06b6d4', glow: 'rgba(6, 182, 212, 0.55)', glowSoft: 'rgba(6, 182, 212, 0.25)', quote: 'Estou realmente feliz vivendo assim.' },
@@ -1720,45 +1686,56 @@
 
                 let currentIndex = -1;
                 let isTransitioning = false;
+                // FILA DE FALAS (não de personagens) - garante que TODAS as 22 falas apareçam
                 let characterQueue = [];
                 let lastCharacter = null;
 
                 function shuffleArray(arr) {
-                    return arr.sort(() => Math.random() - 0.5);
+                    // Fisher-Yates shuffle (distribuição uniforme real)
+                    const a = [...arr];
+                    for (let i = a.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [a[i], a[j]] = [a[j], a[i]];
+                    }
+                    return a;
                 }
 
-                function generateCharacterQueue() {
-                    const uniqueCharacters = [...new Set(QUOTES.map(q => q.character))];
-                    return shuffleArray(uniqueCharacters);
+                // Gera fila com TODOS os ÍNDICES das falas (0 a 21)
+                function generateQuotesQueue() {
+                    const allIndices = QUOTES.map((_, i) => i);
+                    return shuffleArray(allIndices);
                 }
 
                 function pickNextQuote(forceKaneki = false) {
                     if (forceKaneki) {
-                        const kanekiQuotes = QUOTES.filter(q => q.character === 'Ken Kaneki');
-                        const rand = Math.floor(Math.random() * kanekiQuotes.length);
-                        const picked = kanekiQuotes[rand];
-                        currentIndex = QUOTES.indexOf(picked);
-                        lastCharacter = 'Ken Kaneki';
-                        return picked;
+                        const kanekiQuotes = QUOTES.map((q, i) => ({ quote: q, index: i }))
+                                                   .filter(q => q.quote.character === 'Ken Kaneki');
+                        const picked = kanekiQuotes[Math.floor(Math.random() * kanekiQuotes.length)];
+                        currentIndex = picked.index;
+                        lastCharacter = picked.quote.character;
+                        return picked.quote;                    }
+
+                    // Só regenera a fila quando TODAS as 22 falas já apareceram
+                    if (characterQueue.length === 0) {
+                        characterQueue = generateQuotesQueue();
                     }
 
-                    if (characterQueue.length <= 1) {
-                        characterQueue = generateCharacterQueue();
+                    let nextIndex = characterQueue.shift();
+                    let nextQuote = QUOTES[nextIndex];
+
+                    // Evita repetir o mesmo personagem imediatamente
+                    // Se repetir, coloca no fim da fila e pega outro
+                    let attempts = 0;
+                    while (nextQuote.character === lastCharacter && characterQueue.length > 0 && attempts < 10) {
+                        characterQueue.push(nextIndex);
+                        nextIndex = characterQueue.shift();
+                        nextQuote = QUOTES[nextIndex];
+                        attempts++;
                     }
 
-                    let nextCharacter = characterQueue.shift();
-                    
-                    while (nextCharacter === lastCharacter && characterQueue.length > 0) {
-                        characterQueue.push(nextCharacter);
-                        nextCharacter = characterQueue.shift();
-                    }
-
-                    const quotesOfCharacter = QUOTES.filter(q => q.character === nextCharacter);
-                    const rand = Math.floor(Math.random() * quotesOfCharacter.length);
-                    const picked = quotesOfCharacter[rand];
-                    currentIndex = QUOTES.indexOf(picked);
-                    lastCharacter = nextCharacter;
-                    return picked;
+                    currentIndex = nextIndex;
+                    lastCharacter = nextQuote.character;
+                    return nextQuote;
                 }
 
                 function applyThemeColors(quote) {
@@ -1785,8 +1762,7 @@
                         opacity: 0,
                         filter: 'blur(12px)',
                         y: -12,
-                        duration: 0.55,
-                        ease: 'power2.in'
+                        duration: 0.55,                        ease: 'power2.in'
                     });
 
                     tl.call(() => {
@@ -1835,8 +1811,7 @@
                         duration: 1.4,
                         ease: 'power3.out',
                         delay: 0.45
-                    });
-                    gsap.from(flowerEl, {
+                    });                    gsap.from(flowerEl, {
                         scale: 0.7,
                         opacity: 0,
                         filter: 'blur(20px)',
