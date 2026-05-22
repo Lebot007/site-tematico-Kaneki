@@ -2,7 +2,10 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#050505">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Lebot | Portfolio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,8 +23,6 @@
             --rize: #a855f7;
             --player-bg: rgba(8, 2, 2, 0.72);
             --player-border: rgba(196, 30, 30, 0.18);
-
-            /* === SISTEMA DA FLOR INTERATIVA === */
             --flower-color: #ff2e2e;
             --flower-glow: rgba(255, 46, 46, 0.55);
             --flower-glow-soft: rgba(255, 46, 46, 0.25);
@@ -34,11 +35,15 @@
             background-color: var(--void);
             color: var(--bone);
             font-family: 'Space Grotesk', sans-serif;
-            cursor: none;
+            cursor: default;
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
             text-rendering: optimizeSpeed;
             touch-action: manipulation;
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
         }
         .font-jp { font-family: 'Noto Serif JP', serif; }
 
@@ -64,6 +69,7 @@
             will-change: transform;
             transition: width 0.2s, height 0.2s, background 0.2s, border-color 0.2s, margin 0.2s;
             transform: translate3d(-100px, -100px, 0);
+            cursor: none;
         }
         .cursor.hover {
             width: 40px; height: 40px;
@@ -340,9 +346,6 @@
             z-index: 0; pointer-events: none; user-select: none;
         }
 
-        /* ============================================
-           SISTEMA DA FLOR INTERATIVA (HIGANBANA)
-           ============================================ */
         .higanbana-stage {
             position: relative;
             display: flex;
@@ -362,7 +365,6 @@
             -webkit-tap-highlight-color: transparent;
         }
         .higanbana-wrap::before {
-            /* Glow primário dinâmico */
             content: '';
             position: absolute;
             inset: -40px;
@@ -379,7 +381,6 @@
             animation: glow-pulse 4s ease-in-out infinite;
         }
         .higanbana-wrap::after {
-            /* Glow secundário (bloom suave) */
             content: '';
             position: absolute;
             inset: -80px;
@@ -401,7 +402,6 @@
             50% { opacity: 0.95; transform: scale(1.08); }
         }
 
-        /* Hover states */
         .higanbana-wrap:hover {
             transform: scale(1.08);
         }
@@ -461,7 +461,6 @@
             transition: fill 1.2s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
-        /* Indicador de "click to change" */
         .flower-hint {
             position: absolute;
             bottom: -8px;
@@ -481,7 +480,6 @@
             opacity: 1;
         }
 
-        /* Sistema de Frases */
         .quote-container {
             max-width: 640px;
             width: 100%;
@@ -552,10 +550,6 @@
         .quote-author:hover::before {
             width: 2rem;
         }
-
-        /* ============================================
-           FIM DO SISTEMA DA FLOR
-           ============================================ */
 
         .entry-overlay {
             position: fixed; inset: 0; background: rgba(5, 5, 5, 0.95); z-index: 9999;
@@ -796,7 +790,6 @@
             .player-progress-thumb { transform: translate(-50%, -50%) scale(1); }
             .player-volume-thumb { transform: translate(-50%, -50%) scale(1); }
             
-            /* Touch feedback para a flor */
             .higanbana-wrap.touch-active {
                 transform: scale(1.05);
             }
@@ -866,7 +859,6 @@
                 display: none;
             }
 
-            /* Mobile: flor e quote em coluna */
             .higanbana-stage {
                 gap: 2.5rem;
                 min-height: auto;
@@ -1033,9 +1025,6 @@
         <div class="absolute bottom-10 text-xs text-readable-faint tracking-widest">SCROLL</div>
     </section>
 
-    <!-- ============================================
-         SEÇÃO: A MÁSCARA (SISTEMA DA FLOR INTERATIVA)
-         ============================================ -->
     <section class="min-h-screen flex items-center justify-center px-4 md:px-20 py-20">
         <div class="max-w-6xl w-full">
             <div class="text-center mb-12">
@@ -1060,7 +1049,6 @@
                                 <path class="higanbana-petal" d="M50,50 Q60,75 50,90 Q40,75 50,50" />
                                 <path class="higanbana-petal" d="M50,50 Q30,75 10,70 Q25,60 50,50" />
                                 <path class="higanbana-petal" d="M50,50 Q20,45 15,25 Q35,40 50,50" />
-                                <!-- Estames internos -->
                                 <g class="higanbana-petal" stroke-width="0.8" opacity="0.7">
                                     <path d="M50,50 Q52,42 50,35" />
                                     <path d="M50,50 Q58,46 62,40" />
@@ -1129,7 +1117,7 @@
 
             const bgVideo = document.getElementById('bg-video');
             if (bgVideo) {
-                bgVideo.addEventListener('ended', () => { bgVideo.currentTime = 0; bgVideo.play().catch(() => {}); });
+                bgVideo.addEventListener('ended', () => { bgVideo.currentTime = 0; bgVideo.play().catch(() => {}); }, { passive: true });
                 bgVideo.play().catch(() => { document.addEventListener('click', () => bgVideo.play().catch(() => {}), { once: true }); });
             }
 
@@ -1146,8 +1134,8 @@
                     }
                 }, { passive: true });
                 const hoverTargets = 'a, .ghoul-card, .carousel-nav, .carousel-dot, .rize-count, .social-card, .project-card, .entry-overlay, .player-btn, .player-toggle, .player-progress-bar, .player-volume-btn, .player-volume-slider, .higanbana-wrap';
-                document.addEventListener('mouseover', (e) => { if (e.target.closest(hoverTargets)) cursor.classList.add('hover'); });
-                document.addEventListener('mouseout', (e) => { if (e.target.closest(hoverTargets)) cursor.classList.remove('hover'); });
+                document.addEventListener('mouseover', (e) => { if (e.target.closest(hoverTargets)) cursor.classList.add('hover'); }, { passive: true });
+                document.addEventListener('mouseout', (e) => { if (e.target.closest(hoverTargets)) cursor.classList.remove('hover'); }, { passive: true });
             } else if (cursor) { cursor.style.display = 'none'; }
 
             const audio = document.getElementById('bg-audio');
@@ -1240,38 +1228,6 @@
                 updateVolumeIcon(vol);
             }
 
-            function startAudioWithFade() {
-                if (hasInteracted) return;
-                hasInteracted = true;
-                updateTrackInfo();
-                
-                audio.muted = true;
-                audio.volume = 0;
-                
-                const playPromise = audio.play();
-                if (playPromise !== undefined) {
-                    playPromise.then(() => {
-                        isPlaying = true;
-                        updatePlayIcon();
-                        entryOverlay.classList.add('hidden');
-                        
-                        let vol = 0;
-                        audio.muted = false;
-                        const fadeIn = setInterval(() => {
-                            vol = Math.min(vol + 0.015, 0.3);
-                            audio.volume = vol;
-                            if (vol >= 0.3) {
-                                setVolume(0.3);
-                                clearInterval(fadeIn);
-                            }
-                        }, 100);
-                    }).catch(() => {
-                        entryOverlay.classList.remove('hidden');
-                        hasInteracted = false;
-                    });
-                }
-            }
-
             function startAudio() {
                 if (hasInteracted) return;
                 hasInteracted = true;
@@ -1321,23 +1277,15 @@
                 }
             }, { once: true });
             
-            entryOverlay.addEventListener('click', () => {
-                hasInteracted = false;
-                startAudio();
-            }, { once: true });
-            entryOverlay.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                hasInteracted = false;
-                startAudio();
-            }, { once: true });
+            entryOverlay.addEventListener('click', startAudio, { once: true });
 
             playerPlayBtn.addEventListener('click', togglePlay);
             playerNextBtn.addEventListener('click', nextTrack);
             playerPrevBtn.addEventListener('click', prevTrack);
             playerToggle.addEventListener('click', () => musicPlayer.classList.toggle('collapsed'));
 
-            audio.addEventListener('ended', nextTrack);
-            audio.addEventListener('loadedmetadata', () => { playerTimeTotal.textContent = formatTime(audio.duration); });
+            audio.addEventListener('ended', nextTrack, { passive: true });
+            audio.addEventListener('loadedmetadata', () => { playerTimeTotal.textContent = formatTime(audio.duration); }, { passive: true });
             audio.addEventListener('timeupdate', () => {
                 if (audio.duration) {
                     const pct = (audio.currentTime / audio.duration) * 100;
@@ -1345,7 +1293,7 @@
                     playerProgressThumb.style.left = pct + '%';
                     playerTimeCurrent.textContent = formatTime(audio.currentTime);
                 }
-            });
+            }, { passive: true });
 
             let isSeeking = false;
             function seekTo(e) {
@@ -1361,8 +1309,8 @@
             }
 
             playerProgressBar.addEventListener('mousedown', (e) => { isSeeking = true; playerProgressBar.classList.add('dragging'); seekTo(e); });
-            document.addEventListener('mousemove', (e) => { if (isSeeking) seekTo(e); });
-            document.addEventListener('mouseup', () => { if (isSeeking) { isSeeking = false; playerProgressBar.classList.remove('dragging'); } });
+            document.addEventListener('mousemove', (e) => { if (isSeeking) seekTo(e); }, { passive: true });
+            document.addEventListener('mouseup', () => { if (isSeeking) { isSeeking = false; playerProgressBar.classList.remove('dragging'); } }, { passive: true });
             playerProgressBar.addEventListener('touchstart', (e) => { isSeeking = true; playerProgressBar.classList.add('dragging'); seekTo(e); }, { passive: true });
             playerProgressBar.addEventListener('touchmove', (e) => { if (isSeeking) seekTo(e); }, { passive: true });
             playerProgressBar.addEventListener('touchend', () => { isSeeking = false; playerProgressBar.classList.remove('dragging'); }, { passive: true });
@@ -1378,8 +1326,8 @@
             }
 
             playerVolumeSlider.addEventListener('mousedown', (e) => { isAdjustingVolume = true; playerVolumeSlider.classList.add('dragging'); adjustVolume(e); });
-            document.addEventListener('mousemove', (e) => { if (isAdjustingVolume) adjustVolume(e); });
-            document.addEventListener('mouseup', () => { if (isAdjustingVolume) { isAdjustingVolume = false; playerVolumeSlider.classList.remove('dragging'); } });
+            document.addEventListener('mousemove', (e) => { if (isAdjustingVolume) adjustVolume(e); }, { passive: true });
+            document.addEventListener('mouseup', () => { if (isAdjustingVolume) { isAdjustingVolume = false; playerVolumeSlider.classList.remove('dragging'); } }, { passive: true });
             playerVolumeSlider.addEventListener('touchstart', (e) => { isAdjustingVolume = true; playerVolumeSlider.classList.add('dragging'); adjustVolume(e); }, { passive: true });
             playerVolumeSlider.addEventListener('touchmove', (e) => { if (isAdjustingVolume) adjustVolume(e); }, { passive: true });
             playerVolumeSlider.addEventListener('touchend', () => { isAdjustingVolume = false; playerVolumeSlider.classList.remove('dragging'); }, { passive: true });
@@ -1416,7 +1364,7 @@
                     document.body.classList.remove('tab-hidden');
                     if (isPlaying && hasInteracted && audio.paused) audio.play().catch(() => {});
                 }
-            });
+            }, { passive: true });
 
             const lenis = new Lenis({ duration: 1.2, smoothWheel: true, wheelMultiplier: 1, touchMultiplier: 2 });
             function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
@@ -1493,7 +1441,7 @@
 
             let dragStart = null;
             const wrapper = document.getElementById('carousel');
-            wrapper.addEventListener('pointerdown', (e) => { dragStart = e.clientX; }, { passive: true });
+            wrapper.addEventListener('pointerdown', (e) => { dragStart = e.clientX; e.preventDefault(); }, { passive: false });
             wrapper.addEventListener('pointerup', (e) => {
                 if (dragStart === null) return;
                 const diff = e.clientX - dragStart;
@@ -1505,6 +1453,7 @@
             wrapper.addEventListener('wheel', (e) => {
                 if (wheelCooldown) return;
                 if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 30) {
+                    e.stopPropagation();
                     if (e.deltaX > 0) next(); else prev();
                     wheelCooldown = true; setTimeout(() => { wheelCooldown = false; }, 900);
                 }
@@ -1512,7 +1461,7 @@
 
             updateCarousel();
             let resizeTimer;
-            window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(updateCarousel, 150); });
+            window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(updateCarousel, 150); }, { passive: true });
 
             class Centipede {
                 constructor(canvas) {
@@ -1521,7 +1470,11 @@
                     this.running = false; this.path = []; this.distanceTraveled = 0; this.time = 0;
                     this.rafId = null; this.lastTimestamp = 0; this.speed = 0; this.totalPathLength = 0;
                     this.pathLengths = []; this.exitThreshold = 0; this.resize();
-                    window.addEventListener('resize', () => this.resize(), { passive: true });
+                    let resizeTimeout;
+                    window.addEventListener('resize', () => {
+                        clearTimeout(resizeTimeout);
+                        resizeTimeout = setTimeout(() => this.resize(), 100);
+                    }, { passive: true });
                 }
                 resize() {
                     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -1711,66 +1664,50 @@
             }
 
             if (isTouchDevice) {
-                rizeCount.addEventListener('touchstart', (e) => { longPressTimer = setTimeout(triggerKaneki, 500); }, { passive: true });
-                rizeCount.addEventListener('touchend', () => clearTimeout(longPressTimer), { passive: true });
+                let touchTriggered = false;
+                rizeCount.addEventListener('touchstart', () => {
+                    touchTriggered = false;
+                    longPressTimer = setTimeout(() => {
+                        touchTriggered = true;
+                        triggerKaneki();
+                    }, 500);
+                }, { passive: true });
+                rizeCount.addEventListener('touchend', (e) => {
+                    clearTimeout(longPressTimer);
+                    if (!touchTriggered) {
+                        e.preventDefault();
+                        triggerKaneki();
+                    }
+                });
                 rizeCount.addEventListener('touchmove', () => clearTimeout(longPressTimer), { passive: true });
                 rizeCount.addEventListener('touchcancel', () => clearTimeout(longPressTimer), { passive: true });
-                rizeCount.addEventListener('click', (e) => { e.preventDefault(); triggerKaneki(); });
             } else {
                 rizeCount.addEventListener('click', triggerKaneki);
             }
 
-            /* ============================================
-               SISTEMA DA FLOR INTERATIVA (HIGANBANA)
-               ============================================ */
             (function initHiganbanaSystem() {
-                // Banco de frases icônicas de Tokyo Ghoul
-                // Apenas frases canonicamente verificadas
                 const QUOTES = [
-                    // ============ KANEKI KEN (vermelho) ============
                     { character: 'Ken Kaneki', color: '#ff2e2e', glow: 'rgba(255, 46, 46, 0.55)', glowSoft: 'rgba(255, 46, 46, 0.25)', quote: 'Se você fosse escrever uma história comigo como protagonista, com certeza seria… uma tragédia.' },
                     { character: 'Ken Kaneki', color: '#ff2e2e', glow: 'rgba(255, 46, 46, 0.55)', glowSoft: 'rgba(255, 46, 46, 0.25)', quote: 'Eu não vou recuar. Eu vou seguir em frente. Como uma centopeia.' },
                     { character: 'Ken Kaneki', color: '#ff2e2e', glow: 'rgba(255, 46, 46, 0.55)', glowSoft: 'rgba(255, 46, 46, 0.25)', quote: 'Você foi meu professor e meu pai. Eu estava tão feliz...' },
                     { character: 'Ken Kaneki', color: '#ff2e2e', glow: 'rgba(255, 46, 46, 0.55)', glowSoft: 'rgba(255, 46, 46, 0.25)', quote: 'Não posso proteger ninguém. Nem mesmo eu mesmo.' },
                     { character: 'Ken Kaneki', color: '#ff2e2e', glow: 'rgba(255, 46, 46, 0.55)', glowSoft: 'rgba(255, 46, 46, 0.25)', quote: 'Quanto mais eu aprendia, menos eu entendia.' },
-
-                    // ============ RIZE KAMISHIRO (roxo) ============
                     { character: 'Rize Kamishiro', color: '#a855f7', glow: 'rgba(168, 85, 247, 0.55)', glowSoft: 'rgba(168, 85, 247, 0.25)', quote: 'Você tá começando a entender agora? Você fica sentado aí culpando a si mesmo o tempo todo, mas fazer isso não vai mudar nada. Você não faz nada pra mudar, é tudo culpa sua.' },
                     { character: 'Rize Kamishiro', color: '#a855f7', glow: 'rgba(168, 85, 247, 0.55)', glowSoft: 'rgba(168, 85, 247, 0.25)', quote: 'Quando você é fraco, tudo parece difícil.' },
-
-                    // ============ TOUKA KIRISHIMA (azul) ============
                     { character: 'Touka Kirishima', color: '#3b82f6', glow: 'rgba(59, 130, 246, 0.55)', glowSoft: 'rgba(59, 130, 246, 0.25)', quote: 'Depois de engolir, você fica coberto de sangue e vísceras. Esse é o nosso destino como ghouls.' },
                     { character: 'Touka Kirishima', color: '#3b82f6', glow: 'rgba(59, 130, 246, 0.55)', glowSoft: 'rgba(59, 130, 246, 0.25)', quote: 'Você vai morrer rápido desse jeito. Seja mais cuidadoso.' },
-
-                    // ============ KISHOU ARIMA (branco/cinza) ============
                     { character: 'Kishou Arima', color: '#e5e7eb', glow: 'rgba(229, 231, 235, 0.45)', glowSoft: 'rgba(229, 231, 235, 0.2)', quote: '645 vezes eu poderia ter te ferido fatalmente. E 645 vezes decidi não fazer isso.' },
                     { character: 'Kishou Arima', color: '#e5e7eb', glow: 'rgba(229, 231, 235, 0.45)', glowSoft: 'rgba(229, 231, 235, 0.2)', quote: 'Já estou cansado de fingir.' },
-
-                    // ============ THE BLACK REAPER (preto com glow vermelho — Kaneki versão Ceifador) ============
-                    { character: 'The Black Reaper', color: '#450a0a', glow: 'rgba(127, 29, 29, 0.7)', glowSoft: 'rgba(127, 29, 29, 0.3)', quote: 'Boa noite, Haise.' },
-                    { character: 'The Black Reaper', color: '#450a0a', glow: 'rgba(127, 29, 29, 0.7)', glowSoft: 'rgba(127, 29, 29, 0.3)', quote: 'Você sempre foi fraco.' },
-                    { character: 'The Black Reaper', color: '#450a0a', glow: 'rgba(127, 29, 29, 0.7)', glowSoft: 'rgba(127, 29, 29, 0.3)', quote: 'Eu sou você. E você é eu.' },
-
-                    // ============ HAISE SASAKI (ciano) ============
+                    { character: 'The Black Reaper', color: '#A0826D', glow: 'rgba(160, 130, 109, 0.7)', glowSoft: 'rgba(160, 130, 109, 0.3)', quote: 'Boa noite, Haise.' },
+                    { character: 'The Black Reaper', color: '#A0826D', glow: 'rgba(160, 130, 109, 0.7)', glowSoft: 'rgba(160, 130, 109, 0.3)', quote: 'Você sempre foi fraco.' },
+                    { character: 'The Black Reaper', color: '#A0826D', glow: 'rgba(160, 130, 109, 0.7)', glowSoft: 'rgba(160, 130, 109, 0.3)', quote: 'Eu sou você. E você é eu.' },
                     { character: 'Haise Sasaki', color: '#06b6d4', glow: 'rgba(6, 182, 212, 0.55)', glowSoft: 'rgba(6, 182, 212, 0.25)', quote: 'Estou realmente feliz vivendo assim.' },
                     { character: 'Haise Sasaki', color: '#06b6d4', glow: 'rgba(6, 182, 212, 0.55)', glowSoft: 'rgba(6, 182, 212, 0.25)', quote: 'Não me pergunte quem eu sou.' },
-
-                    // ============ HIDEYOSHI NAGACHIKA (amarelo suave) ============
                     { character: 'Hide', color: '#fbbf24', glow: 'rgba(251, 191, 36, 0.55)', glowSoft: 'rgba(251, 191, 36, 0.25)', quote: 'Você é meu melhor amigo. Por isso vou estar sempre ao seu lado.' },
-
-                    // ============ SHUU TSUKIYAMA (magenta) ============
                     { character: 'Shuu Tsukiyama', color: '#ec4899', glow: 'rgba(236, 72, 153, 0.55)', glowSoft: 'rgba(236, 72, 153, 0.25)', quote: 'Você é um verdadeiro gourmet, Kaneki.' },
-
-                    // ============ AMON KOUTAROU (âmbar) ============
                     { character: 'Amon Koutarou', color: '#f59e0b', glow: 'rgba(245, 158, 11, 0.55)', glowSoft: 'rgba(245, 158, 11, 0.25)', quote: 'Investigadores como eu existem para proteger os humanos.' },
-
-                    // ============ URIE (cinza ardósia) ============
                     { character: 'Urie', color: '#94a3b8', glow: 'rgba(148, 163, 184, 0.5)', glowSoft: 'rgba(148, 163, 184, 0.22)', quote: 'Vamos nos tornar terroristas, beleza?' },
-
-                    // ============ ETO YOSHIMURA (verde) ============
                     { character: 'Eto Yoshimura', color: '#22c55e', glow: 'rgba(34, 197, 94, 0.5)', glowSoft: 'rgba(34, 197, 94, 0.22)', quote: 'O pássaro sai do ovo. O ovo é o mundo. Para nascer, deve-se primeiro destruir um mundo.' },
-
-                    // ============ YOSHIMURA (bege) ============
                     { character: 'Yoshimura', color: '#a8a29e', glow: 'rgba(168, 162, 158, 0.45)', glowSoft: 'rgba(168, 162, 158, 0.2)', quote: 'Os fortes devoram os fracos. É a lei absoluta do mundo.' }
                 ];
 
@@ -1783,31 +1720,47 @@
 
                 let currentIndex = -1;
                 let isTransitioning = false;
+                let characterQueue = [];
+                let lastCharacter = null;
 
-                // Função: escolher próxima frase aleatória SEM repetir a anterior
+                function shuffleArray(arr) {
+                    return arr.sort(() => Math.random() - 0.5);
+                }
+
+                function generateCharacterQueue() {
+                    const uniqueCharacters = [...new Set(QUOTES.map(q => q.character))];
+                    return shuffleArray(uniqueCharacters);
+                }
+
                 function pickNextQuote(forceKaneki = false) {
                     if (forceKaneki) {
-                        // Apenas frases do Kaneki, aleatória entre elas
                         const kanekiQuotes = QUOTES.filter(q => q.character === 'Ken Kaneki');
                         const rand = Math.floor(Math.random() * kanekiQuotes.length);
                         const picked = kanekiQuotes[rand];
                         currentIndex = QUOTES.indexOf(picked);
+                        lastCharacter = 'Ken Kaneki';
                         return picked;
                     }
 
-                    // Escolher aleatória, evitando repetição imediata
-                    let nextIdx;
-                    let attempts = 0;
-                    do {
-                        nextIdx = Math.floor(Math.random() * QUOTES.length);
-                        attempts++;
-                    } while (nextIdx === currentIndex && attempts < 15);
+                    if (characterQueue.length <= 1) {
+                        characterQueue = generateCharacterQueue();
+                    }
 
-                    currentIndex = nextIdx;
-                    return QUOTES[currentIndex];
+                    let nextCharacter = characterQueue.shift();
+                    
+                    while (nextCharacter === lastCharacter && characterQueue.length > 0) {
+                        characterQueue.push(nextCharacter);
+                        nextCharacter = characterQueue.shift();
+                    }
+
+                    const quotesOfCharacter = QUOTES.filter(q => q.character === nextCharacter);
+                    const rand = Math.floor(Math.random() * quotesOfCharacter.length);
+                    const picked = quotesOfCharacter[rand];
+                    currentIndex = QUOTES.indexOf(picked);
+                    lastCharacter = nextCharacter;
+                    return picked;
                 }
 
-                // Função: aplicar cores dinâmicas (CSS variables)
                 function applyThemeColors(quote) {
                     root.style.setProperty('--flower-color', quote.color);
                     root.style.setProperty('--flower-glow', quote.glow);
@@ -1815,7 +1768,6 @@
                     root.style.setProperty('--text-accent', quote.color);
                 }
 
-                // Função: animar a troca cinematográfica
                 function transitionToQuote(newQuote) {
                     if (isTransitioning) return;
                     isTransitioning = true;
@@ -1827,10 +1779,8 @@
                         }
                     });
 
-                    // Ativa a animação bloom da flor
                     flowerEl.classList.add('is-transitioning');
 
-                    // 1. Saída do texto atual (fade + blur + movimento)
                     tl.to([quoteTextEl, quoteAuthorEl], {
                         opacity: 0,
                         filter: 'blur(12px)',
@@ -1839,20 +1789,17 @@
                         ease: 'power2.in'
                     });
 
-                    // 2. No meio da transição: trocar conteúdo e cores
                     tl.call(() => {
                         quoteTextEl.textContent = newQuote.quote;
                         quoteAuthorEl.textContent = `${newQuote.character}`;
                         applyThemeColors(newQuote);
                     }, [], '+=0.05');
 
-                    // 3. Reset posição para entrada
                     tl.set([quoteTextEl, quoteAuthorEl], {
                         y: 18,
                         filter: 'blur(12px)'
                     });
 
-                    // 4. Entrada do novo texto (fade + blur out + movimento)
                     tl.to([quoteTextEl, quoteAuthorEl], {
                         opacity: 1,
                         filter: 'blur(0px)',
@@ -1862,20 +1809,17 @@
                         stagger: 0.12
                     });
 
-                    // Feedback háptico (mobile)
                     if (navigator.vibrate) {
                         navigator.vibrate(15);
                     }
                 }
 
-                // Inicialização: primeira frase sempre do Kaneki
                 function initFirstQuote() {
                     const firstQuote = pickNextQuote(true);
                     quoteTextEl.textContent = firstQuote.quote;
                     quoteAuthorEl.textContent = `${firstQuote.character}`;
                     applyThemeColors(firstQuote);
 
-                    // Animação de entrada suave
                     gsap.from(quoteTextEl, {
                         opacity: 0,
                         filter: 'blur(15px)',
@@ -1902,7 +1846,6 @@
                     });
                 }
 
-                // Event: click/touch na flor
                 function handleFlowerInteraction(e) {
                     if (e) e.preventDefault();
                     const nextQuote = pickNextQuote(false);
@@ -1917,7 +1860,6 @@
                     }
                 });
 
-                // Touch feedback para mobile
                 if (isTouchDevice) {
                     flowerEl.addEventListener('touchstart', () => {
                         flowerEl.classList.add('touch-active');
@@ -1930,7 +1872,6 @@
                     }, { passive: true });
                 }
 
-                // Inicia o sistema
                 initFirstQuote();
             })();
         })();
