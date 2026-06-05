@@ -24,13 +24,13 @@
             --player-bg: rgba(8, 2, 2, 0.72);
             --player-border: rgba(196, 30, 30, 0.18);
             --flower-color: #ff2e2e;
-            --flower-glow: rgba(255, 46, 46, 0.55);
-            --flower-glow-soft: rgba(255, 46, 46, 0.25);
+            --flower-glow: rgba(255, 46, 46, 0.3);
+            --flower-glow-soft: rgba(255, 46, 46, 0.1);
             --text-accent: #ff2e2e;
             --text-dim: #d4d4d4;
         }
         *, *::before, *::after { box-sizing: border-box; }
-        html { -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }
+        html { -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; scroll-behavior: auto; }
         body {
             background-color: var(--void);
             color: var(--bone);
@@ -47,8 +47,9 @@
         }
         .font-jp { font-family: 'Noto Serif JP', serif; }
 
-        .noise-overlay {            position: fixed; inset: 0; z-index: 9998; pointer-events: none;
-            opacity: 0.05;
+        .noise-overlay {
+            position: fixed; inset: 0; z-index: 9998; pointer-events: none;
+            opacity: 0.03;
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
             mix-blend-mode: overlay;
         }
@@ -65,7 +66,6 @@
             pointer-events: none;
             z-index: 10000;
             mix-blend-mode: difference;
-            will-change: transform;
             transition: width 0.2s, height 0.2s, background 0.2s, border-color 0.2s, margin 0.2s;
             transform: translate3d(-100px, -100px, 0);
             cursor: none;
@@ -83,7 +83,7 @@
             position: fixed; 
             bottom: 20px; 
             right: 20px; 
-            z-index: 99;
+            z-index: 999;
             font-family: 'Noto Serif JP', serif;
             font-weight: 900; 
             font-size: 1.5rem;
@@ -96,27 +96,20 @@
             cursor: none;
             user-select: none;
             -webkit-user-select: none;
-            transition: filter 0.3s, opacity 0.3s, transform 0.3s ease;            padding: 10px 14px;
+            transition: filter 0.3s, transform 0.3s ease;
+            padding: 10px 14px;
             background: rgba(5, 2, 2, 0.6);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-radius: 12px;
             border: 1px solid rgba(196, 30, 30, 0.2);
-            will-change: transform, opacity;
             transform: translate3d(0, 0, 0);
+            opacity: 1;
         }
         .rize-count:hover { filter: brightness(1.3) drop-shadow(0 0 8px rgba(255, 0, 0, 0.5)); }
-        .rize-count .thousand {
-            display: inline-block;
-            transform: skewX(-12deg) rotate(-3deg);
-            letter-spacing: -0.02em;
-        }
+        .rize-count .thousand { display: inline-block; transform: skewX(-12deg) rotate(-3deg); letter-spacing: -0.02em; }
         .rize-count .minus { opacity: 0.7; transform: translateY(-1px); }
-        .rize-count .seven {
-            display: inline-block;
-            transform: skewX(2deg) rotate(1deg);
-            font-style: italic;
-        }
+        .rize-count .seven { display: inline-block; transform: skewX(2deg) rotate(1deg); font-style: italic; }
         .mobile-hint {
             display: none;
             font-size: 0.6rem;
@@ -143,45 +136,23 @@
             flex-direction: column;
             gap: 12px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.02) inset;
-            transition: 
-                transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), 
-                left 0.6s cubic-bezier(0.22, 1, 0.36, 1),                 right 0.6s cubic-bezier(0.22, 1, 0.36, 1), 
-                width 0.6s cubic-bezier(0.22, 1, 0.36, 1), 
-                padding 0.6s cubic-bezier(0.22, 1, 0.36, 1), 
-                opacity 0.4s ease, 
-                border-color 0.4s ease;
+            transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), left 0.6s cubic-bezier(0.22, 1, 0.36, 1), width 0.6s cubic-bezier(0.22, 1, 0.36, 1), padding 0.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease, border-color 0.4s ease;
             transform-origin: bottom left;
             overflow: hidden;
-            will-change: transform, width, left;
             transform: translate3d(0, 0, 0);
         }
-
         .music-player::after {
-            content: '';
-            position: absolute;
-            inset: -1px;
-            border-radius: 16px;
+            content: ''; position: absolute; inset: -1px; border-radius: 16px;
             box-shadow: 0 0 60px rgba(196, 30, 30, 0.25), 0 0 100px rgba(196, 30, 30, 0.08);
-            opacity: 0;
-            transition: opacity 0.4s ease;
-            pointer-events: none;
-            z-index: -1;
+            opacity: 0; transition: opacity 0.4s ease; pointer-events: none; z-index: -1;
         }
         .music-player.playing::after { opacity: 1; }
         .music-player.playing { border-color: rgba(196, 30, 30, 0.4); }
-
         .music-player::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: 
-                radial-gradient(circle at top left, rgba(196, 30, 30, 0.12), transparent 60%),
-                radial-gradient(circle at bottom right, rgba(168, 85, 247, 0.06), transparent 60%);
-            pointer-events: none;
-            opacity: 0.7;
-            z-index: 0;
+            content: ''; position: absolute; inset: 0;
+            background: radial-gradient(circle at top left, rgba(196, 30, 30, 0.12), transparent 60%), radial-gradient(circle at bottom right, rgba(168, 85, 247, 0.06), transparent 60%);
+            pointer-events: none; opacity: 0.7; z-index: 0;
         }
-
         .music-player > * { position: relative; z-index: 1; }
         .player-top { display: flex; align-items: center; gap: 12px; }
         .player-cover-wrap { position: relative; width: 52px; height: 52px; flex-shrink: 0; }
@@ -191,270 +162,170 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(196, 30, 30, 0.15) inset;
             transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease;
         }
-        .music-player.playing .player-cover {
-            animation: cover-pulse 3s ease-in-out infinite;
-            box-shadow: 0 4px 16px rgba(196, 30, 30, 0.4), 0 0 0 1px rgba(196, 30, 30, 0.3) inset;
-        }        @keyframes cover-pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.03); }
-        }
+        .music-player.playing .player-cover { animation: cover-pulse 3s ease-in-out infinite; box-shadow: 0 4px 16px rgba(196, 30, 30, 0.4), 0 0 0 1px rgba(196, 30, 30, 0.3) inset; }
+        @keyframes cover-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
 
         .player-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 2px; }
-        .player-track-name {
-            font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; font-weight: 600;
-            color: var(--bone); letter-spacing: 0.01em; white-space: nowrap;
-            overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
-        }
-        .player-track-artist {
-            font-family: 'Space Grotesk', sans-serif; font-size: 0.72rem;
-            color: rgba(234, 234, 234, 0.55); letter-spacing: 0.08em;
-            text-transform: uppercase; font-weight: 500;
-        }
+        .player-track-name { font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; font-weight: 600; color: var(--bone); letter-spacing: 0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5); }
+        .player-track-artist { font-family: 'Space Grotesk', sans-serif; font-size: 0.72rem; color: rgba(234, 234, 234, 0.55); letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; }
         .music-player.playing .player-track-artist { color: rgba(196, 30, 30, 0.75); }
 
         .player-visualizer { display: flex; align-items: flex-end; gap: 2px; height: 14px; margin-left: auto; padding-right: 4px; }
-        .viz-bar {
-            width: 2.5px; background: linear-gradient(to top, var(--blood-bright), #ff4444);
-            border-radius: 1px; height: 3px; transition: height 0.15s ease; opacity: 0.4;
+        .viz-bar { width: 2.5px; background: linear-gradient(to top, var(--blood-bright), #ff4444); border-radius: 1px; height: 3px; opacity: 0.4; transition: height 0.15s ease; }
+        .music-player.playing .viz-bar { opacity: 1; }
+        .music-player.playing .viz-bar:nth-child(1) { animation: audioViz1 1.2s ease-in-out infinite; }
+        .music-player.playing .viz-bar:nth-child(2) { animation: audioViz2 1.5s ease-in-out infinite 0.1s; }
+        .music-player.playing .viz-bar:nth-child(3) { animation: audioViz3 1.3s ease-in-out infinite 0.2s; }
+        .music-player.playing .viz-bar:nth-child(4) { animation: audioViz4 1.4s ease-in-out infinite 0.3s; }
+        
+        @keyframes audioViz1 {
+            0%, 100% { height: 4px; }
+            25% { height: 10px; }
+            50% { height: 6px; }
+            75% { height: 12px; }
         }
-        .music-player.playing .viz-bar { opacity: 1; animation: viz-bounce 1s ease-in-out infinite; }
-        .viz-bar:nth-child(1) { animation-delay: 0s; }
-        .viz-bar:nth-child(2) { animation-delay: 0.15s; }
-        .viz-bar:nth-child(3) { animation-delay: 0.3s; }
-        .viz-bar:nth-child(4) { animation-delay: 0.1s; }
-        @keyframes viz-bounce {
-            0%, 100% { height: 3px; }
-            50% { height: 14px; }
+        @keyframes audioViz2 {
+            0%, 100% { height: 6px; }
+            30% { height: 14px; }
+            60% { height: 8px; }
+            80% { height: 11px; }
+        }
+        @keyframes audioViz3 {
+            0%, 100% { height: 5px; }
+            20% { height: 9px; }
+            40% { height: 13px; }
+            70% { height: 7px; }
+        }
+        @keyframes audioViz4 {
+            0%, 100% { height: 7px; }
+            35% { height: 11px; }
+            55% { height: 5px; }
+            85% { height: 10px; }
         }
 
         .player-progress-wrap { display: flex; flex-direction: column; gap: 6px; }
-        .player-progress-bar {
-            position: relative; width: 100%; height: 4px; background: rgba(234, 234, 234, 0.1);
-            border-radius: 2px; cursor: none; overflow: visible; transition: height 0.2s ease;
-        }
+        .player-progress-bar { position: relative; width: 100%; height: 4px; background: rgba(234, 234, 234, 0.1); border-radius: 2px; cursor: none; overflow: visible; transition: height 0.2s ease; }
         .player-progress-bar:hover { height: 5px; }
-        .player-progress-fill {
-            position: absolute; top: 0; left: 0; height: 100%; width: 0%;
-            background: linear-gradient(90deg, var(--blood-bright), #ff3333);
-            border-radius: 2px; transition: width 0.1s linear;
-        }
-        .player-progress-thumb {
-            position: absolute; top: 50%; left: 0%; width: 12px; height: 12px;
-            background: var(--bone); border: 2px solid var(--blood-bright); border-radius: 50%;
-            transform: translate(-50%, -50%) scale(0); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 0 8px rgba(196, 30, 30, 0.6); pointer-events: none;
-        }        .player-progress-bar:hover .player-progress-thumb,
-        .player-progress-bar.dragging .player-progress-thumb { transform: translate(-50%, -50%) scale(1); }
-
-        .player-time {
-            display: flex; justify-content: space-between; align-items: center;
-            font-family: 'Space Grotesk', sans-serif; font-size: 0.68rem;
-            color: rgba(234, 234, 234, 0.5); letter-spacing: 0.05em; font-variant-numeric: tabular-nums;
-        }
-
+        .player-progress-fill { position: absolute; top: 0; left: 0; height: 100%; width: 0%; background: linear-gradient(90deg, var(--blood-bright), #ff3333); border-radius: 2px; transition: width 0.1s linear; }
+        .player-progress-thumb { position: absolute; top: 50%; left: 0%; width: 12px; height: 12px; background: var(--bone); border: 2px solid var(--blood-bright); border-radius: 50%; transform: translate(-50%, -50%) scale(0); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 0 8px rgba(196, 30, 30, 0.6); pointer-events: none; }
+        .player-progress-bar:hover .player-progress-thumb, .player-progress-bar.dragging .player-progress-thumb { transform: translate(-50%, -50%) scale(1); }
+        .player-time { display: flex; justify-content: space-between; align-items: center; font-family: 'Space Grotesk', sans-serif; font-size: 0.68rem; color: rgba(234, 234, 234, 0.5); letter-spacing: 0.05em; font-variant-numeric: tabular-nums; }
         .player-controls { display: flex; align-items: center; justify-content: center; gap: 18px; }
-        .player-btn {
-            background: transparent; border: none; color: var(--bone); cursor: none;
-            display: flex; align-items: center; justify-content: center; padding: 6px;
-            transition: color 0.25s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-            -webkit-tap-highlight-color: transparent;
-        }
+        .player-btn { background: transparent; border: none; color: var(--bone); cursor: none; display: flex; align-items: center; justify-content: center; padding: 6px; transition: color 0.25s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); -webkit-tap-highlight-color: transparent; }
         .player-btn:hover { color: var(--blood-bright); transform: scale(1.12); }
         .player-btn:active { transform: scale(0.92); }
         .player-btn svg { width: 18px; height: 18px; fill: currentColor; }
-
-        .player-btn-play {
-            width: 42px; height: 42px; border-radius: 50%;
-            background: linear-gradient(135deg, var(--blood-bright), #8a0303); color: var(--bone);
-            box-shadow: 0 4px 12px rgba(196, 30, 30, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, background 0.3s ease;
-        }
-        .player-btn-play:hover {
-            color: var(--bone); transform: scale(1.1);
-            background: linear-gradient(135deg, #e02525, #a80808);
-            box-shadow: 0 6px 20px rgba(196, 30, 30, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
-        }
+        .player-btn-play { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, var(--blood-bright), #8a0303); color: var(--bone); box-shadow: 0 4px 12px rgba(196, 30, 30, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08) inset; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, background 0.3s ease; }
+        .player-btn-play:hover { color: var(--bone); transform: scale(1.1); background: linear-gradient(135deg, #e02525, #a80808); box-shadow: 0 6px 20px rgba(196, 30, 30, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.1) inset; }
         .player-btn-play:active { transform: scale(0.94); }
         .player-btn-play svg { width: 16px; height: 16px; }
-
         .player-volume-wrap { display: flex; align-items: center; gap: 8px; padding: 0 4px; }
-        .player-volume-btn {
-            background: transparent; border: none; color: rgba(234, 234, 234, 0.7); cursor: none;
-            display: flex; align-items: center; justify-content: center; padding: 4px;
-            transition: color 0.25s ease, transform 0.25s ease; -webkit-tap-highlight-color: transparent;
-        }
+        .player-volume-btn { background: transparent; border: none; color: rgba(234, 234, 234, 0.7); cursor: none; display: flex; align-items: center; justify-content: center; padding: 4px; transition: color 0.25s ease, transform 0.25s ease; -webkit-tap-highlight-color: transparent; }
         .player-volume-btn:hover { color: var(--bone); transform: scale(1.08); }
         .player-volume-btn svg { width: 18px; height: 18px; fill: currentColor; }
-
-        .player-volume-slider {
-            flex: 1; height: 4px; background: rgba(234, 234, 234, 0.1);
-            border-radius: 2px; position: relative; cursor: none; overflow: visible;
-        }
-        .player-volume-fill {
-            position: absolute; top: 0; left: 0; height: 100%; width: 30%;
-            background: linear-gradient(90deg, var(--blood-bright), #ff3333); border-radius: 2px; transition: width 0.1s ease;        }
-        .player-volume-thumb {
-            position: absolute; top: 50%; left: 30%; width: 10px; height: 10px;
-            background: var(--bone); border: 2px solid var(--blood-bright); border-radius: 50%;
-            transform: translate(-50%, -50%) scale(0); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 0 6px rgba(196, 30, 30, 0.5); pointer-events: none;
-        }
-        .player-volume-slider:hover .player-volume-thumb,
-        .player-volume-slider.dragging .player-volume-thumb { transform: translate(-50%, -50%) scale(1); }
-
+        .player-volume-slider { flex: 1; height: 4px; background: rgba(234, 234, 234, 0.1); border-radius: 2px; position: relative; cursor: none; overflow: visible; }
+        .player-volume-fill { position: absolute; top: 0; left: 0; height: 100%; width: 30%; background: linear-gradient(90deg, var(--blood-bright), #ff3333); border-radius: 2px; transition: width 0.1s ease; }
+        .player-volume-thumb { position: absolute; top: 50%; left: 30%; width: 10px; height: 10px; background: var(--bone); border: 2px solid var(--blood-bright); border-radius: 50%; transform: translate(-50%, -50%) scale(0); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 0 6px rgba(196, 30, 30, 0.5); pointer-events: none; }
+        .player-volume-slider:hover .player-volume-thumb, .player-volume-slider.dragging .player-volume-thumb { transform: translate(-50%, -50%) scale(1); }
         .music-player.collapsed { width: 72px; padding: 8px; }
-        .music-player.collapsed .player-info,
-        .music-player.collapsed .player-progress-wrap,
-        .music-player.collapsed .player-controls,
-        .music-player.collapsed .player-visualizer,
-        .music-player.collapsed .player-volume-wrap { display: none; }
+        .music-player.collapsed .player-info, .music-player.collapsed .player-progress-wrap, .music-player.collapsed .player-controls, .music-player.collapsed .player-visualizer, .music-player.collapsed .player-volume-wrap { display: none; }
         .music-player.collapsed .player-top { justify-content: center; }
         .music-player.collapsed .player-cover-wrap { width: 52px; height: 52px; }
-
-        .player-toggle {
-            position: absolute; top: 8px; right: 8px; width: 22px; height: 22px;
-            background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(196, 30, 30, 0.25);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            cursor: none; color: rgba(234, 234, 234, 0.7); transition: all 0.25s ease;
-            z-index: 2; -webkit-tap-highlight-color: transparent;
-        }
+        .player-toggle { position: absolute; top: 8px; right: 8px; width: 22px; height: 22px; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(196, 30, 30, 0.25); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: none; color: rgba(234, 234, 234, 0.7); transition: all 0.25s ease; z-index: 2; -webkit-tap-highlight-color: transparent; }
         .player-toggle:hover { background: rgba(196, 30, 30, 0.25); color: var(--bone); border-color: var(--blood-bright); }
         .player-toggle svg { width: 10px; height: 10px; fill: currentColor; transition: transform 0.3s ease; }
         .music-player.collapsed .player-toggle svg { transform: rotate(180deg); }
 
-        .ghoul-card {
-            background: rgba(15, 5, 5, 0.75); border: 1px solid rgba(138, 3, 3, 0.35);
-            transition: border-color 0.3s, transform 0.3s; contain: layout style paint; position: relative;
-        }
-        .ghoul-card::after {
-            content: ''; position: absolute; inset: -1px; border-radius: inherit;
-            box-shadow: 0 0 20px rgba(196, 30, 30, 0.4); opacity: 0; transition: opacity 0.3s; pointer-events: none;
-        }
+        .ghoul-card { background: rgba(15, 5, 5, 0.75); border: 1px solid rgba(138, 3, 3, 0.35); transition: border-color 0.3s, transform 0.3s; contain: layout style paint; position: relative; }
+        .ghoul-card::after { content: ''; position: absolute; inset: -1px; border-radius: inherit; box-shadow: 0 0 20px rgba(196, 30, 30, 0.4); opacity: 0; transition: opacity 0.3s; pointer-events: none; }
         .ghoul-card:hover { border-color: #c41e1e; transform: translateY(-3px); }
         .ghoul-card:hover::after { opacity: 1; }
 
-        .kanji-bg {
-            font-size: 45vw; color: rgba(138, 3, 3, 0.05);
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 0; pointer-events: none; user-select: none;
-        }
+        .kanji-bg { font-size: 45vw; color: rgba(138, 3, 3, 0.05); position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 0; pointer-events: none; user-select: none; }
 
-        .higanbana-stage {
-            position: relative;            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2rem;
-            padding: 2rem 1rem;
-            min-height: 420px;
-            justify-content: center;
-        }
+        .higanbana-stage { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2rem; padding: 2rem 1rem; min-height: 420px; justify-content: center; }
 
+        /* FLOR FIXA E OTIMIZADA */
         .higanbana-wrap {
             position: relative;
-            animation: float-flower 8s ease-in-out infinite;
+            width: 280px;
+            height: 280px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             cursor: none;
-            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
             -webkit-tap-highlight-color: transparent;
+            transform: translate3d(0, 0, 0);
         }
-        .higanbana-wrap::before {
-            content: '';
+
+        .higanbana-glow-inner, .higanbana-glow-outer {
             position: absolute;
-            inset: -40px;
+            inset: 0;
+            border-radius: 50%;
+            pointer-events: none;
+            transform-origin: center center;
+        }
+        .higanbana-glow-inner {
             background: radial-gradient(circle, var(--flower-glow), transparent 65%);
-            border-radius: 50%;
-            z-index: -2;
-            filter: blur(30px);
-            transition: 
-                background 1.2s cubic-bezier(0.22, 1, 0.36, 1),
-                filter 1.2s cubic-bezier(0.22, 1, 0.36, 1),
-                opacity 1.2s ease,
-                transform 1.2s cubic-bezier(0.22, 1, 0.36, 1);
-            opacity: 0.75;
-            animation: glow-pulse 4s ease-in-out infinite;
-        }
-        .higanbana-wrap::after {
-            content: '';
-            position: absolute;
-            inset: -80px;
-            background: radial-gradient(circle, var(--flower-glow-soft), transparent 70%);
-            border-radius: 50%;
-            z-index: -3;
-            filter: blur(60px);
-            transition: background 1.2s cubic-bezier(0.22, 1, 0.36, 1), opacity 1.2s ease;
+            filter: blur(20px);
             opacity: 0.5;
+            z-index: -2;
+            animation: glowPulse 4s ease-in-out infinite;
         }
-
-        @keyframes float-flower {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-12px); }
+        .higanbana-glow-outer {
+            background: radial-gradient(circle, var(--flower-glow-soft), transparent 70%);
+            filter: blur(40px);
+            opacity: 0.3;
+            z-index: -3;
+            animation: glowPulse 4s ease-in-out infinite 1s;
         }
-
-        @keyframes glow-pulse {            0%, 100% { opacity: 0.65; transform: scale(1); }
-            50% { opacity: 0.95; transform: scale(1.08); }
-        }
-
-        .higanbana-wrap:hover {
-            transform: scale(1.08);
-        }
-        .higanbana-wrap:hover::before {
-            opacity: 1;
-            filter: blur(25px);
-            transform: scale(1.25);
-        }
-        .higanbana-wrap:hover::after {
-            opacity: 0.85;
-        }
-
-        .higanbana-wrap:active {
-            transform: scale(0.96);
-        }
-
-        .higanbana-wrap.is-transitioning {
-            animation: flower-swap-bloom 1.4s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-        .higanbana-wrap.is-transitioning::before {
-            animation: glow-burst 1.4s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-
-        @keyframes flower-swap-bloom {
-            0% { transform: scale(1) rotate(0deg); filter: blur(0px); }
-            35% { transform: scale(1.22) rotate(8deg); filter: blur(2px) brightness(1.4); }
-            70% { transform: scale(0.95) rotate(-3deg); filter: blur(0px); }
-            100% { transform: scale(1) rotate(0deg); filter: blur(0px); }
-        }
-
-        @keyframes glow-burst {
-            0% { transform: scale(1); opacity: 0.7; filter: blur(30px); }
-            40% { transform: scale(1.8); opacity: 1; filter: blur(50px); }
-            70% { transform: scale(1.4); opacity: 0.9; filter: blur(35px); }
-            100% { transform: scale(1); opacity: 0.75; filter: blur(30px); }
+        @keyframes glowPulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.7; }
         }
 
         .higanbana-svg {
-            width: 16rem;
-            height: 16rem;
-            transition: filter 1.2s cubic-bezier(0.22, 1, 0.36, 1);
-            will-change: transform, filter;
+            width: 14rem;
+            height: 14rem;
+            transform-origin: center center;
+            transform-box: fill-box;
+            display: block;
+            animation: flowerRotate 20s linear infinite;
         }
-        @media (min-width: 768px) {
-            .higanbana-svg { width: 20rem; height: 20rem; }
+        @media (min-width: 768px) { .higanbana-svg { width: 18rem; height: 18rem; } }
+        @keyframes flowerRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
+
         .higanbana-petal {
             fill: none;
             stroke: var(--flower-color);
             stroke-width: 1.5;
             stroke-linecap: round;
-            transition: stroke 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+            stroke-linejoin: round;
+            transition: stroke 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .higanbana-stamen {
+            fill: none;
+            stroke: var(--flower-color);
+            stroke-width: 1;
+            stroke-linecap: round;
+            opacity: 0.8;
+            transition: stroke 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .higanbana-anther {
+            fill: var(--flower-color);
+            transition: fill 0.8s cubic-bezier(0.22, 1, 0.36, 1);
         }
         .higanbana-core {
             fill: var(--flower-color);
-            transition: fill 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+            transition: fill 0.8s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
         .flower-hint {
             position: absolute;
-            bottom: -8px;
+            bottom: -40px;
             left: 50%;
             transform: translateX(-50%);
             font-size: 0.6rem;
@@ -464,295 +335,104 @@
             pointer-events: none;
             transition: opacity 0.4s ease, color 0.4s ease;
             font-family: 'Space Grotesk', sans-serif;
+            white-space: nowrap;
         }
-        .higanbana-wrap:hover + .flower-hint,
-        .higanbana-wrap:hover ~ .flower-hint {
-            color: var(--flower-color);
-            opacity: 1;
-        }
+        .higanbana-wrap:hover + .flower-hint, .higanbana-wrap:hover ~ .flower-hint { color: var(--flower-color); opacity: 1; }
 
-        .quote-container {
-            max-width: 640px;
-            width: 100%;
-            position: relative;
-            text-align: left;
-            min-height: 180px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        @media (min-width: 768px) {
-            .quote-container { text-align: left; }
-        }
+        .quote-container { max-width: 640px; width: 100%; position: relative; text-align: left; min-height: 180px; display: flex; flex-direction: column; justify-content: center; }
+        @media (min-width: 768px) { .quote-container { text-align: left; } }
+        .quote-text { font-family: 'Noto Serif JP', serif; font-size: 1.1rem; line-height: 1.75; color: var(--text-dim); font-weight: 400; margin-bottom: 1.25rem; position: relative; transition: color 1s ease; }
+        @media (min-width: 768px) { .quote-text { font-size: 1.25rem; } }
+        .quote-text::before { content: '"'; font-family: 'Noto Serif JP', serif; font-size: 3rem; color: var(--text-accent); position: absolute; top: -1.5rem; left: -1rem; opacity: 0.4; transition: color 1s ease; line-height: 1; }
+        .quote-author { font-family: 'Noto Serif JP', serif; font-size: 0.95rem; letter-spacing: 0.15em; color: var(--text-accent); font-style: italic; position: relative; padding-left: 1.5rem; transition: color 1s ease; }
+        @media (min-width: 768px) { .quote-author { font-size: 1rem; } }
+        .quote-author::before { content: ''; position: absolute; left: 0; top: 50%; width: 1rem; height: 1px; background: var(--text-accent); transition: background 1s ease, width 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
+        .quote-author:hover::before { width: 2rem; }
 
-        .quote-text {
-            font-family: 'Noto Serif JP', serif;
-            font-size: 1.1rem;
-            line-height: 1.75;            color: var(--text-dim);
-            font-weight: 400;
-            margin-bottom: 1.25rem;
-            position: relative;
-            will-change: transform, opacity, filter;
-            transition: color 1s ease;
-        }
-        @media (min-width: 768px) {
-            .quote-text { font-size: 1.25rem; }
-        }
-
-        .quote-text::before {
-            content: '"';
-            font-family: 'Noto Serif JP', serif;
-            font-size: 3rem;
-            color: var(--text-accent);
-            position: absolute;
-            top: -1.5rem;
-            left: -1rem;
-            opacity: 0.4;
-            transition: color 1s ease;
-            line-height: 1;
-        }
-
-        .quote-author {
-            font-family: 'Noto Serif JP', serif;
-            font-size: 0.95rem;
-            letter-spacing: 0.15em;
-            color: var(--text-accent);
-            font-style: italic;
-            position: relative;
-            padding-left: 1.5rem;
-            will-change: transform, opacity, filter;
-            transition: color 1s ease;
-        }
-        @media (min-width: 768px) {
-            .quote-author { font-size: 1rem; }
-        }
-
-        .quote-author::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 50%;
-            width: 1rem;
-            height: 1px;
-            background: var(--text-accent);
-            transition: background 1s ease, width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-        .quote-author:hover::before {            width: 2rem;
-        }
-
-        .entry-overlay {
-            position: fixed; inset: 0; background: rgba(5, 5, 5, 0.95); z-index: 9999;
-            display: flex; align-items: center; justify-content: center; cursor: none;
-            transition: opacity 0.8s, visibility 0.8s; -webkit-tap-highlight-color: transparent;
-        }
-        .entry-overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-        .entry-text {
-            font-family: 'Noto Serif JP', serif; font-size: 1.2rem; letter-spacing: 0.5em;
-            color: var(--bone); text-transform: uppercase; animation: entry-pulse 2.5s ease-in-out infinite;
-        }
-        @keyframes entry-pulse {
-            0%, 100% { opacity: 0.4; }
-            50% { opacity: 1; }
-        }
+        .entry-overlay { position: fixed; inset: 0; background: rgba(5, 5, 5, 0.98); z-index: 9999; display: flex; align-items: center; justify-content: center; cursor: none; -webkit-tap-highlight-color: transparent; }
+        .entry-text { font-family: 'Noto Serif JP', serif; font-size: 1.2rem; letter-spacing: 0.5em; color: var(--bone); text-transform: uppercase; animation: entry-pulse 2.5s ease-in-out infinite; }
+        @keyframes entry-pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 
         .text-readable { color: #d4d4d4; }
         .text-readable-dim { color: #a3a3a3; }
         .text-readable-faint { color: #737373; }
 
-        .carousel-wrapper { position: relative; width: 100%; height: 600px; user-select: none; -webkit-user-select: none; touch-action: pan-y; }
+        .carousel-wrapper { position: relative; width: 100%; height: 600px; user-select: none; -webkit-user-select: none; touch-action: pan-y; overflow: hidden; }
         .carousel-stage { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
-        .project-card {
-            position: absolute; width: 420px; max-width: 85vw; height: 540px;
-            background: linear-gradient(145deg, rgba(20, 8, 8, 0.9), rgba(10, 4, 4, 0.98));
-            border: 1px solid rgba(196, 30, 30, 0.2); border-radius: 4px;
-            display: flex; flex-direction: column; justify-content: space-between;
-            transition: transform 0.7s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.7s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.7s ease;
-            cursor: none; overflow: hidden; contain: layout style paint; will-change: transform, opacity;
-        }
-        .card-bg-image {
-            position: absolute; inset: 0; background-size: cover; background-position: center top;
-            background-repeat: no-repeat; opacity: 0.55; transition: opacity 0.7s ease, transform 0.7s ease; pointer-events: none;
-        }
+        .project-card { position: absolute; width: 420px; max-width: 85vw; height: 540px; background: linear-gradient(145deg, rgba(20, 8, 8, 0.9), rgba(10, 4, 4, 0.98)); border: 1px solid rgba(196, 30, 30, 0.2); border-radius: 4px; display: flex; flex-direction: column; justify-content: space-between; cursor: none; overflow: hidden; contain: layout style paint; }
+        .card-bg-image { position: absolute; inset: 0; background-size: cover; background-position: center top; background-repeat: no-repeat; opacity: 0.55; transition: opacity 0.7s ease, transform 0.7s ease; pointer-events: none; }
         .project-card.active .card-bg-image { opacity: 0.75; transform: scale(1.05); }
-        .card-bg-overlay {
-            position: absolute; inset: 0;
-            background: linear-gradient(145deg, rgba(5, 2, 2, 0.55) 0%, rgba(5, 2, 2, 0.65) 50%, rgba(5, 2, 2, 0.85) 100%);
-            pointer-events: none;
-        }
+        .card-bg-overlay { position: absolute; inset: 0; background: linear-gradient(145deg, rgba(5, 2, 2, 0.55) 0%, rgba(5, 2, 2, 0.65) 50%, rgba(5, 2, 2, 0.85) 100%); pointer-events: none; }
         .card-content { position: relative; z-index: 2; padding: 40px 36px; display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
-        .project-card::before {
-            content: ''; position: absolute; inset: 0;
-            background: radial-gradient(circle at top right, rgba(196, 30, 30, 0.15), transparent 60%);
-            opacity: 0; transition: opacity 0.7s ease; pointer-events: none; z-index: 1;
-        }
-        .project-card::after {
-            content: ''; position: absolute; inset: 0; border-radius: inherit;            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); opacity: 0; transition: opacity 0.7s ease; pointer-events: none;
-        }
+        .project-card::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at top right, rgba(196, 30, 30, 0.15), transparent 60%); opacity: 0; transition: opacity 0.7s ease; pointer-events: none; z-index: 1; }
+        .project-card::after { content: ''; position: absolute; inset: 0; border-radius: inherit; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); opacity: 0; transition: opacity 0.7s ease; pointer-events: none; }
         .project-card.active { border-color: rgba(196, 30, 30, 0.6); }
         .project-card.active::before { opacity: 1; }
         .project-card.active::after { opacity: 1; }
-
-        .card-kanji {
-            position: absolute; top: 20px; right: 20px; font-family: 'Noto Serif JP', serif;
-            font-weight: 900; font-size: 10rem; line-height: 1; color: rgba(196, 30, 30, 0.08);
-            pointer-events: none; transition: color 0.7s ease; z-index: 1;
-        }
+        .card-kanji { position: absolute; top: 20px; right: 20px; font-family: 'Noto Serif JP', serif; font-weight: 900; font-size: 10rem; line-height: 1; color: rgba(196, 30, 30, 0.08); pointer-events: none; transition: color 0.7s ease; z-index: 1; }
         .project-card.active .card-kanji { color: rgba(196, 30, 30, 0.22); }
-        .card-number {
-            font-family: 'Noto Serif JP', serif; font-size: 0.85rem; letter-spacing: 0.3em;
-            color: var(--blood-bright); margin-bottom: 14px; display: flex; align-items: center; gap: 10px;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.9);
-        }
+        .card-number { font-family: 'Noto Serif JP', serif; font-size: 0.85rem; letter-spacing: 0.3em; color: var(--blood-bright); margin-bottom: 14px; display: flex; align-items: center; gap: 10px; text-shadow: 0 2px 8px rgba(0,0,0,0.9); }
         .card-number::before { content: ''; width: 24px; height: 1px; background: var(--blood-bright); }
-        .card-title {
-            font-family: 'Noto Serif JP', serif; font-size: 2.4rem; font-weight: 900;
-            color: var(--bone); margin-bottom: 6px; line-height: 1;
-            text-shadow: 0 2px 20px rgba(0,0,0,0.95), 0 1px 3px rgba(0,0,0,1);
-        }
-        .card-subtitle {
-            font-family: 'Noto Serif JP', serif; font-size: 0.9rem; color: #ff4444;
-            letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 16px; font-style: italic;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.95);
-        }
-        .card-desc {
-            color: #d8d8d8; font-size: 0.92rem; line-height: 1.6; margin-bottom: 20px; flex-grow: 1;
-            text-shadow: 0 1px 6px rgba(0,0,0,1), 0 0 2px rgba(0,0,0,0.9);
-        }
+        .card-title { font-family: 'Noto Serif JP', serif; font-size: 2.4rem; font-weight: 900; color: var(--bone); margin-bottom: 6px; line-height: 1; text-shadow: 0 2px 20px rgba(0,0,0,0.95), 0 1px 3px rgba(0,0,0,1); }
+        .card-subtitle { font-family: 'Noto Serif JP', serif; font-size: 0.9rem; color: #ff4444; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 16px; font-style: italic; text-shadow: 0 2px 8px rgba(0,0,0,0.95); }
+        .card-desc { color: #d8d8d8; font-size: 0.92rem; line-height: 1.6; margin-bottom: 20px; flex-grow: 1; text-shadow: 0 1px 6px rgba(0,0,0,1), 0 0 2px rgba(0,0,0,0.9); }
         .card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
-        .card-tag {
-            font-size: 0.65rem; letter-spacing: 0.15em; padding: 4px 10px;
-            border: 1px solid rgba(196, 30, 30, 0.5); color: #e4e4e4; text-transform: uppercase;
-            border-radius: 2px; background: rgba(20, 5, 5, 0.75); backdrop-filter: blur(4px);
-        }
-        .card-footer {
-            display: flex; justify-content: space-between; align-items: center;
-            padding-top: 16px; border-top: 1px solid rgba(196, 30, 30, 0.3);
-        }
-        .card-year {
-            font-family: 'Noto Serif JP', serif; font-size: 0.85rem; color: #aaa; letter-spacing: 0.1em;
-            text-shadow: 0 1px 4px rgba(0,0,0,0.9);
-        }
-        .card-cta {
-            display: flex; align-items: center; gap: 8px; font-size: 0.7rem; letter-spacing: 0.25em;
-            color: var(--blood-bright); text-transform: uppercase; opacity: 0; transform: translateX(-10px);
-            transition: opacity 0.5s ease 0.2s, transform 0.5s ease 0.2s; font-weight: 500;        }
+        .card-tag { font-size: 0.65rem; letter-spacing: 0.15em; padding: 4px 10px; border: 1px solid rgba(196, 30, 30, 0.5); color: #e4e4e4; text-transform: uppercase; border-radius: 2px; background: rgba(20, 5, 5, 0.75); backdrop-filter: blur(4px); }
+        .card-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 16px; border-top: 1px solid rgba(196, 30, 30, 0.3); }
+        .card-year { font-family: 'Noto Serif JP', serif; font-size: 0.85rem; color: #aaa; letter-spacing: 0.1em; text-shadow: 0 1px 4px rgba(0,0,0,0.9); }
+        .card-cta { display: flex; align-items: center; gap: 8px; font-size: 0.7rem; letter-spacing: 0.25em; color: var(--blood-bright); text-transform: uppercase; opacity: 0; transform: translateX(-10px); transition: opacity 0.5s ease 0.2s, transform 0.5s ease 0.2s; font-weight: 500; }
         .project-card.active .card-cta { opacity: 1; transform: translateX(0); }
         .card-cta-arrow { width: 24px; height: 1px; background: var(--blood-bright); position: relative; }
-        .card-cta-arrow::after {
-            content: ''; position: absolute; right: 0; top: -3px; width: 7px; height: 7px;
-            border-top: 1px solid var(--blood-bright); border-right: 1px solid var(--blood-bright); transform: rotate(45deg);
-        }
+        .card-cta-arrow::after { content: ''; position: absolute; right: 0; top: -3px; width: 7px; height: 7px; border-top: 1px solid var(--blood-bright); border-right: 1px solid var(--blood-bright); transform: rotate(45deg); }
 
-        .carousel-nav {
-            position: absolute; top: 50%; transform: translateY(-50%); width: 50px; height: 50px;
-            background: rgba(10, 4, 4, 0.85); border: 1px solid rgba(196, 30, 30, 0.4); border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; cursor: none; z-index: 10;
-            transition: background 0.3s, border-color 0.3s, transform 0.2s; color: var(--blood-bright);
-            -webkit-tap-highlight-color: transparent; backdrop-filter: blur(10px);
-        }
+        .carousel-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 50px; height: 50px; background: rgba(10, 4, 4, 0.85); border: 1px solid rgba(196, 30, 30, 0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: none; z-index: 10; transition: background 0.3s, border-color 0.3s, transform 0.2s; color: var(--blood-bright); -webkit-tap-highlight-color: transparent; backdrop-filter: blur(10px); }
         .carousel-nav:hover { background: rgba(196, 30, 30, 0.2); border-color: var(--blood-bright); }
         .carousel-nav:active { transform: translateY(-50%) scale(0.92); }
         .carousel-nav.prev { left: 20px; }
         .carousel-nav.next { right: 20px; }
         .carousel-nav svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 2; fill: none; }
-
         .carousel-dots { position: absolute; bottom: -30px; left: 50%; transform: translateX(-50%); display: flex; gap: 12px; z-index: 5; }
-        .carousel-dot {
-            width: 6px; height: 6px; background: rgba(196, 30, 30, 0.3); border-radius: 50%; cursor: none;
-            transition: all 0.4s ease; -webkit-tap-highlight-color: transparent;
-        }
+        .carousel-dot { width: 6px; height: 6px; background: rgba(196, 30, 30, 0.3); border-radius: 50%; cursor: none; transition: all 0.4s ease; -webkit-tap-highlight-color: transparent; }
         .carousel-dot.active { background: var(--blood-bright); width: 24px; border-radius: 3px; }
 
-        .social-card {
-            background: rgba(15, 5, 5, 0.75); border: 1px solid rgba(138, 3, 3, 0.35);
-            transition: border-color 0.3s, transform 0.3s, background 0.3s; position: relative;
-            contain: layout style paint; -webkit-tap-highlight-color: transparent;
-        }
-        .social-card::after {
-            content: ''; position: absolute; inset: -1px; border-radius: inherit;
-            box-shadow: 0 0 25px rgba(196, 30, 30, 0.4); opacity: 0; transition: opacity 0.3s; pointer-events: none;
-        }
+        .social-card { background: rgba(15, 5, 5, 0.75); border: 1px solid rgba(138, 3, 3, 0.35); transition: border-color 0.3s, transform 0.3s, background 0.3s; position: relative; contain: layout style paint; -webkit-tap-highlight-color: transparent; }
+        .social-card::after { content: ''; position: absolute; inset: -1px; border-radius: inherit; box-shadow: 0 0 25px rgba(196, 30, 30, 0.4); opacity: 0; transition: opacity 0.3s; pointer-events: none; }
         .social-card:hover { border-color: #c41e1e; transform: translateY(-4px); background: rgba(25, 8, 8, 0.85); }
         .social-card:hover::after { opacity: 1; }
         .social-card:hover .social-icon { color: #ff3333; transform: scale(1.1); }
         .social-icon { transition: color 0.3s, transform 0.3s; color: var(--bone); }
         .social-label { font-size: 0.75rem; letter-spacing: 0.2em; color: #a3a3a3; text-transform: uppercase; }
         .social-handle { font-size: 0.85rem; color: #737373; margin-top: 4px; font-family: 'Space Grotesk', sans-serif; }
-        .copied-toast {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: rgba(196, 30, 30, 0.95); color: var(--bone); padding: 8px 16px; border-radius: 4px;
-            font-size: 0.75rem; letter-spacing: 0.15em; opacity: 0; pointer-events: none;
-            transition: opacity 0.3s; z-index: 10; text-transform: uppercase;
-        }
+        .copied-toast { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(196, 30, 30, 0.95); color: var(--bone); padding: 8px 16px; border-radius: 4px; font-size: 0.75rem; letter-spacing: 0.15em; opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 10; text-transform: uppercase; }
         .social-card.copied .copied-toast { opacity: 1; }
-        .kaneki-container {
-            position: fixed; right: 0; bottom: 0; height: 85vh; max-height: 700px; width: auto;
-            pointer-events: none; z-index: 9996; transform: translateX(100%);
-            transition: transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1); display: flex;
-            align-items: flex-end; will-change: transform;
-        }
-        .kaneki-container.entering { transform: translateX(0); }
-        .kaneki-container.exiting { transform: translateX(100%); transition: transform 1.5s cubic-bezier(0.65, 0, 0.35, 1); }
-        .kaneki-container img {
-            height: 100%; width: auto; max-width: 45vw; object-fit: contain; object-position: bottom;
-            -webkit-mask-image: linear-gradient(to bottom, black 75%, transparent 100%);
-            mask-image: linear-gradient(to bottom, black 75%, transparent 100%);
-            filter: drop-shadow(-20px 0 40px rgba(196, 30, 30, 0.3));
-        }
-        .kaneki-container.entering img { animation: kaneki-glitch 0.3s steps(2) 1; }
-        @keyframes kaneki-glitch {
-            0%, 100% { filter: drop-shadow(-20px 0 40px rgba(196, 30, 30, 0.3)); transform: translateX(0); }
-            25% { filter: drop-shadow(-20px 0 40px rgba(196, 30, 30, 0.3)) drop-shadow(5px 0 0 rgba(255, 0, 0, 0.5)); transform: translateX(-3px); }
-            75% { filter: drop-shadow(-20px 0 40px rgba(196, 30, 30, 0.3)) drop-shadow(-5px 0 0 rgba(0, 255, 255, 0.3)); transform: translateX(3px); }
-        }
 
-        .darken-overlay {
-            position: fixed; inset: 0; background: radial-gradient(ellipse at center, rgba(0,0,0,0.4), rgba(0,0,0,0.85));
-            z-index: 9994; opacity: 0; pointer-events: none; transition: opacity 1s ease;
-        }
+        .kaneki-container { position: fixed; right: 0; bottom: 0; height: 85vh; max-height: 700px; width: auto; pointer-events: none; z-index: 9996; display: flex; align-items: flex-end; transform: translate3d(100%, 0, 0); opacity: 0; }
+        .kaneki-container img { height: 100%; width: auto; max-width: 45vw; object-fit: contain; object-position: bottom; -webkit-mask-image: linear-gradient(to bottom, black 75%, transparent 100%); mask-image: linear-gradient(to bottom, black 75%, transparent 100%); filter: drop-shadow(-20px 0 40px rgba(196, 30, 30, 0.3)); }
+        .darken-overlay { position: fixed; inset: 0; background: radial-gradient(ellipse at center, rgba(0,0,0,0.4), rgba(0,0,0,0.85)); z-index: 9994; opacity: 0; pointer-events: none; transition: opacity 1s ease; }
         .darken-overlay.active { opacity: 1; }
-
-        .glitch-overlay {
-            position: fixed; inset: 0; z-index: 9995; pointer-events: none; opacity: 0;
-            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(196, 30, 30, 0.04) 2px, rgba(196, 30, 30, 0.04) 4px);
-        }
+        .glitch-overlay { position: fixed; inset: 0; z-index: 9995; pointer-events: none; opacity: 0; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(196, 30, 30, 0.04) 2px, rgba(196, 30, 30, 0.04) 4px); }
         .glitch-overlay.active { animation: glitch-flash 0.5s steps(3) 3; }
-        .glitch-overlay.active::before, .glitch-overlay.active::after {
-            content: ''; position: absolute; inset: 0; background: inherit; animation: glitch-shift 0.5s steps(2) 4;
-        }
+        .glitch-overlay.active::before, .glitch-overlay.active::after { content: ''; position: absolute; inset: 0; background: inherit; animation: glitch-shift 0.5s steps(2) 4; }
         .glitch-overlay.active::before { background-color: rgba(255, 0, 0, 0.06); mix-blend-mode: screen; }
         .glitch-overlay.active::after { background-color: rgba(0, 255, 255, 0.03); mix-blend-mode: screen; }
-        @keyframes glitch-flash {
-            0%, 100% { opacity: 0; }
-            10%, 30%, 50%, 70%, 90% { opacity: 1; transform: translateX(-3px); }
-            20%, 40%, 60%, 80% { opacity: 1; transform: translateX(3px); }
-        }
-        @keyframes glitch-shift {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-8px) skewX(3deg); }
-            75% { transform: translateX(8px) skewX(-3deg); }
-        }
+        @keyframes glitch-flash { 0%, 100% { opacity: 0; } 10%, 30%, 50%, 70%, 90% { opacity: 1; transform: translateX(-3px); } 20%, 40%, 60%, 80% { opacity: 1; transform: translateX(3px); } }
+        @keyframes glitch-shift { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px) skewX(3deg); } 75% { transform: translateX(8px) skewX(-3deg); } }
 
-        .chains-overlay { position: fixed; inset: 0; z-index: 9993; pointer-events: none; opacity: 0; transition: opacity 0.8s ease; }        .chains-overlay.active { opacity: 1; }
-        .chain-group { position: absolute; transform-origin: center; will-change: transform; }
+        .chains-overlay { position: fixed; inset: 0; z-index: 9993; pointer-events: none; opacity: 0; transition: opacity 0.8s ease; }
+        .chains-overlay.active { opacity: 1; }
+        .chain-group { position: absolute; transform-origin: center; opacity: 0; }
         .chain-link { fill: none; stroke: url(#chainGradient); stroke-width: 3; filter: drop-shadow(0 0 6px rgba(255, 0, 0, 0.6)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8)); }
         .chain-link-inner { fill: none; stroke: #000; stroke-width: 1.5; opacity: 0.7; }
         .chain-link-highlight { fill: none; stroke: #c41e1e; stroke-width: 0.8; opacity: 0.9; }
         .chain-rust { fill: #3a0000; opacity: 0.6; }
-        .chain-tl { top: -5%; left: 15%; transform: rotate(25deg); animation: chain-sway-1 4s ease-in-out infinite; }
-        .chain-tr { top: -5%; right: 20%; transform: rotate(-20deg); animation: chain-sway-2 4.5s ease-in-out infinite; }
-        .chain-bl { bottom: -5%; left: 10%; transform: rotate(-160deg); animation: chain-sway-3 5s ease-in-out infinite; }
-        .chain-br { bottom: -5%; right: 15%; transform: rotate(165deg); animation: chain-sway-4 4.2s ease-in-out infinite; }
-        .chain-mid-l { top: 40%; left: -5%; transform: rotate(-85deg); animation: chain-sway-5 4.8s ease-in-out infinite; }
-        .chain-mid-r { top: 55%; right: -5%; transform: rotate(92deg); animation: chain-sway-6 4.3s ease-in-out infinite; }
-        @keyframes chain-sway-1 { 0%, 100% { transform: rotate(25deg) translateX(0); } 50% { transform: rotate(27deg) translateX(3px); } }
-        @keyframes chain-sway-2 { 0%, 100% { transform: rotate(-20deg) translateX(0); } 50% { transform: rotate(-22deg) translateX(-4px); } }
-        @keyframes chain-sway-3 { 0%, 100% { transform: rotate(-160deg) translateX(0); } 50% { transform: rotate(-158deg) translateX(2px); } }
-        @keyframes chain-sway-4 { 0%, 100% { transform: rotate(165deg) translateX(0); } 50% { transform: rotate(167deg) translateX(-3px); } }
-        @keyframes chain-sway-5 { 0%, 100% { transform: rotate(-85deg) translateX(0); } 50% { transform: rotate(-83deg) translateX(2px); } }
-        @keyframes chain-sway-6 { 0%, 100% { transform: rotate(92deg) translateX(0); } 50% { transform: rotate(94deg) translateX(-2px); } }
+        .chain-tl { top: -5%; left: 15%; }
+        .chain-tr { top: -5%; right: 20%; }
+        .chain-bl { bottom: -5%; left: 10%; }
+        .chain-br { bottom: -5%; right: 15%; }
+        .chain-mid-l { top: 40%; left: -5%; }
+        .chain-mid-r { top: 55%; right: -5%; }
 
-        #centipede-canvas { position: fixed; inset: 0; z-index: 9997; pointer-events: none; opacity: 0; transition: opacity 0.5s ease; will-change: opacity; }
+        #centipede-canvas { position: fixed; inset: 0; z-index: 9997; pointer-events: none; opacity: 0; transition: opacity 0.5s ease; }
         #centipede-canvas.active { opacity: 1; }
 
         section { content-visibility: auto; contain-intrinsic-size: auto 100vh; }
@@ -774,21 +454,13 @@
             .chain-link-inner { stroke-width: 1.2; }
             .player-progress-thumb { transform: translate(-50%, -50%) scale(1); }
             .player-volume-thumb { transform: translate(-50%, -50%) scale(1); }
-            
-            .higanbana-wrap.touch-active {
-                transform: scale(1.05);
-            }
-            .higanbana-wrap.touch-active::before {
-                transform: scale(1.2);
-                opacity: 1;
-            }
         }
+
         @media (max-width: 1024px) {
             .music-player { width: 340px; padding: 12px; }
             .player-cover-wrap { width: 50px; height: 50px; }
             .player-btn-play { width: 38px; height: 38px; }
         }
-
         @media (max-width: 768px) {
             .carousel-wrapper { height: 560px; }
             .project-card { width: 300px; height: 520px; }
@@ -805,63 +477,25 @@
             .kaneki-container img { max-width: 70vw; }
             .mobile-hint { display: inline-block; }
             .chain-mid-l, .chain-mid-r, .chain-bl, .chain-br { display: none; }
-
-            .music-player {
-                left: 50%;
-                right: auto;
-                bottom: 15px;
-                width: calc(100vw - 30px);
-                padding: 10px;
-                border-radius: 14px;
-                transform: translateX(-50%) translate3d(0, 0, 0);
-                transform-origin: bottom center;
-            }
-            .music-player.collapsed {
-                left: 15px;
-                transform: translateX(0) translate3d(0, 0, 0);
-                width: 72px;
-                transform-origin: bottom left;
-            }
+            .music-player { left: 50%; right: auto; bottom: 15px; width: calc(100vw - 30px); padding: 10px; border-radius: 14px; transform: translateX(-50%) translate3d(0, 0, 0); transform-origin: bottom center; }
+            .music-player.collapsed { left: 15px; transform: translateX(0) translate3d(0, 0, 0); width: 72px; transform-origin: bottom left; }
             .player-cover-wrap { width: 46px; height: 46px; }
             .player-track-name { font-size: 0.88rem; }
             .player-track-artist { font-size: 0.68rem; }
             .player-controls { gap: 14px; }
             .player-btn-play { width: 40px; height: 40px; }
-            
-            .rize-count {
-                position: relative;
-                bottom: auto;
-                right: auto;                margin-top: 2.5rem;
-                font-size: 1.1rem;
-                padding: 8px 14px;
-                opacity: 0.9;
-                background: rgba(5, 2, 2, 0.75);
-                align-self: center;
-            }
-            .rize-count-fixed-mobile {
-                display: none;
-            }
-
-            .higanbana-stage {
-                gap: 2.5rem;
-                min-height: auto;
-                padding: 1.5rem 0.5rem;
-            }
-            .quote-container {
-                text-align: center;
-                min-height: 200px;
-            }
+            .rize-count { position: relative; bottom: auto; right: auto; margin-top: 2.5rem; font-size: 1.1rem; padding: 8px 14px; background: rgba(5, 2, 2, 0.75); align-self: center; opacity: 1; z-index: 100; }
+            .rize-count-fixed-mobile { display: none; }
+            .higanbana-stage { gap: 2.5rem; min-height: auto; padding: 1.5rem 0.5rem; }
+            .quote-container { text-align: center; min-height: 200px; }
             .quote-text { font-size: 1rem; }
             .quote-text::before { left: 50%; transform: translateX(-50%); top: -2rem; }
             .quote-author { padding-left: 0; padding-top: 1rem; }
-            .quote-author::before { 
-                top: 0; 
-                left: 50%; 
-                transform: translateX(-50%); 
-                width: 2rem; 
-            }
+            .quote-author::before { top: 0; left: 50%; transform: translateX(-50%); width: 2rem; }
+            .higanbana-wrap { width: 240px; height: 240px; }
+            .higanbana-svg { width: 12rem; height: 12rem; }
+            .flower-hint { bottom: -35px; font-size: 0.55rem; }
         }
-
         @media (max-width: 480px) {
             .carousel-wrapper { height: 540px; }
             .project-card { width: 280px; height: 500px; }
@@ -874,32 +508,26 @@
             .carousel-nav.next { right: -4px; }
             .carousel-nav { width: 38px; height: 38px; }
             .carousel-nav svg { width: 16px; height: 16px; }
-
             .music-player { left: 50%; right: auto; bottom: 10px; width: calc(100vw - 20px); padding: 8px; border-radius: 12px; gap: 8px; transform: translateX(-50%) translate3d(0, 0, 0); }
-            .music-player.collapsed { 
-                left: 10px;
-                transform: translateX(0) translate3d(0, 0, 0); 
-            }
-            .player-cover-wrap { width: 40px; height: 40px; }            .player-track-name { font-size: 0.82rem; }
+            .music-player.collapsed { left: 10px; transform: translateX(0) translate3d(0, 0, 0); }
+            .player-cover-wrap { width: 40px; height: 40px; }
+            .player-track-name { font-size: 0.82rem; }
             .player-track-artist { font-size: 0.64rem; }
             .player-controls { gap: 12px; }
             .player-btn svg { width: 16px; height: 16px; }
             .player-btn-play { width: 36px; height: 36px; }
             .player-time { font-size: 0.62rem; }
             .player-volume-wrap { gap: 6px; }
-            
             .rize-count { margin-top: 2rem; font-size: 1rem; padding: 6px 12px; }
-
-            .higanbana-svg { width: 14rem; height: 14rem; }
             .quote-text { font-size: 0.95rem; line-height: 1.65; }
             .quote-author { font-size: 0.85rem; }
+            .flower-hint { bottom: -30px; font-size: 0.5rem; }
         }
-
         @media (max-width: 375px) {
             section:first-of-type h2.text-7xl { font-size: 3.5rem; }
-            .higanbana-svg { width: 12rem; height: 12rem; }
+            .higanbana-svg { width: 10rem; height: 10rem; }
+            .higanbana-wrap { width: 220px; height: 220px; }
         }
-
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
         }
@@ -929,7 +557,8 @@
     </audio>
 
     <div class="music-player" id="music-player">
-        <button class="player-toggle" id="player-toggle" aria-label="Toggle player">            <svg viewBox="0 0 12 12"><path d="M2 4L6 8L10 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <button class="player-toggle" id="player-toggle" aria-label="Toggle player">
+            <svg viewBox="0 0 12 12"><path d="M2 4L6 8L10 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
         <div class="player-top">
             <div class="player-cover-wrap">
@@ -977,11 +606,12 @@
                 <filter id="chainRust"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" result="noise"/><feColorMatrix type="matrix" values="0 0 0 0 0.2 0 0 0 0 0 0 0 0 0 0 0 0 0 0.3 0" in="noise" result="rustNoise"/><feComposite operator="in" in="rustNoise" in2="SourceGraphic" result="rustTexture"/><feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="rustTexture"/></feMerge></filter>
             </defs>
         </svg>
-        <svg class="chain-group chain-tl" width="140" height="450" viewBox="0 0 140 450"><g class="chain-link"><ellipse cx="70" cy="25" rx="18" ry="25"/><ellipse cx="70" cy="75" rx="18" ry="25"/><ellipse cx="70" cy="125" rx="18" ry="25"/><ellipse cx="70" cy="175" rx="18" ry="25"/><ellipse cx="70" cy="225" rx="18" ry="25"/><ellipse cx="70" cy="275" rx="18" ry="25"/><ellipse cx="70" cy="325" rx="18" ry="25"/><ellipse cx="70" cy="375" rx="18" ry="25"/><ellipse cx="70" cy="425" rx="18" ry="25"/></g></svg>
-        <svg class="chain-group chain-tr" width="140" height="430" viewBox="0 0 140 430"><g class="chain-link"><ellipse cx="70" cy="25" rx="17" ry="24"/><ellipse cx="70" cy="73" rx="17" ry="24"/><ellipse cx="70" cy="121" rx="17" ry="24"/><ellipse cx="70" cy="169" rx="17" ry="24"/><ellipse cx="70" cy="217" rx="17" ry="24"/><ellipse cx="70" cy="265" rx="17" ry="24"/><ellipse cx="70" cy="313" rx="17" ry="24"/><ellipse cx="70" cy="361" rx="17" ry="24"/><ellipse cx="70" cy="409" rx="17" ry="24"/></g></svg>        <svg class="chain-group chain-bl" width="140" height="410" viewBox="0 0 140 410"><g class="chain-link"><ellipse cx="70" cy="25" rx="18" ry="25"/><ellipse cx="70" cy="75" rx="18" ry="25"/><ellipse cx="70" cy="125" rx="18" ry="25"/><ellipse cx="70" cy="175" rx="18" ry="25"/><ellipse cx="70" cy="225" rx="18" ry="25"/><ellipse cx="70" cy="275" rx="18" ry="25"/><ellipse cx="70" cy="325" rx="18" ry="25"/><ellipse cx="70" cy="375" rx="18" ry="25"/></g></svg>
-        <svg class="chain-group chain-br" width="140" height="430" viewBox="0 0 140 430"><g class="chain-link"><ellipse cx="70" cy="25" rx="17" ry="24"/><ellipse cx="70" cy="73" rx="17" ry="24"/><ellipse cx="70" cy="121" rx="17" ry="24"/><ellipse cx="70" cy="169" rx="17" ry="24"/><ellipse cx="70" cy="217" rx="17" ry="24"/><ellipse cx="70" cy="265" rx="17" ry="24"/><ellipse cx="70" cy="313" rx="17" ry="24"/><ellipse cx="70" cy="361" rx="17" ry="24"/><ellipse cx="70" cy="409" rx="17" ry="24"/></g></svg>
-        <svg class="chain-group chain-mid-l" width="350" height="140" viewBox="0 0 350 140"><g class="chain-link"><ellipse cx="25" cy="70" rx="25" ry="18"/><ellipse cx="75" cy="70" rx="25" ry="18"/><ellipse cx="125" cy="70" rx="25" ry="18"/><ellipse cx="175" cy="70" rx="25" ry="18"/><ellipse cx="225" cy="70" rx="25" ry="18"/><ellipse cx="275" cy="70" rx="25" ry="18"/><ellipse cx="325" cy="70" rx="25" ry="18"/></g></svg>
-        <svg class="chain-group chain-mid-r" width="330" height="140" viewBox="0 0 330 140"><g class="chain-link"><ellipse cx="25" cy="70" rx="24" ry="17"/><ellipse cx="73" cy="70" rx="24" ry="17"/><ellipse cx="121" cy="70" rx="24" ry="17"/><ellipse cx="169" cy="70" rx="24" ry="17"/><ellipse cx="217" cy="70" rx="24" ry="17"/><ellipse cx="265" cy="70" rx="24" ry="17"/><ellipse cx="313" cy="70" rx="24" ry="17"/></g></svg>
+        <svg class="chain-group chain-tl" width="140" height="450" viewBox="0 0 140 450" data-rot="25"><g class="chain-link"><ellipse cx="70" cy="25" rx="18" ry="25"/><ellipse cx="70" cy="75" rx="18" ry="25"/><ellipse cx="70" cy="125" rx="18" ry="25"/><ellipse cx="70" cy="175" rx="18" ry="25"/><ellipse cx="70" cy="225" rx="18" ry="25"/><ellipse cx="70" cy="275" rx="18" ry="25"/><ellipse cx="70" cy="325" rx="18" ry="25"/><ellipse cx="70" cy="375" rx="18" ry="25"/><ellipse cx="70" cy="425" rx="18" ry="25"/></g></svg>
+        <svg class="chain-group chain-tr" width="140" height="430" viewBox="0 0 140 430" data-rot="-20"><g class="chain-link"><ellipse cx="70" cy="25" rx="17" ry="24"/><ellipse cx="70" cy="73" rx="17" ry="24"/><ellipse cx="70" cy="121" rx="17" ry="24"/><ellipse cx="70" cy="169" rx="17" ry="24"/><ellipse cx="70" cy="217" rx="17" ry="24"/><ellipse cx="70" cy="265" rx="17" ry="24"/><ellipse cx="70" cy="313" rx="17" ry="24"/><ellipse cx="70" cy="361" rx="17" ry="24"/><ellipse cx="70" cy="409" rx="17" ry="24"/></g></svg>
+        <svg class="chain-group chain-bl" width="140" height="410" viewBox="0 0 140 410" data-rot="-160"><g class="chain-link"><ellipse cx="70" cy="25" rx="18" ry="25"/><ellipse cx="70" cy="75" rx="18" ry="25"/><ellipse cx="70" cy="125" rx="18" ry="25"/><ellipse cx="70" cy="175" rx="18" ry="25"/><ellipse cx="70" cy="225" rx="18" ry="25"/><ellipse cx="70" cy="275" rx="18" ry="25"/><ellipse cx="70" cy="325" rx="18" ry="25"/><ellipse cx="70" cy="375" rx="18" ry="25"/></g></svg>
+        <svg class="chain-group chain-br" width="140" height="430" viewBox="0 0 140 430" data-rot="165"><g class="chain-link"><ellipse cx="70" cy="25" rx="17" ry="24"/><ellipse cx="70" cy="73" rx="17" ry="24"/><ellipse cx="70" cy="121" rx="17" ry="24"/><ellipse cx="70" cy="169" rx="17" ry="24"/><ellipse cx="70" cy="217" rx="17" ry="24"/><ellipse cx="70" cy="265" rx="17" ry="24"/><ellipse cx="70" cy="313" rx="17" ry="24"/><ellipse cx="70" cy="361" rx="17" ry="24"/><ellipse cx="70" cy="409" rx="17" ry="24"/></g></svg>
+        <svg class="chain-group chain-mid-l" width="350" height="140" viewBox="0 0 350 140" data-rot="-85"><g class="chain-link"><ellipse cx="25" cy="70" rx="25" ry="18"/><ellipse cx="75" cy="70" rx="25" ry="18"/><ellipse cx="125" cy="70" rx="25" ry="18"/><ellipse cx="175" cy="70" rx="25" ry="18"/><ellipse cx="225" cy="70" rx="25" ry="18"/><ellipse cx="275" cy="70" rx="25" ry="18"/><ellipse cx="325" cy="70" rx="25" ry="18"/></g></svg>
+        <svg class="chain-group chain-mid-r" width="330" height="140" viewBox="0 0 330 140" data-rot="92"><g class="chain-link"><ellipse cx="25" cy="70" rx="24" ry="17"/><ellipse cx="73" cy="70" rx="24" ry="17"/><ellipse cx="121" cy="70" rx="24" ry="17"/><ellipse cx="169" cy="70" rx="24" ry="17"/><ellipse cx="217" cy="70" rx="24" ry="17"/><ellipse cx="265" cy="70" rx="24" ry="17"/><ellipse cx="313" cy="70" rx="24" ry="17"/></g></svg>
     </div>
 
     <canvas id="centipede-canvas"></canvas>
@@ -1020,23 +650,42 @@
 
                 <div class="relative flex justify-center items-center">
                     <div class="higanbana-wrap" id="higanbana-flower" role="button" tabindex="0" aria-label="Trocar frase">
-                        <svg class="higanbana-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                            <g>
-                                <circle class="higanbana-core" cx="50" cy="50" r="3" opacity="0.95"/>
-                                <path class="higanbana-petal" d="M50,50 Q60,30 50,10 Q40,30 50,50" />
-                                <path class="higanbana-petal" d="M50,50 Q70,40 85,25 Q65,45 50,50" />
-                                <path class="higanbana-petal" d="M50,50 Q75,60 90,70 Q70,65 50,50" />
-                                <path class="higanbana-petal" d="M50,50 Q60,75 50,90 Q40,75 50,50" />
-                                <path class="higanbana-petal" d="M50,50 Q30,75 10,70 Q25,60 50,50" />                                <path class="higanbana-petal" d="M50,50 Q20,45 15,25 Q35,40 50,50" />
-                                <g class="higanbana-petal" stroke-width="0.8" opacity="0.7">
-                                    <path d="M50,50 Q52,42 50,35" />
-                                    <path d="M50,50 Q58,46 62,40" />
-                                    <path d="M50,50 Q58,54 62,60" />
-                                    <path d="M50,50 Q52,58 50,65" />
-                                    <path d="M50,50 Q42,58 38,62" />
-                                    <path d="M50,50 Q42,46 38,40" />
+                        <div class="higanbana-glow-outer" id="glow-outer"></div>
+                        <div class="higanbana-glow-inner" id="glow-inner"></div>
+                        <svg class="higanbana-svg" id="flower-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <g id="flower-rotate">
+                                <g transform="rotate(0, 50, 50)">
+                                    <path class="higanbana-petal" d="M50,50 C42,35 35,15 50,2 C65,15 58,35 50,50 Z" />
+                                    <path class="higanbana-stamen" d="M50,50 C35,30 15,10 5,-5" />
+                                    <circle class="higanbana-anther" cx="5" cy="-5" r="2" />
+                                </g>
+                                <g transform="rotate(60, 50, 50)">
+                                    <path class="higanbana-petal" d="M50,50 C42,35 35,15 50,2 C65,15 58,35 50,50 Z" />
+                                    <path class="higanbana-stamen" d="M50,50 C35,30 15,10 5,-5" />
+                                    <circle class="higanbana-anther" cx="5" cy="-5" r="2" />
+                                </g>
+                                <g transform="rotate(120, 50, 50)">
+                                    <path class="higanbana-petal" d="M50,50 C42,35 35,15 50,2 C65,15 58,35 50,50 Z" />
+                                    <path class="higanbana-stamen" d="M50,50 C35,30 15,10 5,-5" />
+                                    <circle class="higanbana-anther" cx="5" cy="-5" r="2" />
+                                </g>
+                                <g transform="rotate(180, 50, 50)">
+                                    <path class="higanbana-petal" d="M50,50 C42,35 35,15 50,2 C65,15 58,35 50,50 Z" />
+                                    <path class="higanbana-stamen" d="M50,50 C35,30 15,10 5,-5" />
+                                    <circle class="higanbana-anther" cx="5" cy="-5" r="2" />
+                                </g>
+                                <g transform="rotate(240, 50, 50)">
+                                    <path class="higanbana-petal" d="M50,50 C42,35 35,15 50,2 C65,15 58,35 50,50 Z" />
+                                    <path class="higanbana-stamen" d="M50,50 C35,30 15,10 5,-5" />
+                                    <circle class="higanbana-anther" cx="5" cy="-5" r="2" />
+                                </g>
+                                <g transform="rotate(300, 50, 50)">
+                                    <path class="higanbana-petal" d="M50,50 C42,35 35,15 50,2 C65,15 58,35 50,50 Z" />
+                                    <path class="higanbana-stamen" d="M50,50 C35,30 15,10 5,-5" />
+                                    <circle class="higanbana-anther" cx="5" cy="-5" r="2" />
                                 </g>
                             </g>
+                            <circle class="higanbana-core" cx="50" cy="50" r="4" />
                         </svg>
                     </div>
                     <div class="flower-hint">TOQUE PARA MUDAR</div>
@@ -1076,7 +725,8 @@
             </a>
             <a href="https://open.spotify.com/user/o2fbtdnh53z6t6ca4v6wez8rz" target="_blank" rel="noopener" class="social-card rounded-sm p-6 flex flex-col items-center text-center cursor-pointer block group">
                 <svg class="social-icon w-10 h-10 mb-3" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.42 1.56-.301.42-1.02.599-1.561.3z"/></svg>
-                <div class="social-label">Spotify</div><div class="social-handle">Perfil</div>            </a>
+                <div class="social-label">Spotify</div><div class="social-handle">Perfil</div>
+            </a>
             <div class="social-card rounded-sm p-6 flex flex-col items-center text-center cursor-pointer group" id="discord-card" data-username="Lebot.gg">
                 <svg class="social-icon w-10 h-10 mb-3" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>
                 <div class="social-label">Discord</div><div class="social-handle">Lebot.gg</div><div class="copied-toast">Copiado!</div>
@@ -1101,16 +751,15 @@
 
             const cursor = document.getElementById('cursor');
             if (!isTouchDevice && cursor) {
-                let rafId = null, pendingX = 0, pendingY = 0;
+                gsap.set(cursor, { x: -100, y: -100 });
+                const xTo = gsap.quickTo(cursor, "x", { duration: 0.2, ease: "power3.out" });
+                const yTo = gsap.quickTo(cursor, "y", { duration: 0.2, ease: "power3.out" });
+                
                 document.addEventListener('mousemove', (e) => {
-                    pendingX = e.clientX - 8; pendingY = e.clientY - 8;
-                    if (!rafId) {
-                        rafId = requestAnimationFrame(() => {
-                            cursor.style.transform = `translate3d(${pendingX}px, ${pendingY}px, 0)`;
-                            rafId = null;
-                        });
-                    }
+                    xTo(e.clientX - 8);
+                    yTo(e.clientY - 8);
                 }, { passive: true });
+                
                 const hoverTargets = 'a, .ghoul-card, .carousel-nav, .carousel-dot, .rize-count, .social-card, .project-card, .entry-overlay, .player-btn, .player-toggle, .player-progress-bar, .player-volume-btn, .player-volume-slider, .higanbana-wrap';
                 document.addEventListener('mouseover', (e) => { if (e.target.closest(hoverTargets)) cursor.classList.add('hover'); }, { passive: true });
                 document.addEventListener('mouseout', (e) => { if (e.target.closest(hoverTargets)) cursor.classList.remove('hover'); }, { passive: true });
@@ -1125,7 +774,8 @@
                 { src: 'musica.mp3', img: 'music1image.jpg', name: 'Nuts', artist: 'Lil Peep' },
                 { src: 'musica2.mp3', img: 'music2image.jpg', name: 'CONSUME', artist: 'Chase Atlantic' },
                 { src: 'musica3.mp3', img: 'music3image.jpg', name: 'SWIM', artist: 'Chase Atlantic' }
-            ];            let currentTrack = 0, isPlaying = false;
+            ];
+            let currentTrack = 0, isPlaying = false;
 
             const musicPlayer = document.getElementById('music-player');
             const playerToggle = document.getElementById('player-toggle');
@@ -1174,7 +824,8 @@
 
             function updatePlayIcon() {
                 playerPlayIcon.innerHTML = isPlaying ? ICON_PAUSE : ICON_PLAY;
-                musicPlayer.classList.toggle('playing', isPlaying);            }
+                musicPlayer.classList.toggle('playing', isPlaying);
+            }
             
             function updateVolumeIcon(vol) {
                 if (vol === 0) playerVolumeIcon.innerHTML = ICON_VOLUME_MUTE;
@@ -1216,14 +867,34 @@
                     playPromise.then(() => {
                         isPlaying = true;
                         updatePlayIcon();
-                        entryOverlay.classList.add('hidden');
+                        
+                        gsap.to(entryOverlay, { 
+                            opacity: 0, 
+                            duration: 0.8, 
+                            ease: "power2.inOut", 
+                            onComplete: () => { 
+                                entryOverlay.style.display = 'none';
+                                revealHeroContent();
+                            } 
+                        });
                     }).catch(() => {
-                        entryOverlay.classList.remove('hidden');
+                        gsap.to(entryOverlay, { opacity: 1, duration: 0.5 });
                         hasInteracted = false;
                     });
                 }
             }
+
+            function revealHeroContent() {
+                gsap.to("section:first-of-type h2", { opacity: 1, y: 0, duration: 1, ease: "power3.out" });
+                gsap.to("section:first-of-type p", { opacity: 1, y: 0, duration: 1, ease: "power3.out", delay: 0.1 });
+                gsap.to("#rize-count", { opacity: 1, scale: 1, duration: 1, ease: "back.out(1.7)", delay: 0.2 });
+                gsap.to(".absolute.bottom-10", { opacity: 1, y: 0, duration: 1, ease: "power3.out", delay: 0.3 });
+            }
+
             window.addEventListener('load', () => {
+                gsap.set("section:first-of-type h2, section:first-of-type p, #rize-count, .absolute.bottom-10", { opacity: 0, y: 30 });
+                gsap.set("#rize-count", { scale: 0.8 });
+                
                 updateTrackInfo();
                 audio.muted = true;
                 audio.volume = 0;
@@ -1233,7 +904,15 @@
                     playPromise.then(() => {
                         isPlaying = true;
                         updatePlayIcon();
-                        entryOverlay.classList.add('hidden');
+                        gsap.to(entryOverlay, { 
+                            opacity: 0, 
+                            duration: 0.8, 
+                            ease: "power2.inOut", 
+                            onComplete: () => { 
+                                entryOverlay.style.display = 'none';
+                                revealHeroContent();
+                            } 
+                        });
                         
                         let vol = 0;
                         audio.muted = false;
@@ -1241,13 +920,11 @@
                             vol = Math.min(vol + 0.015, 0.3);
                             audio.volume = vol;
                             playerVolumeFill.style.width = (vol * 100) + '%';
-                            if (vol >= 0.3) {
-                                setVolume(0.3);
-                                clearInterval(fadeIn);
-                            }
+                            if (vol >= 0.3) { setVolume(0.3); clearInterval(fadeIn); }
                         }, 100);
-                    }).catch(() => {
-                        entryOverlay.classList.remove('hidden');
+                    }).catch(() => { 
+                        gsap.set("section:first-of-type h2, section:first-of-type p, #rize-count, .absolute.bottom-10", { opacity: 1, y: 0, scale: 1 });
+                        gsap.to(entryOverlay, { opacity: 1, duration: 0.5 }); 
                     });
                 }
             }, { once: true });
@@ -1258,7 +935,6 @@
             playerNextBtn.addEventListener('click', nextTrack);
             playerPrevBtn.addEventListener('click', prevTrack);
             playerToggle.addEventListener('click', () => musicPlayer.classList.toggle('collapsed'));
-
             audio.addEventListener('ended', nextTrack, { passive: true });
             audio.addEventListener('loadedmetadata', () => { playerTimeTotal.textContent = formatTime(audio.duration); }, { passive: true });
             audio.addEventListener('timeupdate', () => {
@@ -1272,7 +948,8 @@
 
             let isSeeking = false;
             function seekTo(e) {
-                const rect = playerProgressBar.getBoundingClientRect();                const clientX = e.clientX ?? (e.touches && e.touches[0]?.clientX);
+                const rect = playerProgressBar.getBoundingClientRect();
+                const clientX = e.clientX ?? (e.touches && e.touches[0]?.clientX);
                 if (clientX == null) return;
                 let pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
                 if (audio.duration) {
@@ -1281,7 +958,6 @@
                     playerProgressThumb.style.left = (pct * 100) + '%';
                 }
             }
-
             playerProgressBar.addEventListener('mousedown', (e) => { isSeeking = true; playerProgressBar.classList.add('dragging'); seekTo(e); });
             document.addEventListener('mousemove', (e) => { if (isSeeking) seekTo(e); }, { passive: true });
             document.addEventListener('mouseup', () => { if (isSeeking) { isSeeking = false; playerProgressBar.classList.remove('dragging'); } }, { passive: true });
@@ -1298,18 +974,13 @@
                 setVolume(pct);
                 if (pct > 0) lastVolume = pct;
             }
-
             playerVolumeSlider.addEventListener('mousedown', (e) => { isAdjustingVolume = true; playerVolumeSlider.classList.add('dragging'); adjustVolume(e); });
             document.addEventListener('mousemove', (e) => { if (isAdjustingVolume) adjustVolume(e); }, { passive: true });
             document.addEventListener('mouseup', () => { if (isAdjustingVolume) { isAdjustingVolume = false; playerVolumeSlider.classList.remove('dragging'); } }, { passive: true });
             playerVolumeSlider.addEventListener('touchstart', (e) => { isAdjustingVolume = true; playerVolumeSlider.classList.add('dragging'); adjustVolume(e); }, { passive: true });
             playerVolumeSlider.addEventListener('touchmove', (e) => { if (isAdjustingVolume) adjustVolume(e); }, { passive: true });
             playerVolumeSlider.addEventListener('touchend', () => { isAdjustingVolume = false; playerVolumeSlider.classList.remove('dragging'); }, { passive: true });
-
-            playerVolumeBtn.addEventListener('click', () => {
-                if (audio.volume > 0) { lastVolume = audio.volume; setVolume(0); } 
-                else { setVolume(lastVolume || 0.3); }
-            });
+            playerVolumeBtn.addEventListener('click', () => { if (audio.volume > 0) { lastVolume = audio.volume; setVolume(0); } else { setVolume(lastVolume || 0.3); } });
 
             document.addEventListener('keydown', (e) => {
                 if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
@@ -1321,7 +992,8 @@
             const discordCard = document.getElementById('discord-card');
             discordCard.addEventListener('click', async (e) => {
                 e.preventDefault();
-                const username = discordCard.dataset.username;                try { await navigator.clipboard.writeText(username); } 
+                const username = discordCard.dataset.username;
+                try { await navigator.clipboard.writeText(username); } 
                 catch {
                     const ta = document.createElement('textarea'); ta.value = username;
                     document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
@@ -1340,11 +1012,15 @@
             }, { passive: true });
 
             const lenis = new Lenis({ duration: 1.2, smoothWheel: true, wheelMultiplier: 1, touchMultiplier: 2 });
-            function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
-            requestAnimationFrame(raf);
+            lenis.on('scroll', ScrollTrigger.update);
+            gsap.ticker.add((time) => { lenis.raf(time * 1000); });
+            gsap.ticker.lagSmoothing(0);
 
             gsap.registerPlugin(ScrollTrigger);
             gsap.to("#video-overlay", { opacity: 0.75, ease: "none", scrollTrigger: { trigger: "body", start: "top top", end: "100vh top", scrub: 0.5 } });
+            gsap.from(".higanbana-stage", { y: 80, opacity: 0, duration: 1.2, ease: "power3.out", scrollTrigger: { trigger: ".higanbana-stage", start: "top 85%", toggleActions: "play none none none" } });
+            gsap.from(".carousel-wrapper", { y: 100, opacity: 0, duration: 1.2, ease: "power3.out", scrollTrigger: { trigger: ".carousel-wrapper", start: "top 85%", toggleActions: "play none none none" } });
+            gsap.from(".social-card", { y: 60, opacity: 0, duration: 0.8, stagger: 0.1, ease: "power3.out", scrollTrigger: { trigger: ".social-card", start: "top 90%", toggleActions: "play none none none" } });
 
             const projects = [
                 { kanji: '眼', num: 'DOSSIÊ 01', title: 'Ken Kaneki', subtitle: 'O Trágico · Eyepatch', desc: 'Estudante universitário transformado em meio-ghoul após o transplante de órgãos de Rize. Carrega o peso de dois mundos e a dor de uma máscara que revela mais do que esconde. Seu Kagune Rinkaku se manifesta como quatro tentáculos escarlates.', tags: ['Rinkaku', 'Meio-Ghoul', 'Anteiku', 'Aogiri', 'Dragão'], year: 'RC: 911', img: 'kanekiprofile.jpg' },
@@ -1371,23 +1047,46 @@
                 dotsContainer.appendChild(dot);
             });
             stage.appendChild(fragment);
+
             const cards = stage.querySelectorAll('.project-card');
             const dots = dotsContainer.querySelectorAll('.carousel-dot');
 
             function updateCarousel() {
                 const isMobile = window.innerWidth < 768;
                 cards.forEach((card, i) => {
-                    const offset = i - activeIndex, absOff = Math.abs(offset);
+                    const offset = i - activeIndex;
+                    const absOff = Math.abs(offset);
                     if (absOff > 2) {
-                        card.style.visibility = 'hidden'; card.style.transform = 'translate3d(0,0,0) scale(0.5)';
-                        card.style.opacity = 0; card.style.zIndex = 1; card.style.pointerEvents = 'none'; card.classList.remove('active'); return;
-                    } else { card.style.visibility = 'visible'; }
+                        gsap.to(card, { opacity: 0, scale: 0.5, duration: 0.4, ease: "power2.in", overwrite: "all", onComplete: () => { card.style.visibility = 'hidden'; } });
+                        card.style.pointerEvents = 'none';
+                        card.classList.remove('active');
+                        return;
+                    }
+                    card.style.visibility = 'visible';
                     let tx, sc, op, z;
-                    if (isMobile) { tx = offset * Math.min(230, window.innerWidth * 0.68); sc = offset === 0 ? 1 : 0.78; op = offset === 0 ? 1 : 0.35; z = 10 - absOff; } 
-                    else { tx = offset * 340; sc = offset === 0 ? 1 : (absOff === 1 ? 0.82 : 0.68); op = offset === 0 ? 1 : (absOff === 1 ? 0.55 : 0.25); z = 10 - absOff; }
-                    card.style.transform = `translate3d(${tx}px, 0, 0) scale(${sc})`;
-                    card.style.opacity = op; card.style.zIndex = z;
-                    card.style.pointerEvents = absOff === 0 ? 'auto' : 'none';
+                    if (isMobile) {
+                        tx = offset * Math.min(230, window.innerWidth * 0.68);
+                        sc = offset === 0 ? 1 : 0.78;
+                        op = offset === 0 ? 1 : 0.35;
+                        z = 10 - absOff;
+                    } else {
+                        tx = offset * 340;
+                        sc = offset === 0 ? 1 : (absOff === 1 ? 0.82 : 0.68);
+                        op = offset === 0 ? 1 : (absOff === 1 ? 0.55 : 0.25);
+                        z = 10 - absOff;
+                    }
+                    gsap.to(card, { 
+                        x: tx, 
+                        scale: sc, 
+                        opacity: op, 
+                        duration: 0.6, 
+                        ease: "power3.out", 
+                        overwrite: "all",
+                        onStart: () => { 
+                            card.style.zIndex = z; 
+                            card.style.pointerEvents = absOff === 0 ? 'auto' : 'none'; 
+                        } 
+                    });
                     if (offset === 0) card.classList.add('active'); else card.classList.remove('active');
                 });
                 dots.forEach((d, i) => d.classList.toggle('active', i === activeIndex));
@@ -1396,20 +1095,14 @@
             function goTo(index) {
                 if (isAnimating || index === activeIndex) return;
                 isAnimating = true; activeIndex = index; updateCarousel();
-                setTimeout(() => { isAnimating = false; }, 700);
+                setTimeout(() => { isAnimating = false; }, 600);
             }
-
             function next() { goTo((activeIndex + 1) % projects.length); }
             function prev() { goTo((activeIndex - 1 + projects.length) % projects.length); }
 
             document.getElementById('carousel-next').addEventListener('click', next);
             document.getElementById('carousel-prev').addEventListener('click', prev);
-
-            document.addEventListener('keydown', (e) => {
-                if (e.ctrlKey) return;
-                if (e.key === 'ArrowRight') next();
-                if (e.key === 'ArrowLeft') prev();
-            });
+            document.addEventListener('keydown', (e) => { if (e.ctrlKey) return; if (e.key === 'ArrowRight') next(); if (e.key === 'ArrowLeft') prev(); });
 
             let dragStart = null;
             const wrapper = document.getElementById('carousel');
@@ -1420,13 +1113,14 @@
                 if (Math.abs(diff) > 50) { if (diff < 0) next(); else prev(); }
                 dragStart = null;
             }, { passive: true });
+
             let wheelCooldown = false;
             wrapper.addEventListener('wheel', (e) => {
                 if (wheelCooldown) return;
                 if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 30) {
                     e.stopPropagation();
                     if (e.deltaX > 0) next(); else prev();
-                    wheelCooldown = true; setTimeout(() => { wheelCooldown = false; }, 900);
+                    wheelCooldown = true; setTimeout(() => { wheelCooldown = false; }, 600);
                 }
             }, { passive: true });
 
@@ -1442,10 +1136,7 @@
                     this.rafId = null; this.lastTimestamp = 0; this.speed = 0; this.totalPathLength = 0;
                     this.pathLengths = []; this.exitThreshold = 0; this.resize();
                     let resizeTimeout;
-                    window.addEventListener('resize', () => {
-                        clearTimeout(resizeTimeout);
-                        resizeTimeout = setTimeout(() => this.resize(), 100);
-                    }, { passive: true });
+                    window.addEventListener('resize', () => { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(() => this.resize(), 100); }, { passive: true });
                 }
                 resize() {
                     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -1468,7 +1159,8 @@
                         }
                     }
                     this.path.push(points[points.length - 1]);
-                    let acc = 0; this.pathLengths.push(0);                    for (let i = 1; i < this.path.length; i++) {
+                    let acc = 0; this.pathLengths.push(0);
+                    for (let i = 1; i < this.path.length; i++) {
                         const dx = this.path[i].x - this.path[i-1].x, dy = this.path[i].y - this.path[i-1].y;
                         acc += Math.sqrt(dx * dx + dy * dy); this.pathLengths.push(acc);
                     }
@@ -1517,7 +1209,8 @@
                     if (this.segments.length > 1) this.segments[0].angle = Math.atan2(this.segments[1].y - this.segments[0].y, this.segments[1].x - this.segments[0].x) + Math.PI;
                     this.draw(); this.rafId = requestAnimationFrame((t) => this.animate(t));
                 }
-                draw() {                    const ctx = this.ctx, w = window.innerWidth, h = window.innerHeight;
+                draw() {
+                    const ctx = this.ctx, w = window.innerWidth, h = window.innerHeight;
                     ctx.clearRect(0, 0, w, h); this.drawLegs();
                     for (let i = this.segments.length - 1; i >= 1; i--) this.drawSegment(i);
                     this.drawHead();
@@ -1534,10 +1227,8 @@
                     const grad = ctx.createLinearGradient(0, -width, 0, width);
                     grad.addColorStop(0, '#0a0000'); grad.addColorStop(0.3, '#4a0000'); grad.addColorStop(0.5, '#7a0303'); grad.addColorStop(0.7, '#4a0000'); grad.addColorStop(1, '#0a0000');
                     ctx.fillStyle = grad; ctx.fill();
-                    
                     ctx.strokeStyle = 'rgba(180, 0, 0, 0.3)'; ctx.lineWidth = 0.8;
                     ctx.beginPath(); ctx.moveTo(length * 0.7, 0); ctx.lineTo(-length * 0.7, 0); ctx.stroke();
-                    
                     ctx.shadowBlur = 0;
                     ctx.strokeStyle = '#000'; ctx.lineWidth = 1.2; ctx.stroke();
                     ctx.restore();
@@ -1545,9 +1236,7 @@
                 drawHead() {
                     const head = this.segments[0], ctx = this.ctx;
                     ctx.save(); ctx.translate(head.x, head.y); ctx.rotate(head.angle);
-                    
                     if (!isTouchDevice) { ctx.shadowColor = 'rgba(0, 0, 0, 0.9)'; ctx.shadowBlur = 10; }
-                    
                     ctx.beginPath(); ctx.moveTo(14, 0);
                     ctx.bezierCurveTo(16, 11, 4, 15, -14, 12);
                     ctx.bezierCurveTo(-18, 8, -18, -8, -14, -12);
@@ -1557,7 +1246,6 @@
                     ctx.fillStyle = headGrad; ctx.fill();
                     ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5; ctx.stroke();
                     ctx.shadowBlur = 0;
-                    
                     if (!isTouchDevice) { ctx.shadowColor = '#ff0000'; ctx.shadowBlur = 8; }
                     ctx.fillStyle = '#ff2222';
                     ctx.beginPath(); ctx.ellipse(8, -5, 3, 2, -0.3, 0, Math.PI * 2); ctx.fill();
@@ -1565,23 +1253,13 @@
                     ctx.fillStyle = '#ffffff'; ctx.shadowBlur = 0;
                     ctx.beginPath(); ctx.ellipse(9.5, -5, 1, 0.8, 0, 0, Math.PI * 2); ctx.fill();
                     ctx.beginPath(); ctx.ellipse(9.5, 5, 1, 0.8, 0, 0, Math.PI * 2); ctx.fill();
-                    
-                    ctx.strokeStyle = '#1a0000'; ctx.lineWidth = 2.5; ctx.lineCap = 'round';                    ctx.beginPath(); ctx.moveTo(14, -4);
-                    ctx.quadraticCurveTo(22, -8, 26, -12);
-                    ctx.quadraticCurveTo(28, -8, 24, -6); ctx.stroke();
-                    ctx.beginPath(); ctx.moveTo(14, -2);
-                    ctx.quadraticCurveTo(24, -4, 30, -2);
-                    ctx.quadraticCurveTo(28, 2, 22, 2); ctx.stroke();
-                    ctx.beginPath(); ctx.moveTo(14, 4);
-                    ctx.quadraticCurveTo(22, 8, 26, 12);
-                    ctx.quadraticCurveTo(28, 8, 24, 6); ctx.stroke();
-                    ctx.beginPath(); ctx.moveTo(14, 2);
-                    ctx.quadraticCurveTo(24, 4, 30, 2);
-                    ctx.quadraticCurveTo(28, -2, 22, -2); ctx.stroke();
-                    
+                    ctx.strokeStyle = '#1a0000'; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
+                    ctx.beginPath(); ctx.moveTo(14, -4); ctx.quadraticCurveTo(22, -8, 26, -12); ctx.quadraticCurveTo(28, -8, 24, -6); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(14, -2); ctx.quadraticCurveTo(24, -4, 30, -2); ctx.quadraticCurveTo(28, 2, 22, 2); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(14, 4); ctx.quadraticCurveTo(22, 8, 26, 12); ctx.quadraticCurveTo(28, 8, 24, 6); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(14, 2); ctx.quadraticCurveTo(24, 4, 30, 2); ctx.quadraticCurveTo(28, -2, 22, -2); ctx.stroke();
                     ctx.strokeStyle = 'rgba(180, 0, 0, 0.5)'; ctx.lineWidth = 1;
                     ctx.beginPath(); ctx.moveTo(10, -10); ctx.quadraticCurveTo(5, -14, -5, -11); ctx.stroke();
-                    
                     ctx.restore();
                 }
                 drawLegs() {
@@ -1609,24 +1287,65 @@
             const chainsOverlay = document.getElementById('chains-overlay');
             const centipedeCanvas = document.getElementById('centipede-canvas');
             const centipede = new Centipede(centipedeCanvas);
+            const chainGroups = document.querySelectorAll('.chain-group');
+            let chainSwayTimelines = [];
             
+            gsap.set(kanekiContainer, { x: '100%', opacity: 0 });
             let longPressTimer = null, kanekiActive = false, kanekiCooldown = false;
+
+            function animateChainsIn() {
+                chainsOverlay.classList.add('active');
+                chainSwayTimelines.forEach(tl => tl.kill());
+                chainSwayTimelines = [];
+                chainGroups.forEach((chain, i) => {
+                    const rot = parseFloat(chain.dataset.rot) || 0;
+                    const isTop = chain.classList.contains('chain-tl') || chain.classList.contains('chain-tr');
+                    const isMid = chain.classList.contains('chain-mid-l') || chain.classList.contains('chain-mid-r');
+                    const startY = isTop ? -150 : (isMid ? 0 : 150);
+                    const startX = isMid ? (chain.classList.contains('chain-mid-l') ? -150 : 150) : 0;
+                    gsap.fromTo(chain, { opacity: 0, rotation: rot + (isTop ? -15 : 15), y: startY, x: startX, scale: 0.8 },
+                        { opacity: 1, rotation: rot, y: 0, x: 0, scale: 1, duration: 1.2, ease: "power3.out", delay: i * 0.08,
+                        onComplete: () => {
+                            const swayTl = gsap.timeline({ repeat: -1, yoyo: true });
+                            const swayAmount = 2 + Math.random() * 2;
+                            const swayRot = 1.5 + Math.random() * 1;
+                            const duration = 3.5 + Math.random() * 2;
+                            swayTl.to(chain, { rotation: rot + swayRot, x: swayAmount, duration: duration, ease: "sine.inOut" });
+                            chainSwayTimelines.push(swayTl);
+                        }
+                    });
+                });
+            }
+
+            function animateChainsOut() {
+                chainSwayTimelines.forEach(tl => tl.kill());
+                chainSwayTimelines = [];
+                chainGroups.forEach((chain, i) => {
+                    const rot = parseFloat(chain.dataset.rot) || 0;
+                    const isTop = chain.classList.contains('chain-tl') || chain.classList.contains('chain-tr');
+                    gsap.to(chain, { opacity: 0, y: isTop ? -100 : 100, rotation: rot + (isTop ? 10 : -10), duration: 0.6, ease: "power2.in", delay: i * 0.04 });
+                });
+                setTimeout(() => { chainsOverlay.classList.remove('active'); }, 800);
+            }
 
             function triggerKaneki() {
                 if (kanekiActive || kanekiCooldown) return;
                 kanekiActive = true; kanekiCooldown = true;
-                darkenOverlay.classList.add('active'); chainsOverlay.classList.add('active'); glitchOverlay.classList.add('active');                setTimeout(() => centipede.start(), 200);
-                setTimeout(() => { kanekiContainer.classList.remove('exiting'); kanekiContainer.classList.add('entering'); }, 600);
-                setTimeout(() => glitchOverlay.classList.remove('active'), 800);
-                setTimeout(() => { glitchOverlay.classList.add('active'); setTimeout(() => glitchOverlay.classList.remove('active'), 400); }, 3500);
+                gsap.to(darkenOverlay, { opacity: 1, duration: 0.8, ease: "power2.inOut" });
+                animateChainsIn();
+                glitchOverlay.classList.add('active');
+                setTimeout(() => glitchOverlay.classList.remove('active'), 600);
+                setTimeout(() => centipede.start(), 200);
+                gsap.fromTo(kanekiContainer, { x: '100%', opacity: 0 }, { x: '0%', opacity: 1, duration: 0.9, ease: "power3.out", delay: 0.4 });
+                setTimeout(() => { glitchOverlay.classList.add('active'); setTimeout(() => glitchOverlay.classList.remove('active'), 400); }, 3000);
                 setTimeout(() => {
-                    glitchOverlay.classList.add('active'); setTimeout(() => glitchOverlay.classList.remove('active'), 300);
-                    kanekiContainer.classList.remove('entering'); kanekiContainer.classList.add('exiting');
-                    setTimeout(() => chainsOverlay.classList.remove('active'), 400);
-                    setTimeout(() => darkenOverlay.classList.remove('active'), 800);
-                    kanekiActive = false;
-                }, 6000);
-                setTimeout(() => { if (centipede.running) centipede.stop(); kanekiCooldown = false; }, 9500);
+                    glitchOverlay.classList.add('active'); 
+                    setTimeout(() => glitchOverlay.classList.remove('active'), 300);
+                    gsap.to(kanekiContainer, { x: '100%', opacity: 0, duration: 1.2, ease: "power3.in", onComplete: () => { kanekiActive = false; } });
+                    animateChainsOut();
+                    gsap.to(darkenOverlay, { opacity: 0, duration: 0.8, ease: "power2.inOut", delay: 0.3 });
+                }, 5500);
+                setTimeout(() => { if (centipede.running) centipede.stop(); kanekiCooldown = false; }, 8500);
                 if (navigator.vibrate) navigator.vibrate([50, 100, 50]);
             }
 
@@ -1634,17 +1353,11 @@
                 let touchTriggered = false;
                 rizeCount.addEventListener('touchstart', () => {
                     touchTriggered = false;
-                    longPressTimer = setTimeout(() => {
-                        touchTriggered = true;
-                        triggerKaneki();
-                    }, 500);
+                    longPressTimer = setTimeout(() => { touchTriggered = true; triggerKaneki(); }, 500);
                 }, { passive: true });
                 rizeCount.addEventListener('touchend', (e) => {
                     clearTimeout(longPressTimer);
-                    if (!touchTriggered) {
-                        e.preventDefault();
-                        triggerKaneki();
-                    }
+                    if (!touchTriggered) { e.preventDefault(); triggerKaneki(); }
                 });
                 rizeCount.addEventListener('touchmove', () => clearTimeout(longPressTimer), { passive: true });
                 rizeCount.addEventListener('touchcancel', () => clearTimeout(longPressTimer), { passive: true });
@@ -1654,30 +1367,33 @@
 
             (function initHiganbanaSystem() {
                 const QUOTES = [
-                    { character: 'Ken Kaneki', color: '#ff2e2e', glow: 'rgba(255, 46, 46, 0.55)', glowSoft: 'rgba(255, 46, 46, 0.25)', quote: 'Se você fosse escrever uma história comigo como protagonista, com certeza seria… uma tragédia.' },
-                    { character: 'Ken Kaneki', color: '#ff2e2e', glow: 'rgba(255, 46, 46, 0.55)', glowSoft: 'rgba(255, 46, 46, 0.25)', quote: 'Eu não vou recuar. Eu vou seguir em frente. Como uma centopeia.' },
-                    { character: 'Ken Kaneki', color: '#ff2e2e', glow: 'rgba(255, 46, 46, 0.55)', glowSoft: 'rgba(255, 46, 46, 0.25)', quote: 'Você foi meu professor e meu pai. Eu estava tão feliz...' },
-                    { character: 'Ken Kaneki', color: '#ff2e2e', glow: 'rgba(255, 46, 46, 0.55)', glowSoft: 'rgba(255, 46, 46, 0.25)', quote: 'Não posso proteger ninguém. Nem mesmo eu mesmo.' },
-                    { character: 'Ken Kaneki', color: '#ff2e2e', glow: 'rgba(255, 46, 46, 0.55)', glowSoft: 'rgba(255, 46, 46, 0.25)', quote: 'Quanto mais eu aprendia, menos eu entendia.' },
-                    { character: 'Rize Kamishiro', color: '#a855f7', glow: 'rgba(168, 85, 247, 0.55)', glowSoft: 'rgba(168, 85, 247, 0.25)', quote: 'Você tá começando a entender agora? Você fica sentado aí culpando a si mesmo o tempo todo, mas fazer isso não vai mudar nada. Você não faz nada pra mudar, é tudo culpa sua.' },
-                    { character: 'Rize Kamishiro', color: '#a855f7', glow: 'rgba(168, 85, 247, 0.55)', glowSoft: 'rgba(168, 85, 247, 0.25)', quote: 'Quando você é fraco, tudo parece difícil.' },
-                    { character: 'Touka Kirishima', color: '#3b82f6', glow: 'rgba(59, 130, 246, 0.55)', glowSoft: 'rgba(59, 130, 246, 0.25)', quote: 'Depois de engolir, você fica coberto de sangue e vísceras. Esse é o nosso destino como ghouls.' },
-                    { character: 'Touka Kirishima', color: '#3b82f6', glow: 'rgba(59, 130, 246, 0.55)', glowSoft: 'rgba(59, 130, 246, 0.25)', quote: 'Você vai morrer rápido desse jeito. Seja mais cuidadoso.' },
-                    { character: 'Kishou Arima', color: '#e5e7eb', glow: 'rgba(229, 231, 235, 0.45)', glowSoft: 'rgba(229, 231, 235, 0.2)', quote: '645 vezes eu poderia ter te ferido fatalmente. E 645 vezes decidi não fazer isso.' },
-                    { character: 'Kishou Arima', color: '#e5e7eb', glow: 'rgba(229, 231, 235, 0.45)', glowSoft: 'rgba(229, 231, 235, 0.2)', quote: 'Já estou cansado de fingir.' },                    { character: 'The Black Reaper', color: '#A0826D', glow: 'rgba(160, 130, 109, 0.7)', glowSoft: 'rgba(160, 130, 109, 0.3)', quote: 'Boa noite, Haise.' },
-                    { character: 'The Black Reaper', color: '#A0826D', glow: 'rgba(160, 130, 109, 0.7)', glowSoft: 'rgba(160, 130, 109, 0.3)', quote: 'Você sempre foi fraco.' },
-                    { character: 'The Black Reaper', color: '#A0826D', glow: 'rgba(160, 130, 109, 0.7)', glowSoft: 'rgba(160, 130, 109, 0.3)', quote: 'Eu sou você. E você é eu.' },
-                    { character: 'Haise Sasaki', color: '#06b6d4', glow: 'rgba(6, 182, 212, 0.55)', glowSoft: 'rgba(6, 182, 212, 0.25)', quote: 'Estou realmente feliz vivendo assim.' },
-                    { character: 'Haise Sasaki', color: '#06b6d4', glow: 'rgba(6, 182, 212, 0.55)', glowSoft: 'rgba(6, 182, 212, 0.25)', quote: 'Não me pergunte quem eu sou.' },
-                    { character: 'Hide', color: '#fbbf24', glow: 'rgba(251, 191, 36, 0.55)', glowSoft: 'rgba(251, 191, 36, 0.25)', quote: 'Você é meu melhor amigo. Por isso vou estar sempre ao seu lado.' },
-                    { character: 'Shuu Tsukiyama', color: '#ec4899', glow: 'rgba(236, 72, 153, 0.55)', glowSoft: 'rgba(236, 72, 153, 0.25)', quote: 'Você é um verdadeiro gourmet, Kaneki.' },
-                    { character: 'Amon Koutarou', color: '#f59e0b', glow: 'rgba(245, 158, 11, 0.55)', glowSoft: 'rgba(245, 158, 11, 0.25)', quote: 'Investigadores como eu existem para proteger os humanos.' },
-                    { character: 'Urie', color: '#94a3b8', glow: 'rgba(148, 163, 184, 0.5)', glowSoft: 'rgba(148, 163, 184, 0.22)', quote: 'Vamos nos tornar terroristas, beleza?' },
-                    { character: 'Eto Yoshimura', color: '#22c55e', glow: 'rgba(34, 197, 94, 0.5)', glowSoft: 'rgba(34, 197, 94, 0.22)', quote: 'O pássaro sai do ovo. O ovo é o mundo. Para nascer, deve-se primeiro destruir um mundo.' },
-                    { character: 'Yoshimura', color: '#a8a29e', glow: 'rgba(168, 162, 158, 0.45)', glowSoft: 'rgba(168, 162, 158, 0.2)', quote: 'Os fortes devoram os fracos. É a lei absoluta do mundo.' }
+                    { character: 'Ken Kaneki', color: '#ff2e2e', glow: 'rgba(255, 46, 46, 0.4)', glowSoft: 'rgba(255, 46, 46, 0.15)', quote: 'Se você fosse escrever uma história comigo como protagonista, com certeza seria… uma tragédia.' },
+                    { character: 'Ken Kaneki', color: '#ff2e2e', glow: 'rgba(255, 46, 46, 0.4)', glowSoft: 'rgba(255, 46, 46, 0.15)', quote: 'Eu não vou recuar. Eu vou seguir em frente. Como uma centopeia.' },
+                    { character: 'Ken Kaneki', color: '#ff2e2e', glow: 'rgba(255, 46, 46, 0.4)', glowSoft: 'rgba(255, 46, 46, 0.15)', quote: 'Você foi meu professor e meu pai. Eu estava tão feliz...' },
+                    { character: 'Ken Kaneki', color: '#ff2e2e', glow: 'rgba(255, 46, 46, 0.4)', glowSoft: 'rgba(255, 46, 46, 0.15)', quote: 'Não posso proteger ninguém. Nem mesmo eu mesmo.' },
+                    { character: 'Ken Kaneki', color: '#ff2e2e', glow: 'rgba(255, 46, 46, 0.4)', glowSoft: 'rgba(255, 46, 46, 0.15)', quote: 'Quanto mais eu aprendia, menos eu entendia.' },
+                    { character: 'Rize Kamishiro', color: '#a855f7', glow: 'rgba(168, 85, 247, 0.4)', glowSoft: 'rgba(168, 85, 247, 0.15)', quote: 'Você tá começando a entender agora? Você fica sentado aí culpando a si mesmo o tempo todo, mas fazer isso não vai mudar nada. Você não faz nada pra mudar, é tudo culpa sua.' },
+                    { character: 'Rize Kamishiro', color: '#a855f7', glow: 'rgba(168, 85, 247, 0.4)', glowSoft: 'rgba(168, 85, 247, 0.15)', quote: 'Quando você é fraco, tudo parece difícil.' },
+                    { character: 'Touka Kirishima', color: '#3b82f6', glow: 'rgba(59, 130, 246, 0.4)', glowSoft: 'rgba(59, 130, 246, 0.15)', quote: 'Depois de engolir, você fica coberto de sangue e vísceras. Esse é o nosso destino como ghouls.' },
+                    { character: 'Touka Kirishima', color: '#3b82f6', glow: 'rgba(59, 130, 246, 0.4)', glowSoft: 'rgba(59, 130, 246, 0.15)', quote: 'Você vai morrer rápido desse jeito. Seja mais cuidadoso.' },
+                    { character: 'Kishou Arima', color: '#e5e7eb', glow: 'rgba(229, 231, 235, 0.3)', glowSoft: 'rgba(229, 231, 235, 0.1)', quote: '645 vezes eu poderia ter te ferido fatalmente. E 645 vezes decidi não fazer isso.' },
+                    { character: 'Kishou Arima', color: '#e5e7eb', glow: 'rgba(229, 231, 235, 0.3)', glowSoft: 'rgba(229, 231, 235, 0.1)', quote: 'Já estou cansado de fingir.' },
+                    { character: 'The Black Reaper', color: '#A0826D', glow: 'rgba(160, 130, 109, 0.5)', glowSoft: 'rgba(160, 130, 109, 0.2)', quote: 'Boa noite, Haise.' },
+                    { character: 'The Black Reaper', color: '#A0826D', glow: 'rgba(160, 130, 109, 0.5)', glowSoft: 'rgba(160, 130, 109, 0.2)', quote: 'Você sempre foi fraco.' },
+                    { character: 'The Black Reaper', color: '#A0826D', glow: 'rgba(160, 130, 109, 0.5)', glowSoft: 'rgba(160, 130, 109, 0.2)', quote: 'Eu sou você. E você é eu.' },
+                    { character: 'Haise Sasaki', color: '#06b6d4', glow: 'rgba(6, 182, 212, 0.4)', glowSoft: 'rgba(6, 182, 212, 0.15)', quote: 'Estou realmente feliz vivendo assim.' },
+                    { character: 'Haise Sasaki', color: '#06b6d4', glow: 'rgba(6, 182, 212, 0.4)', glowSoft: 'rgba(6, 182, 212, 0.15)', quote: 'Não me pergunte quem eu sou.' },
+                    { character: 'Hide', color: '#fbbf24', glow: 'rgba(251, 191, 36, 0.4)', glowSoft: 'rgba(251, 191, 36, 0.15)', quote: 'Você é meu melhor amigo. Por isso vou estar sempre ao seu lado.' },
+                    { character: 'Shuu Tsukiyama', color: '#ec4899', glow: 'rgba(236, 72, 153, 0.4)', glowSoft: 'rgba(236, 72, 153, 0.15)', quote: 'Você é um verdadeiro gourmet, Kaneki.' },
+                    { character: 'Amon Koutarou', color: '#f59e0b', glow: 'rgba(245, 158, 11, 0.4)', glowSoft: 'rgba(245, 158, 11, 0.15)', quote: 'Investigadores como eu existem para proteger os humanos.' },
+                    { character: 'Urie', color: '#94a3b8', glow: 'rgba(148, 163, 184, 0.4)', glowSoft: 'rgba(148, 163, 184, 0.15)', quote: 'Vamos nos tornar terroristas, beleza?' },
+                    { character: 'Eto Yoshimura', color: '#22c55e', glow: 'rgba(34, 197, 94, 0.4)', glowSoft: 'rgba(34, 197, 94, 0.15)', quote: 'O pássaro sai do ovo. O ovo é o mundo. Para nascer, deve-se primeiro destruir um mundo.' },
+                    { character: 'Yoshimura', color: '#a8a29e', glow: 'rgba(168, 162, 158, 0.3)', glowSoft: 'rgba(168, 162, 158, 0.1)', quote: 'Os fortes devoram os fracos. É a lei absoluta do mundo.' }
                 ];
 
                 const flowerEl = document.getElementById('higanbana-flower');
+                const glowInner = document.getElementById('glow-inner');
+                const glowOuter = document.getElementById('glow-outer');
                 const quoteTextEl = document.getElementById('quote-text');
                 const quoteAuthorEl = document.getElementById('quote-author');
                 const root = document.documentElement;
@@ -1686,56 +1402,35 @@
 
                 let currentIndex = -1;
                 let isTransitioning = false;
-                // FILA DE FALAS (não de personagens) - garante que TODAS as 22 falas apareçam
                 let characterQueue = [];
                 let lastCharacter = null;
+                let clickTl = null;
 
-                function shuffleArray(arr) {
-                    // Fisher-Yates shuffle (distribuição uniforme real)
-                    const a = [...arr];
-                    for (let i = a.length - 1; i > 0; i--) {
-                        const j = Math.floor(Math.random() * (i + 1));
-                        [a[i], a[j]] = [a[j], a[i]];
-                    }
-                    return a;
-                }
-
-                // Gera fila com TODOS os ÍNDICES das falas (0 a 21)
-                function generateQuotesQueue() {
-                    const allIndices = QUOTES.map((_, i) => i);
-                    return shuffleArray(allIndices);
+                function shuffleArray(arr) { return arr.sort(() => Math.random() - 0.5); }
+                function generateCharacterQueue() {
+                    const uniqueCharacters = [...new Set(QUOTES.map(q => q.character))];
+                    return shuffleArray(uniqueCharacters);
                 }
 
                 function pickNextQuote(forceKaneki = false) {
                     if (forceKaneki) {
-                        const kanekiQuotes = QUOTES.map((q, i) => ({ quote: q, index: i }))
-                                                   .filter(q => q.quote.character === 'Ken Kaneki');
+                        const kanekiQuotes = QUOTES.filter(q => q.character === 'Ken Kaneki');
                         const picked = kanekiQuotes[Math.floor(Math.random() * kanekiQuotes.length)];
-                        currentIndex = picked.index;
-                        lastCharacter = picked.quote.character;
-                        return picked.quote;                    }
-
-                    // Só regenera a fila quando TODAS as 22 falas já apareceram
-                    if (characterQueue.length === 0) {
-                        characterQueue = generateQuotesQueue();
+                        currentIndex = QUOTES.indexOf(picked);
+                        lastCharacter = 'Ken Kaneki';
+                        return picked;
                     }
-
-                    let nextIndex = characterQueue.shift();
-                    let nextQuote = QUOTES[nextIndex];
-
-                    // Evita repetir o mesmo personagem imediatamente
-                    // Se repetir, coloca no fim da fila e pega outro
-                    let attempts = 0;
-                    while (nextQuote.character === lastCharacter && characterQueue.length > 0 && attempts < 10) {
-                        characterQueue.push(nextIndex);
-                        nextIndex = characterQueue.shift();
-                        nextQuote = QUOTES[nextIndex];
-                        attempts++;
+                    if (characterQueue.length <= 1) characterQueue = generateCharacterQueue();
+                    let nextCharacter = characterQueue.shift();
+                    while (nextCharacter === lastCharacter && characterQueue.length > 0) {
+                        characterQueue.push(nextCharacter);
+                        nextCharacter = characterQueue.shift();
                     }
-
-                    currentIndex = nextIndex;
-                    lastCharacter = nextQuote.character;
-                    return nextQuote;
+                    const quotesOfCharacter = QUOTES.filter(q => q.character === nextCharacter);
+                    const picked = quotesOfCharacter[Math.floor(Math.random() * quotesOfCharacter.length)];
+                    currentIndex = QUOTES.indexOf(picked);
+                    lastCharacter = nextCharacter;
+                    return picked;
                 }
 
                 function applyThemeColors(quote) {
@@ -1745,49 +1440,33 @@
                     root.style.setProperty('--text-accent', quote.color);
                 }
 
+                function animateFlowerClick() {
+                    if (clickTl) clickTl.kill();
+                    clickTl = gsap.timeline({ overwrite: "auto" });
+                    clickTl.to(flowerEl, { scale: 1.08, duration: 0.35, ease: "power2.out" }, 0);
+                    clickTl.to([glowInner, glowOuter], { scale: 1.2, opacity: 1, duration: 0.35, ease: "power2.out" }, 0);
+                    clickTl.to(flowerEl, { scale: 1, duration: 0.7, ease: "elastic.out(1, 0.6)" }, 0.35);
+                    clickTl.to(glowInner, { scale: 1, opacity: 0.5, duration: 0.7, ease: "power2.out" }, 0.35);
+                    clickTl.to(glowOuter, { scale: 1, opacity: 0.3, duration: 0.7, ease: "power2.out" }, 0.35);
+                }
+
                 function transitionToQuote(newQuote) {
                     if (isTransitioning) return;
                     isTransitioning = true;
+                    animateFlowerClick();
 
-                    const tl = gsap.timeline({
-                        onComplete: () => {
-                            isTransitioning = false;
-                            flowerEl.classList.remove('is-transitioning');
-                        }
-                    });
-
-                    flowerEl.classList.add('is-transitioning');
-
-                    tl.to([quoteTextEl, quoteAuthorEl], {
-                        opacity: 0,
-                        filter: 'blur(12px)',
-                        y: -12,
-                        duration: 0.55,                        ease: 'power2.in'
-                    });
-
+                    const tl = gsap.timeline({ overwrite: "auto", onComplete: () => { isTransitioning = false; } });
+                    tl.to([quoteTextEl, quoteAuthorEl], { opacity: 0, y: -15, duration: 0.4, ease: 'power2.in' });
                     tl.call(() => {
                         quoteTextEl.textContent = newQuote.quote;
                         quoteAuthorEl.textContent = `${newQuote.character}`;
                         applyThemeColors(newQuote);
                     }, [], '+=0.05');
+                    tl.set([quoteTextEl, quoteAuthorEl], { y: 15 });
+                    tl.to(quoteTextEl, { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' });
+                    tl.to(quoteAuthorEl, { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' }, '-=0.5');
 
-                    tl.set([quoteTextEl, quoteAuthorEl], {
-                        y: 18,
-                        filter: 'blur(12px)'
-                    });
-
-                    tl.to([quoteTextEl, quoteAuthorEl], {
-                        opacity: 1,
-                        filter: 'blur(0px)',
-                        y: 0,
-                        duration: 0.85,
-                        ease: 'power3.out',
-                        stagger: 0.12
-                    });
-
-                    if (navigator.vibrate) {
-                        navigator.vibrate(15);
-                    }
+                    if (navigator.vibrate) navigator.vibrate(15);
                 }
 
                 function initFirstQuote() {
@@ -1796,54 +1475,38 @@
                     quoteAuthorEl.textContent = `${firstQuote.character}`;
                     applyThemeColors(firstQuote);
 
-                    gsap.from(quoteTextEl, {
-                        opacity: 0,
-                        filter: 'blur(15px)',
-                        y: 20,
-                        duration: 1.4,
-                        ease: 'power3.out',
-                        delay: 0.2
-                    });
-                    gsap.from(quoteAuthorEl, {
-                        opacity: 0,
-                        filter: 'blur(15px)',
-                        y: 20,
-                        duration: 1.4,
-                        ease: 'power3.out',
-                        delay: 0.45
-                    });                    gsap.from(flowerEl, {
-                        scale: 0.7,
-                        opacity: 0,
-                        filter: 'blur(20px)',
-                        duration: 1.6,
-                        ease: 'power3.out',
-                        delay: 0.1
-                    });
+                    gsap.from(quoteTextEl, { opacity: 0, y: 20, duration: 1.2, ease: 'power3.out', delay: 0.2 });
+                    gsap.from(quoteAuthorEl, { opacity: 0, y: 20, duration: 1.2, ease: 'power3.out', delay: 0.4 });
+                    gsap.from(flowerEl, { scale: 0.7, opacity: 0, duration: 1.4, ease: 'power3.out', delay: 0.1 });
                 }
 
                 function handleFlowerInteraction(e) {
                     if (e) e.preventDefault();
-                    const nextQuote = pickNextQuote(false);
-                    transitionToQuote(nextQuote);
+                    transitionToQuote(pickNextQuote(false));
                 }
 
                 flowerEl.addEventListener('click', handleFlowerInteraction);
-                flowerEl.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        handleFlowerInteraction();
-                    }
+                flowerEl.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleFlowerInteraction(); } });
+
+                flowerEl.addEventListener('mouseenter', () => {
+                    gsap.to(flowerEl, { scale: 1.06, duration: 0.4, ease: "power2.out", overwrite: "auto" });
+                    gsap.to(glowInner, { scale: 1.2, opacity: 0.9, duration: 0.4, ease: "power2.out", overwrite: "auto" });
+                    gsap.to(glowOuter, { scale: 1.15, opacity: 0.7, duration: 0.4, ease: "power2.out", overwrite: "auto" });
+                });
+                flowerEl.addEventListener('mouseleave', () => {
+                    gsap.to(flowerEl, { scale: 1, duration: 0.4, ease: "power2.out", overwrite: "auto" });
+                    gsap.to(glowInner, { scale: 1, opacity: 0.5, duration: 0.4, ease: "power2.out", overwrite: "auto" });
+                    gsap.to(glowOuter, { scale: 1, opacity: 0.3, duration: 0.4, ease: "power2.out", overwrite: "auto" });
                 });
 
                 if (isTouchDevice) {
                     flowerEl.addEventListener('touchstart', () => {
-                        flowerEl.classList.add('touch-active');
+                        gsap.to(flowerEl, { scale: 1.05, duration: 0.3, ease: "power2.out", overwrite: "auto" });
+                        gsap.to(glowInner, { scale: 1.15, opacity: 0.9, duration: 0.3, ease: "power2.out", overwrite: "auto" });
                     }, { passive: true });
                     flowerEl.addEventListener('touchend', () => {
-                        setTimeout(() => flowerEl.classList.remove('touch-active'), 150);
-                    }, { passive: true });
-                    flowerEl.addEventListener('touchcancel', () => {
-                        flowerEl.classList.remove('touch-active');
+                        gsap.to(flowerEl, { scale: 1, duration: 0.3, ease: "power2.out", overwrite: "auto" });
+                        gsap.to(glowInner, { scale: 1, opacity: 0.5, duration: 0.3, ease: "power2.out", overwrite: "auto" });
                     }, { passive: true });
                 }
 
