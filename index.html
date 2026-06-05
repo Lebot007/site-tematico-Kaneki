@@ -69,6 +69,7 @@
             transition: width 0.2s, height 0.2s, background 0.2s, border-color 0.2s, margin 0.2s;
             transform: translate3d(-100px, -100px, 0);
             cursor: none;
+            will-change: transform;
         }
         .cursor.hover {
             width: 40px; height: 40px;
@@ -140,6 +141,7 @@
             transform-origin: bottom left;
             overflow: hidden;
             transform: translate3d(0, 0, 0);
+            will-change: transform, width;
         }
         .music-player::after {
             content: ''; position: absolute; inset: -1px; border-radius: 16px;
@@ -179,37 +181,16 @@
             opacity: 0.4;
             will-change: height;
         }
-        /* CORREÇÃO: Animação só roda quando playing E player aberto */
         .music-player.playing:not(.collapsed) .viz-bar { opacity: 1; }
         .music-player.playing:not(.collapsed) .viz-bar:nth-child(1) { animation: audioViz1 1.2s ease-in-out infinite; }
         .music-player.playing:not(.collapsed) .viz-bar:nth-child(2) { animation: audioViz2 1.5s ease-in-out infinite 0.1s; }
         .music-player.playing:not(.collapsed) .viz-bar:nth-child(3) { animation: audioViz3 1.3s ease-in-out infinite 0.2s; }
         .music-player.playing:not(.collapsed) .viz-bar:nth-child(4) { animation: audioViz4 1.4s ease-in-out infinite 0.3s; }
         
-        @keyframes audioViz1 {
-            0%, 100% { height: 4px; }
-            25% { height: 10px; }
-            50% { height: 6px; }
-            75% { height: 12px; }
-        }
-        @keyframes audioViz2 {
-            0%, 100% { height: 6px; }
-            30% { height: 14px; }
-            60% { height: 8px; }
-            80% { height: 11px; }
-        }
-        @keyframes audioViz3 {
-            0%, 100% { height: 5px; }
-            20% { height: 9px; }
-            40% { height: 13px; }
-            70% { height: 7px; }
-        }
-        @keyframes audioViz4 {
-            0%, 100% { height: 7px; }
-            35% { height: 11px; }
-            55% { height: 5px; }
-            85% { height: 10px; }
-        }
+        @keyframes audioViz1 { 0%, 100% { height: 4px; } 25% { height: 10px; } 50% { height: 6px; } 75% { height: 12px; } }
+        @keyframes audioViz2 { 0%, 100% { height: 6px; } 30% { height: 14px; } 60% { height: 8px; } 80% { height: 11px; } }
+        @keyframes audioViz3 { 0%, 100% { height: 5px; } 20% { height: 9px; } 40% { height: 13px; } 70% { height: 7px; } }
+        @keyframes audioViz4 { 0%, 100% { height: 7px; } 35% { height: 11px; } 55% { height: 5px; } 85% { height: 10px; } }
 
         .player-progress-wrap { display: flex; flex-direction: column; gap: 6px; }
         .player-progress-bar { position: relative; width: 100%; height: 4px; background: rgba(234, 234, 234, 0.1); border-radius: 2px; cursor: none; overflow: visible; transition: height 0.2s ease; }
@@ -366,7 +347,23 @@
 
         .carousel-wrapper { position: relative; width: 100%; height: 600px; user-select: none; -webkit-user-select: none; touch-action: pan-y; overflow: hidden; }
         .carousel-stage { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
-        .project-card { position: absolute; width: 420px; max-width: 85vw; height: 540px; background: linear-gradient(145deg, rgba(20, 8, 8, 0.9), rgba(10, 4, 4, 0.98)); border: 1px solid rgba(196, 30, 30, 0.2); border-radius: 4px; display: flex; flex-direction: column; justify-content: space-between; cursor: none; overflow: hidden; contain: layout style paint; will-change: transform, opacity; }
+        .project-card { 
+            position: absolute; 
+            width: 420px; 
+            max-width: 85vw; 
+            height: 540px; 
+            background: linear-gradient(145deg, rgba(20, 8, 8, 0.9), rgba(10, 4, 4, 0.98)); 
+            border: 1px solid rgba(196, 30, 30, 0.2); 
+            border-radius: 4px; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between; 
+            cursor: none; 
+            overflow: hidden; 
+            contain: layout style paint; 
+            will-change: transform, opacity; 
+            transform: translate3d(0,0,0);
+        }
         .card-bg-image { position: absolute; inset: 0; background-size: cover; background-position: center top; background-repeat: no-repeat; opacity: 0.55; transition: opacity 0.7s ease, transform 0.7s ease; pointer-events: none; }
         .project-card.active .card-bg-image { opacity: 0.75; transform: scale(1.05); }
         .card-bg-overlay { position: absolute; inset: 0; background: linear-gradient(145deg, rgba(5, 2, 2, 0.55) 0%, rgba(5, 2, 2, 0.65) 50%, rgba(5, 2, 2, 0.85) 100%); pointer-events: none; }
@@ -413,7 +410,7 @@
         .copied-toast { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(196, 30, 30, 0.95); color: var(--bone); padding: 8px 16px; border-radius: 4px; font-size: 0.75rem; letter-spacing: 0.15em; opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 10; text-transform: uppercase; }
         .social-card.copied .copied-toast { opacity: 1; }
 
-        .kaneki-container { position: fixed; right: 0; bottom: 0; height: 85vh; max-height: 700px; width: auto; pointer-events: none; z-index: 9996; display: flex; align-items: flex-end; transform: translate3d(100%, 0, 0); opacity: 0; }
+        .kaneki-container { position: fixed; right: 0; bottom: 0; height: 85vh; max-height: 700px; width: auto; pointer-events: none; z-index: 9996; display: flex; align-items: flex-end; transform: translate3d(100%, 0, 0); opacity: 0; will-change: transform, opacity; }
         .kaneki-container img { height: 100%; width: auto; max-width: 45vw; object-fit: contain; object-position: bottom; -webkit-mask-image: linear-gradient(to bottom, black 75%, transparent 100%); mask-image: linear-gradient(to bottom, black 75%, transparent 100%); filter: drop-shadow(-20px 0 40px rgba(196, 30, 30, 0.3)); }
         .darken-overlay { position: fixed; inset: 0; background: radial-gradient(ellipse at center, rgba(0,0,0,0.4), rgba(0,0,0,0.85)); z-index: 9994; opacity: 0; pointer-events: none; transition: opacity 1s ease; }
         .darken-overlay.active { opacity: 1; }
@@ -531,14 +528,7 @@
             .higanbana-svg { width: 10rem; height: 10rem; }
             .higanbana-wrap { width: 220px; height: 220px; }
         }
-                @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
-            /* Exceção: Barrinhas do visualizador devem animar sempre */
-            .music-player.playing .viz-bar:nth-child(1) { animation-duration: 1.2s !important; }
-            .music-player.playing .viz-bar:nth-child(2) { animation-duration: 1.5s !important; }
-            .music-player.playing .viz-bar:nth-child(3) { animation-duration: 1.3s !important; }
-            .music-player.playing .viz-bar:nth-child(4) { animation-duration: 1.4s !important; }
-        }
+        
         body.tab-hidden * { animation-play-state: paused !important; }
     </style>
 </head>
@@ -570,7 +560,7 @@
         </button>
         <div class="player-top">
             <div class="player-cover-wrap">
-                <img src="music1image.jpg" alt="Album cover" class="player-cover" id="player-cover" loading="lazy">
+                <img src="music1image.jpg" alt="Album cover" class="player-cover" id="player-cover" loading="lazy" decoding="async">
             </div>
             <div class="player-info">
                 <div class="player-track-name" id="player-track-name">Nuts</div>
@@ -625,7 +615,7 @@
     <canvas id="centipede-canvas"></canvas>
 
     <div class="kaneki-container" id="kaneki-container">
-        <img src="kanekituc.png" alt="" loading="lazy">
+        <img src="kanekituc.png" alt="" loading="lazy" decoding="async">
     </div>
 
     <section class="relative h-screen flex flex-col items-center justify-center text-center px-4">
@@ -1029,21 +1019,63 @@
             
             gsap.utils.toArray('.social-card, .ghoul-card').forEach((card, i) => {
                 gsap.from(card, {
-                    y: 40,
+                    y: 50,
                     opacity: 0,
-                    duration: 0.8,
-                    ease: "power3.out",
+                    scale: 0.95,
+                    filter: 'blur(12px)',
+                    duration: 1.2,
+                    ease: "expo.out",
                     scrollTrigger: {
                         trigger: card,
-                        start: "top 85%",
+                        start: "top 88%",
                         toggleActions: "play none none reverse"
                     },
                     delay: i * 0.08
                 });
             });
+
+            gsap.utils.toArray('section h3, section > div > p.text-center').forEach(el => {
+                gsap.from(el, {
+                    y: 30,
+                    opacity: 0,
+                    filter: 'blur(8px)',
+                    duration: 1,
+                    ease: "power3.out",
+                    scrollTrigger: {
+                        trigger: el,
+                        start: "top 90%",
+                        toggleActions: "play none none reverse"
+                    }
+                });
+            });
             
-            gsap.from(".higanbana-stage", { y: 60, opacity: 0, duration: 1, ease: "power3.out", scrollTrigger: { trigger: ".higanbana-stage", start: "top 85%", toggleActions: "play none none reverse" } });
-            gsap.from(".carousel-wrapper", { y: 80, opacity: 0, duration: 1, ease: "power3.out", scrollTrigger: { trigger: ".carousel-wrapper", start: "top 85%", toggleActions: "play none none reverse" } });
+            gsap.from(".higanbana-stage", { 
+                y: 80, 
+                opacity: 0, 
+                scale: 0.9, 
+                filter: 'blur(15px)', 
+                duration: 1.5, 
+                ease: "expo.out", 
+                scrollTrigger: { 
+                    trigger: ".higanbana-stage", 
+                    start: "top 85%", 
+                    toggleActions: "play none none reverse" 
+                } 
+            });
+            
+            gsap.from(".carousel-wrapper", { 
+                y: 100, 
+                opacity: 0, 
+                scale: 0.92, 
+                filter: 'blur(12px)', 
+                duration: 1.5, 
+                ease: "expo.out", 
+                scrollTrigger: { 
+                    trigger: ".carousel-wrapper", 
+                    start: "top 85%", 
+                    toggleActions: "play none none reverse" 
+                } 
+            });
 
             const projects = [
                 { kanji: '眼', num: 'DOSSIÊ 01', title: 'Ken Kaneki', subtitle: 'O Trágico · Eyepatch', desc: 'Estudante universitário transformado em meio-ghoul após o transplante de órgãos de Rize. Carrega o peso de dois mundos e a dor de uma máscara que revela mais do que esconde. Seu Kagune Rinkaku se manifesta como quatro tentáculos escarlates.', tags: ['Rinkaku', 'Meio-Ghoul', 'Anteiku', 'Aogiri', 'Dragão'], year: 'RC: 911', img: 'kanekiprofile.jpg' },
@@ -1461,7 +1493,6 @@
 
                 let isTransitioning = false;
                 let clickTl = null;
-                // CORREÇÃO: Fila de todas as falas embaralhadas
                 let quoteQueue = [];
 
                 function shuffleArray(arr) { 
@@ -1473,13 +1504,11 @@
                     return a;
                 }
 
-                // CORREÇÃO: Embaralha TODAS as falas de uma vez
                 function regenerateQuoteQueue() {
                     quoteQueue = shuffleArray(QUOTES);
                 }
 
                 function pickNextQuote() {
-                    // Se a fila acabou, reembaralha tudo
                     if (quoteQueue.length === 0) {
                         regenerateQuoteQueue();
                     }
