@@ -99,11 +99,12 @@
             -webkit-user-select: none;
             transition: filter 0.3s, transform 0.3s ease;
             padding: 10px 14px;
-            background: rgba(5, 2, 2, 0.6);
+            background: rgba(15, 5, 5, 0.75);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-radius: 12px;
-            border: 1px solid rgba(196, 30, 30, 0.2);
+            border: 1px solid rgba(196, 30, 30, 0.35);
+            box-shadow: 0 0 20px rgba(196, 30, 30, 0.15), 0 4px 12px rgba(0, 0, 0, 0.4);
             transform: translate3d(0, 0, 0);
             opacity: 1;
         }
@@ -883,32 +884,24 @@
             }
 
             function revealHeroContent() {
-                gsap.to("section:first-of-type h2", { opacity: 1, y: 0, duration: 1, ease: "power3.out" });
-                gsap.to("section:first-of-type p", { opacity: 1, y: 0, duration: 1, ease: "power3.out", delay: 0.1 });
-                gsap.to("#rize-count", { opacity: 1, scale: 1, duration: 1, ease: "back.out(1.7)", delay: 0.2 });
-                gsap.to(".absolute.bottom-10", { opacity: 1, y: 0, duration: 1, ease: "power3.out", delay: 0.3 });
+                gsap.set("section:first-of-type h2, section:first-of-type p", { opacity: 1, y: 0 });
+                gsap.to("#rize-count", { opacity: 1, scale: 1, duration: 0.6, ease: "back.out(1.7)", delay: 0.2 });
+                gsap.to(".absolute.bottom-10", { opacity: 1, y: 0, duration: 0.6, ease: "power3.out", delay: 0.3 });
             }
 
             window.addEventListener('load', () => {
-                gsap.set("section:first-of-type h2, section:first-of-type p, #rize-count, .absolute.bottom-10", { opacity: 0, y: 30 });
-                gsap.set("#rize-count", { scale: 0.8 });
-                
                 updateTrackInfo();
                 audio.muted = true;
                 audio.volume = 0;
                 
-                // CORREÇÃO: Apenas tenta o play mutado para "aquecer" o áudio, mas NÃO esconde o overlay.
-                // O overlay só será escondido quando o usuário clicar (startAudio).
                 const playPromise = audio.play();
                 if (playPromise !== undefined) {
                     playPromise.then(() => {
-                        // Áudio mutado funcionou, apenas pausa e prepara para o clique
                         audio.pause();
                         audio.muted = false;
                         isPlaying = false;
                         updatePlayIcon();
                     }).catch(() => { 
-                        // Falhou, não faz nada. Overlay continua visível.
                     });
                 }
             }, { once: true });
