@@ -687,60 +687,23 @@
         .social-card.copied .copied-toast { opacity: 1; }
         .kaneki-container {
             position: fixed; right: 0; bottom: 0; height: 85vh; max-height: 700px; width: auto;
-            pointer-events: none; z-index: 9996;
-            transform: translate3d(115%, 0, 0) scale(0.94);
-            display: flex;
-            align-items: flex-end;
-            will-change: transform, opacity, filter;
-            opacity: 0;
-            filter: blur(4px) brightness(0.7);
-            contain: layout style paint;
+            pointer-events: none; z-index: 9996; transform: translateX(100%);
+            transition: transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1); display: flex;
+            align-items: flex-end; will-change: transform;
         }
+        .kaneki-container.entering { transform: translateX(0); }
+        .kaneki-container.exiting { transform: translateX(100%); transition: transform 1.5s cubic-bezier(0.65, 0, 0.35, 1); }
         .kaneki-container img {
             height: 100%; width: auto; max-width: 45vw; object-fit: contain; object-position: bottom;
             -webkit-mask-image: linear-gradient(to bottom, black 75%, transparent 100%);
             mask-image: linear-gradient(to bottom, black 75%, transparent 100%);
             filter: drop-shadow(-20px 0 40px rgba(196, 30, 30, 0.3));
-            will-change: filter, transform;
         }
-        .kaneki-container.entering img { animation: kaneki-glitch 0.5s steps(4) 1; }
+        .kaneki-container.entering img { animation: kaneki-glitch 0.3s steps(2) 1; }
         @keyframes kaneki-glitch {
-            0% { 
-                filter: drop-shadow(-20px 0 40px rgba(196, 30, 30, 0.3)); 
-                transform: translate3d(0, 0, 0); 
-            }
-            10% { 
-                filter: drop-shadow(-20px 0 40px rgba(196, 30, 30, 0.3)) drop-shadow(4px 0 0 rgba(255, 0, 0, 0.6)) drop-shadow(-2px 0 0 rgba(0, 200, 255, 0.3)); 
-                transform: translate3d(-3px, 1px, 0); 
-            }
-            20% { 
-                filter: drop-shadow(-20px 0 40px rgba(196, 30, 30, 0.3)) drop-shadow(-4px 0 0 rgba(0, 200, 255, 0.4)) drop-shadow(3px 0 0 rgba(255, 0, 0, 0.3)); 
-                transform: translate3d(3px, -1px, 0); 
-            }
-            30% { 
-                filter: drop-shadow(-20px 0 40px rgba(196, 30, 30, 0.3)); 
-                transform: translate3d(0, 0, 0); 
-            }
-            40% { 
-                filter: drop-shadow(-20px 0 40px rgba(196, 30, 30, 0.3)) drop-shadow(3px 0 0 rgba(255, 0, 0, 0.5)); 
-                transform: translate3d(-2px, 0, 0); 
-            }
-            50% { 
-                filter: drop-shadow(-20px 0 40px rgba(196, 30, 30, 0.3)) drop-shadow(-3px 0 0 rgba(0, 200, 255, 0.3)); 
-                transform: translate3d(2px, 1px, 0); 
-            }
-            60% { 
-                filter: drop-shadow(-20px 0 40px rgba(196, 30, 30, 0.3)); 
-                transform: translate3d(0, 0, 0); 
-            }
-            70% { 
-                filter: drop-shadow(-20px 0 40px rgba(196, 30, 30, 0.3)) drop-shadow(2px 0 0 rgba(255, 0, 0, 0.4)); 
-                transform: translate3d(-1px, 0, 0); 
-            }
-            100% { 
-                filter: drop-shadow(-20px 0 40px rgba(196, 30, 30, 0.3)); 
-                transform: translate3d(0, 0, 0); 
-            }
+            0%, 100% { filter: drop-shadow(-20px 0 40px rgba(196, 30, 30, 0.3)); transform: translateX(0); }
+            25% { filter: drop-shadow(-20px 0 40px rgba(196, 30, 30, 0.3)) drop-shadow(5px 0 0 rgba(255, 0, 0, 0.5)); transform: translateX(-3px); }
+            75% { filter: drop-shadow(-20px 0 40px rgba(196, 30, 30, 0.3)) drop-shadow(-5px 0 0 rgba(0, 255, 255, 0.3)); transform: translateX(3px); }
         }
 
         .darken-overlay {
@@ -1651,97 +1614,19 @@
 
             function triggerKaneki() {
                 if (kanekiActive || kanekiCooldown) return;
-                kanekiActive = true;
-                kanekiCooldown = true;
-
-                const kanekiImg = kanekiContainer.querySelector('img');
-                const tl = gsap.timeline({
-                    onComplete: () => {
-                        kanekiActive = false;
-                        kanekiCooldown = false;
-                    }
-                });
-
-                // 0s - Escurecer tela e chains aparecem
-                tl.to(darkenOverlay, { opacity: 1, duration: 0.8, ease: "power2.inOut" }, 0);
-                tl.to(chainsOverlay, { opacity: 1, duration: 1, ease: "power2.out" }, 0.1);
-
-                // 0s - Glitch inicial
-                tl.call(() => glitchOverlay.classList.add('active'), null, 0);
-                tl.call(() => glitchOverlay.classList.remove('active'), null, 0.5);
-
-                // 0.2s - Centopeia começa
-                tl.call(() => centipede.start(), null, 0.2);
-
-                // 0.6s - Kaneki entra com animação cinematográfica
-                tl.to(kanekiContainer, {
-                    opacity: 1,
-                    x: 0,
-                    scale: 1,
-                    filter: 'blur(0px) brightness(1)',
-                    duration: 1.4,
-                    ease: "power3.out"
-                }, 0.6);
-
-                // 0.6s - Glitch no Kaneki
-                tl.call(() => {
-                    kanekiImg.style.animation = 'none';
-                    void kanekiImg.offsetHeight;
-                    kanekiImg.style.animation = 'kaneki-glitch 0.5s steps(4) 1';
-                    kanekiContainer.classList.add('entering');
-                }, null, 0.6);
-
-                tl.call(() => {
-                    kanekiContainer.classList.remove('entering');
-                }, null, 1.1);
-
-                // 3.5s - Segundo glitch
-                tl.call(() => {
-                    glitchOverlay.classList.add('active');
-                    kanekiImg.style.animation = 'none';
-                    void kanekiImg.offsetHeight;
-                    kanekiImg.style.animation = 'kaneki-glitch 0.4s steps(4) 1';
-                    kanekiContainer.classList.add('entering');
-                }, null, 3.5);
-                tl.call(() => {
-                    glitchOverlay.classList.remove('active');
-                    kanekiContainer.classList.remove('entering');
-                }, null, 3.9);
-
-                // 6s - Kaneki sai
-                tl.to(kanekiContainer, {
-                    opacity: 0,
-                    x: '115%',
-                    scale: 1.06,
-                    filter: 'blur(6px) brightness(0.5)',
-                    duration: 1.6,
-                    ease: "power3.inOut"
-                }, 6);
-
-                // 6s - Glitch na saída
-                tl.call(() => {
-                    glitchOverlay.classList.add('active');
-                    kanekiImg.style.animation = 'none';
-                    void kanekiImg.offsetHeight;
-                    kanekiImg.style.animation = 'kaneki-glitch 0.4s steps(4) 1';
-                    kanekiContainer.classList.add('entering');
-                }, null, 6);
-                tl.call(() => {
-                    glitchOverlay.classList.remove('active');
-                    kanekiContainer.classList.remove('entering');
-                }, null, 6.4);
-
-                // 6.4s - Chains saem
-                tl.to(chainsOverlay, { opacity: 0, duration: 0.8, ease: "power2.inOut" }, 6.4);
-
-                // 6.8s - Tela clareia
-                tl.to(darkenOverlay, { opacity: 0, duration: 1, ease: "power2.inOut" }, 6.8);
-
-                // 9.5s - Centopeia para
-                tl.call(() => {
-                    if (centipede.running) centipede.stop();
-                }, null, 9.5);
-
+                kanekiActive = true; kanekiCooldown = true;
+                darkenOverlay.classList.add('active'); chainsOverlay.classList.add('active'); glitchOverlay.classList.add('active');                setTimeout(() => centipede.start(), 200);
+                setTimeout(() => { kanekiContainer.classList.remove('exiting'); kanekiContainer.classList.add('entering'); }, 600);
+                setTimeout(() => glitchOverlay.classList.remove('active'), 800);
+                setTimeout(() => { glitchOverlay.classList.add('active'); setTimeout(() => glitchOverlay.classList.remove('active'), 400); }, 3500);
+                setTimeout(() => {
+                    glitchOverlay.classList.add('active'); setTimeout(() => glitchOverlay.classList.remove('active'), 300);
+                    kanekiContainer.classList.remove('entering'); kanekiContainer.classList.add('exiting');
+                    setTimeout(() => chainsOverlay.classList.remove('active'), 400);
+                    setTimeout(() => darkenOverlay.classList.remove('active'), 800);
+                    kanekiActive = false;
+                }, 6000);
+                setTimeout(() => { if (centipede.running) centipede.stop(); kanekiCooldown = false; }, 9500);
                 if (navigator.vibrate) navigator.vibrate([50, 100, 50]);
             }
 
