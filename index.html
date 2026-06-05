@@ -176,18 +176,24 @@
             background: linear-gradient(to top, var(--blood-bright), #ff4444); 
             border-radius: 1px; 
             height: 3px; 
-            opacity: 0.4; 
-            transition: height 0.15s ease;
-            animation-play-state: paused;
+            opacity: 0.4;
+            will-change: height;
+            /* CORREÇÃO: Animações sempre ativas quando playing */
+            animation-play-state: running !important;
         }
+        .viz-bar:nth-child(1) { animation: audioViz1 1.2s ease-in-out infinite !important; }
+        .viz-bar:nth-child(2) { animation: audioViz2 1.5s ease-in-out infinite 0.1s !important; }
+        .viz-bar:nth-child(3) { animation: audioViz3 1.3s ease-in-out infinite 0.2s !important; }
+        .viz-bar:nth-child(4) { animation: audioViz4 1.4s ease-in-out infinite 0.3s !important; }
+        
+        /* CORREÇÃO: Garantir que visualizador funcione em todos os estados */
         .music-player.playing .viz-bar { 
-            opacity: 1;
-            animation-play-state: running;
+            opacity: 1; 
+            animation-play-state: running !important;
         }
-        .viz-bar:nth-child(1) { animation: audioViz1 1.2s ease-in-out infinite; }
-        .viz-bar:nth-child(2) { animation: audioViz2 1.5s ease-in-out infinite 0.1s; }
-        .viz-bar:nth-child(3) { animation: audioViz3 1.3s ease-in-out infinite 0.2s; }
-        .viz-bar:nth-child(4) { animation: audioViz4 1.4s ease-in-out infinite 0.3s; }
+        .music-player.collapsed .viz-bar {
+            opacity: 0.6;
+        }
         
         @keyframes audioViz1 {
             0%, 100% { height: 4px; }
@@ -239,7 +245,7 @@
         .player-volume-thumb { position: absolute; top: 50%; left: 30%; width: 10px; height: 10px; background: var(--bone); border: 2px solid var(--blood-bright); border-radius: 50%; transform: translate(-50%, -50%) scale(0); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 0 6px rgba(196, 30, 30, 0.5); pointer-events: none; }
         .player-volume-slider:hover .player-volume-thumb, .player-volume-slider.dragging .player-volume-thumb { transform: translate(-50%, -50%) scale(1); }
         .music-player.collapsed { width: 72px; padding: 8px; }
-        .music-player.collapsed .player-info, .music-player.collapsed .player-progress-wrap, .music-player.collapsed .player-controls, .music-player.collapsed .player-visualizer, .music-player.collapsed .player-volume-wrap { display: none; }
+        .music-player.collapsed .player-info, .music-player.collapsed .player-progress-wrap, .music-player.collapsed .player-controls, .music-player.collapsed .player-volume-wrap { display: none; }
         .music-player.collapsed .player-top { justify-content: center; }
         .music-player.collapsed .player-cover-wrap { width: 52px; height: 52px; }
         .player-toggle { position: absolute; top: 8px; right: 8px; width: 22px; height: 22px; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(196, 30, 30, 0.25); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: none; color: rgba(234, 234, 234, 0.7); transition: all 0.25s ease; z-index: 2; -webkit-tap-highlight-color: transparent; }
@@ -300,7 +306,8 @@
             transform-origin: center center;
             transform-box: fill-box;
             display: block;
-            animation: flowerRotate 20s linear infinite;
+            /* CORREÇÃO: Garantir rotação em todos os dispositivos */
+            animation: flowerRotate 20s linear infinite !important;
         }
         @media (min-width: 768px) { .higanbana-svg { width: 18rem; height: 18rem; } }
         @keyframes flowerRotate {
@@ -450,19 +457,10 @@
         #centipede-canvas { position: fixed; inset: 0; z-index: 9997; pointer-events: none; opacity: 0; transition: opacity 0.5s ease; }
         #centipede-canvas.active { opacity: 1; }
 
-        section { content-visibility: auto; contain-intrinsic-size: auto 100vh; }
-
         @media (hover: none), (pointer: coarse) {
             .cursor { display: none !important; }
             body, a, button, .carousel-nav, .carousel-dot, .rize-count, .social-card, .project-card, .entry-overlay, .player-btn, .player-toggle, .player-progress-bar, .player-volume-btn, .player-volume-slider, .higanbana-wrap { cursor: auto !important; }
             * { -webkit-tap-highlight-color: transparent; }
-            .ghoul-card:hover, .social-card:hover { transform: none; background: rgba(15, 5, 5, 0.75); border-color: rgba(138, 3, 3, 0.35); }
-            .ghoul-card:hover::after, .social-card:hover::after { opacity: 0; }
-            .social-card:hover .social-icon { color: var(--bone); transform: none; }
-            .rize-count:hover { filter: none; }
-            .social-card:active { transform: scale(0.97); background: rgba(25, 8, 8, 0.85); border-color: #c41e1e; }
-            .player-btn:active { transform: scale(0.9); }
-            .player-btn-play:active { transform: scale(0.9); }
             .carousel-dot { width: 10px; height: 10px; cursor: pointer; }
             .carousel-dot.active { width: 28px; }
             .chain-link { stroke-width: 2.5; }
@@ -1033,9 +1031,24 @@
 
             gsap.registerPlugin(ScrollTrigger);
             gsap.to("#video-overlay", { opacity: 0.75, ease: "none", scrollTrigger: { trigger: "body", start: "top top", end: "100vh top", scrub: 0.5 } });
-            gsap.from(".higanbana-stage", { y: 80, opacity: 0, duration: 1.2, ease: "power3.out", scrollTrigger: { trigger: ".higanbana-stage", start: "top 85%", toggleActions: "play none none none" } });
-            gsap.from(".carousel-wrapper", { y: 100, opacity: 0, duration: 1.2, ease: "power3.out", scrollTrigger: { trigger: ".carousel-wrapper", start: "top 85%", toggleActions: "play none none none" } });
-            gsap.from(".social-card", { y: 60, opacity: 0, duration: 0.8, stagger: 0.1, ease: "power3.out", scrollTrigger: { trigger: ".social-card", start: "top 90%", toggleActions: "play none none none" } });
+            
+            gsap.utils.toArray('.social-card, .ghoul-card').forEach((card, i) => {
+                gsap.from(card, {
+                    y: 40,
+                    opacity: 0,
+                    duration: 0.8,
+                    ease: "power3.out",
+                    scrollTrigger: {
+                        trigger: card,
+                        start: "top 85%",
+                        toggleActions: "play none none reverse"
+                    },
+                    delay: i * 0.08
+                });
+            });
+            
+            gsap.from(".higanbana-stage", { y: 60, opacity: 0, duration: 1, ease: "power3.out", scrollTrigger: { trigger: ".higanbana-stage", start: "top 85%", toggleActions: "play none none reverse" } });
+            gsap.from(".carousel-wrapper", { y: 80, opacity: 0, duration: 1, ease: "power3.out", scrollTrigger: { trigger: ".carousel-wrapper", start: "top 85%", toggleActions: "play none none reverse" } });
 
             const projects = [
                 { kanji: '眼', num: 'DOSSIÊ 01', title: 'Ken Kaneki', subtitle: 'O Trágico · Eyepatch', desc: 'Estudante universitário transformado em meio-ghoul após o transplante de órgãos de Rize. Carrega o peso de dois mundos e a dor de uma máscara que revela mais do que esconde. Seu Kagune Rinkaku se manifesta como quatro tentáculos escarlates.', tags: ['Rinkaku', 'Meio-Ghoul', 'Anteiku', 'Aogiri', 'Dragão'], year: 'RC: 911', img: 'kanekiprofile.jpg' },
@@ -1094,8 +1107,8 @@
                         x: tx, 
                         scale: sc, 
                         opacity: op, 
-                        duration: 0.5, 
-                        ease: "power2.out", 
+                        duration: 0.6, 
+                        ease: "power3.out", 
                         overwrite: "all",
                         onStart: () => { 
                             card.style.zIndex = z; 
@@ -1110,7 +1123,7 @@
             function goTo(index) {
                 if (isAnimating || index === activeIndex) return;
                 isAnimating = true; activeIndex = index; updateCarousel();
-                setTimeout(() => { isAnimating = false; }, 500);
+                setTimeout(() => { isAnimating = false; }, 600);
             }
             function next() { goTo((activeIndex + 1) % projects.length); }
             function prev() { goTo((activeIndex - 1 + projects.length) % projects.length); }
@@ -1307,7 +1320,6 @@
             
             gsap.set(kanekiContainer, { x: '100%', opacity: 0 });
             
-            // CORREÇÃO 1: Inicializar estado das correntes para evitar glitch na primeira execução
             chainGroups.forEach((chain) => {
                 const rot = parseFloat(chain.dataset.rot) || 0;
                 gsap.set(chain, { 
@@ -1333,7 +1345,6 @@
                     const startY = isTop ? -150 : (isMid ? 0 : 150);
                     const startX = isMid ? (chain.classList.contains('chain-mid-l') ? -150 : 150) : 0;
                     
-                    // CORREÇÃO: Usar set() antes de fromTo() para garantir estado inicial consistente
                     gsap.set(chain, { 
                         opacity: 0, 
                         rotation: rot + (isTop ? -15 : 15), 
