@@ -897,32 +897,18 @@
                 audio.muted = true;
                 audio.volume = 0;
                 
+                // CORREÇÃO: Apenas tenta o play mutado para "aquecer" o áudio, mas NÃO esconde o overlay.
+                // O overlay só será escondido quando o usuário clicar (startAudio).
                 const playPromise = audio.play();
                 if (playPromise !== undefined) {
                     playPromise.then(() => {
-                        isPlaying = true;
-                        updatePlayIcon();
-                        gsap.to(entryOverlay, { 
-                            opacity: 0, 
-                            duration: 0.8, 
-                            ease: "power2.inOut", 
-                            onComplete: () => { 
-                                entryOverlay.style.display = 'none';
-                                revealHeroContent();
-                            } 
-                        });
-                        
-                        let vol = 0;
+                        // Áudio mutado funcionou, apenas pausa e prepara para o clique
+                        audio.pause();
                         audio.muted = false;
-                        const fadeIn = setInterval(() => {
-                            vol = Math.min(vol + 0.015, 0.3);
-                            audio.volume = vol;
-                            playerVolumeFill.style.width = (vol * 100) + '%';
-                            if (vol >= 0.3) { setVolume(0.3); clearInterval(fadeIn); }
-                        }, 100);
+                        isPlaying = false;
+                        updatePlayIcon();
                     }).catch(() => { 
-                        gsap.set("section:first-of-type h2, section:first-of-type p, #rize-count, .absolute.bottom-10", { opacity: 1, y: 0, scale: 1 });
-                        gsap.to(entryOverlay, { opacity: 1, duration: 0.5 }); 
+                        // Falhou, não faz nada. Overlay continua visível.
                     });
                 }
             }, { once: true });
