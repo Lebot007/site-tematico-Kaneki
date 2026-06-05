@@ -359,10 +359,10 @@
 
         .higanbana-wrap {
             position: relative;
-            animation: float-flower 8s ease-in-out infinite;
             cursor: none;
             transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
             -webkit-tap-highlight-color: transparent;
+            animation: float-flower 8s ease-in-out infinite;
         }
         .higanbana-wrap::before {
             content: '';
@@ -403,33 +403,35 @@
         }
 
         .higanbana-wrap:hover {
-            transform: scale(1.08);
+            animation-play-state: paused;
+            transform: scale(1.08) translateY(0);
         }
         .higanbana-wrap:hover::before {
             opacity: 1;
             filter: blur(25px);
             transform: scale(1.25);
+            animation-play-state: paused;
         }
         .higanbana-wrap:hover::after {
             opacity: 0.85;
         }
 
         .higanbana-wrap:active {
-            transform: scale(0.96);
+            transform: scale(0.96) translateY(0);
         }
 
         .higanbana-wrap.is-transitioning {
-            animation: flower-swap-bloom 1.4s cubic-bezier(0.22, 1, 0.36, 1);
+            animation: flower-swap-bloom 1.4s cubic-bezier(0.22, 1, 0.36, 1) !important;
         }
         .higanbana-wrap.is-transitioning::before {
-            animation: glow-burst 1.4s cubic-bezier(0.22, 1, 0.36, 1);
+            animation: glow-burst 1.4s cubic-bezier(0.22, 1, 0.36, 1) !important;
         }
 
         @keyframes flower-swap-bloom {
-            0% { transform: scale(1) rotate(0deg); filter: blur(0px); }
-            35% { transform: scale(1.22) rotate(8deg); filter: blur(2px) brightness(1.4); }
-            70% { transform: scale(0.95) rotate(-3deg); filter: blur(0px); }
-            100% { transform: scale(1) rotate(0deg); filter: blur(0px); }
+            0% { transform: scale(1) rotate(0deg) translateY(0); filter: blur(0px); }
+            35% { transform: scale(1.22) rotate(8deg) translateY(-6px); filter: blur(2px) brightness(1.4); }
+            70% { transform: scale(0.95) rotate(-3deg) translateY(2px); filter: blur(0px); }
+            100% { transform: scale(1) rotate(0deg) translateY(0); filter: blur(0px); }
         }
 
         @keyframes glow-burst {
@@ -770,8 +772,6 @@
         #centipede-canvas { position: fixed; inset: 0; z-index: 9997; pointer-events: none; opacity: 0; transition: opacity 0.5s ease; will-change: opacity; }
         #centipede-canvas.active { opacity: 1; }
 
-        section { content-visibility: auto; contain-intrinsic-size: auto 100vh; }
-
         @media (hover: none), (pointer: coarse) {
             .cursor { display: none !important; }
             body, a, button, .carousel-nav, .carousel-dot, .rize-count, .social-card, .project-card, .entry-overlay, .player-btn, .player-toggle, .player-progress-bar, .player-volume-btn, .player-volume-slider, .higanbana-wrap { cursor: auto !important; }
@@ -791,7 +791,7 @@
             .player-volume-thumb { transform: translate(-50%, -50%) scale(1); }
             
             .higanbana-wrap.touch-active {
-                transform: scale(1.05);
+                transform: scale(1.05) translateY(0);
             }
             .higanbana-wrap.touch-active::before {
                 transform: scale(1.2);
@@ -1663,6 +1663,13 @@
                 if (navigator.vibrate) navigator.vibrate([50, 100, 50]);
             }
 
+            // CORREÇÃO: Remover dependência de isTouchDevice para click no desktop
+            rizeCount.addEventListener('click', (e) => {
+                e.preventDefault();
+                triggerKaneki();
+            });
+
+            // Manter suporte a long-press no mobile
             if (isTouchDevice) {
                 let touchTriggered = false;
                 rizeCount.addEventListener('touchstart', () => {
@@ -1681,8 +1688,6 @@
                 });
                 rizeCount.addEventListener('touchmove', () => clearTimeout(longPressTimer), { passive: true });
                 rizeCount.addEventListener('touchcancel', () => clearTimeout(longPressTimer), { passive: true });
-            } else {
-                rizeCount.addEventListener('click', triggerKaneki);
             }
 
             (function initHiganbanaSystem() {
@@ -1720,12 +1725,10 @@
 
                 let currentIndex = -1;
                 let isTransitioning = false;
-                // FILA DE FALAS (não de personagens) - garante que TODAS as 22 falas apareçam
                 let characterQueue = [];
                 let lastCharacter = null;
 
                 function shuffleArray(arr) {
-                    // Fisher-Yates shuffle (distribuição uniforme real)
                     const a = [...arr];
                     for (let i = a.length - 1; i > 0; i--) {
                         const j = Math.floor(Math.random() * (i + 1));
@@ -1734,7 +1737,6 @@
                     return a;
                 }
 
-                // Gera fila com TODOS os ÍNDICES das falas (0 a 21)
                 function generateQuotesQueue() {
                     const allIndices = QUOTES.map((_, i) => i);
                     return shuffleArray(allIndices);
@@ -1750,7 +1752,6 @@
                         return picked.quote;
                     }
 
-                    // Só regenera a fila quando TODAS as 22 falas já apareceram
                     if (characterQueue.length === 0) {
                         characterQueue = generateQuotesQueue();
                     }
@@ -1758,8 +1759,6 @@
                     let nextIndex = characterQueue.shift();
                     let nextQuote = QUOTES[nextIndex];
 
-                    // Evita repetir o mesmo personagem imediatamente
-                    // Se repetir, coloca no fim da fila e pega outro
                     let attempts = 0;
                     while (nextQuote.character === lastCharacter && characterQueue.length > 0 && attempts < 10) {
                         characterQueue.push(nextIndex);
