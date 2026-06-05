@@ -178,22 +178,13 @@
             height: 3px; 
             opacity: 0.4;
             will-change: height;
-            /* CORREÇÃO: Animações sempre ativas quando playing */
-            animation-play-state: running !important;
         }
-        .viz-bar:nth-child(1) { animation: audioViz1 1.2s ease-in-out infinite !important; }
-        .viz-bar:nth-child(2) { animation: audioViz2 1.5s ease-in-out infinite 0.1s !important; }
-        .viz-bar:nth-child(3) { animation: audioViz3 1.3s ease-in-out infinite 0.2s !important; }
-        .viz-bar:nth-child(4) { animation: audioViz4 1.4s ease-in-out infinite 0.3s !important; }
-        
-        /* CORREÇÃO: Garantir que visualizador funcione em todos os estados */
-        .music-player.playing .viz-bar { 
-            opacity: 1; 
-            animation-play-state: running !important;
-        }
-        .music-player.collapsed .viz-bar {
-            opacity: 0.6;
-        }
+        /* CORREÇÃO: Animação só roda quando playing E player aberto */
+        .music-player.playing:not(.collapsed) .viz-bar { opacity: 1; }
+        .music-player.playing:not(.collapsed) .viz-bar:nth-child(1) { animation: audioViz1 1.2s ease-in-out infinite; }
+        .music-player.playing:not(.collapsed) .viz-bar:nth-child(2) { animation: audioViz2 1.5s ease-in-out infinite 0.1s; }
+        .music-player.playing:not(.collapsed) .viz-bar:nth-child(3) { animation: audioViz3 1.3s ease-in-out infinite 0.2s; }
+        .music-player.playing:not(.collapsed) .viz-bar:nth-child(4) { animation: audioViz4 1.4s ease-in-out infinite 0.3s; }
         
         @keyframes audioViz1 {
             0%, 100% { height: 4px; }
@@ -245,7 +236,7 @@
         .player-volume-thumb { position: absolute; top: 50%; left: 30%; width: 10px; height: 10px; background: var(--bone); border: 2px solid var(--blood-bright); border-radius: 50%; transform: translate(-50%, -50%) scale(0); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 0 6px rgba(196, 30, 30, 0.5); pointer-events: none; }
         .player-volume-slider:hover .player-volume-thumb, .player-volume-slider.dragging .player-volume-thumb { transform: translate(-50%, -50%) scale(1); }
         .music-player.collapsed { width: 72px; padding: 8px; }
-        .music-player.collapsed .player-info, .music-player.collapsed .player-progress-wrap, .music-player.collapsed .player-controls, .music-player.collapsed .player-volume-wrap { display: none; }
+        .music-player.collapsed .player-info, .music-player.collapsed .player-progress-wrap, .music-player.collapsed .player-controls, .music-player.collapsed .player-visualizer, .music-player.collapsed .player-volume-wrap { display: none; }
         .music-player.collapsed .player-top { justify-content: center; }
         .music-player.collapsed .player-cover-wrap { width: 52px; height: 52px; }
         .player-toggle { position: absolute; top: 8px; right: 8px; width: 22px; height: 22px; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(196, 30, 30, 0.25); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: none; color: rgba(234, 234, 234, 0.7); transition: all 0.25s ease; z-index: 2; -webkit-tap-highlight-color: transparent; }
@@ -306,8 +297,7 @@
             transform-origin: center center;
             transform-box: fill-box;
             display: block;
-            /* CORREÇÃO: Garantir rotação em todos os dispositivos */
-            animation: flowerRotate 20s linear infinite !important;
+            animation: flowerRotate 20s linear infinite;
         }
         @media (min-width: 768px) { .higanbana-svg { width: 18rem; height: 18rem; } }
         @keyframes flowerRotate {
@@ -1464,37 +1454,31 @@
 
                 if (!flowerEl || !quoteTextEl || !quoteAuthorEl) return;
 
-                let currentIndex = -1;
                 let isTransitioning = false;
-                let characterQueue = [];
-                let lastCharacter = null;
                 let clickTl = null;
+                // CORREÇÃO: Fila de todas as falas embaralhadas
+                let quoteQueue = [];
 
-                function shuffleArray(arr) { return arr.sort(() => Math.random() - 0.5); }
-                function generateCharacterQueue() {
-                    const uniqueCharacters = [...new Set(QUOTES.map(q => q.character))];
-                    return shuffleArray(uniqueCharacters);
+                function shuffleArray(arr) { 
+                    const a = [...arr];
+                    for (let i = a.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [a[i], a[j]] = [a[j], a[i]];
+                    }
+                    return a;
                 }
 
-                function pickNextQuote(forceKaneki = false) {
-                    if (forceKaneki) {
-                        const kanekiQuotes = QUOTES.filter(q => q.character === 'Ken Kaneki');
-                        const picked = kanekiQuotes[Math.floor(Math.random() * kanekiQuotes.length)];
-                        currentIndex = QUOTES.indexOf(picked);
-                        lastCharacter = 'Ken Kaneki';
-                        return picked;
+                // CORREÇÃO: Embaralha TODAS as falas de uma vez
+                function regenerateQuoteQueue() {
+                    quoteQueue = shuffleArray(QUOTES);
+                }
+
+                function pickNextQuote() {
+                    // Se a fila acabou, reembaralha tudo
+                    if (quoteQueue.length === 0) {
+                        regenerateQuoteQueue();
                     }
-                    if (characterQueue.length <= 1) characterQueue = generateCharacterQueue();
-                    let nextCharacter = characterQueue.shift();
-                    while (nextCharacter === lastCharacter && characterQueue.length > 0) {
-                        characterQueue.push(nextCharacter);
-                        nextCharacter = characterQueue.shift();
-                    }
-                    const quotesOfCharacter = QUOTES.filter(q => q.character === nextCharacter);
-                    const picked = quotesOfCharacter[Math.floor(Math.random() * quotesOfCharacter.length)];
-                    currentIndex = QUOTES.indexOf(picked);
-                    lastCharacter = nextCharacter;
-                    return picked;
+                    return quoteQueue.shift();
                 }
 
                 function applyThemeColors(quote) {
@@ -1534,7 +1518,8 @@
                 }
 
                 function initFirstQuote() {
-                    const firstQuote = pickNextQuote(true);
+                    regenerateQuoteQueue();
+                    const firstQuote = pickNextQuote();
                     quoteTextEl.textContent = firstQuote.quote;
                     quoteAuthorEl.textContent = `${firstQuote.character}`;
                     applyThemeColors(firstQuote);
@@ -1546,7 +1531,7 @@
 
                 function handleFlowerInteraction(e) {
                     if (e) e.preventDefault();
-                    transitionToQuote(pickNextQuote(false));
+                    transitionToQuote(pickNextQuote());
                 }
 
                 flowerEl.addEventListener('click', handleFlowerInteraction);
