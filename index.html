@@ -17,23 +17,22 @@
     <style>
         :root {
             --void: #050505;
-            --blood-bright: #d92b2b;
-            --blood-glow: rgba(217, 43, 43, 0.62);
-            --bone: #F3F1F1;
-            --rize: #b772ff;
-            --player-bg: rgba(10, 3, 3, 0.76);
-            --player-border: rgba(217, 43, 43, 0.2);
-            --flower-color: #ff4a4a;
-            --flower-glow: rgba(255, 74, 74, 0.42);
-            --flower-glow-soft: rgba(255, 74, 74, 0.15);
-            --text-accent: #ff5a5a;
-            --text-dim: #d9d9d9;
+            --blood-bright: #c41e1e;
+            --blood-glow: rgba(196, 30, 30, 0.5);
+            --bone: #EAEAEA;
+            --rize: #a855f7;
+            --player-bg: rgba(8, 2, 2, 0.72);
+            --player-border: rgba(196, 30, 30, 0.18);
+            --flower-color: #ff2e2e;
+            --flower-glow: rgba(255, 46, 46, 0.3);
+            --flower-glow-soft: rgba(255, 46, 46, 0.1);
+            --text-accent: #ff2e2e;
+            --text-dim: #d4d4d4;
         }
         *, *::before, *::after { box-sizing: border-box; }
         html { -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; scroll-behavior: auto; }
         body {
             background-color: var(--void);
-            background-image: radial-gradient(circle at top, rgba(146, 16, 16, 0.18), transparent 42%), linear-gradient(180deg, rgba(10, 10, 10, 0.75), rgba(5, 5, 5, 0.96));
             color: var(--bone);
             font-family: 'Space Grotesk', sans-serif;
             cursor: default;
@@ -50,13 +49,13 @@
 
         .noise-overlay {
             position: fixed; inset: 0; z-index: 9998; pointer-events: none;
-            opacity: 0.045;
+            opacity: 0.03;
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
             mix-blend-mode: overlay;
         }
         .vignette {
             position: fixed; inset: 0; z-index: 9997; pointer-events: none;
-            background: radial-gradient(ellipse at center, transparent 28%, rgba(10,0,0,0.72) 100%);
+            background: radial-gradient(ellipse at center, transparent 30%, rgba(10,0,0,0.7) 100%);
         }
 
         .cursor {
@@ -67,8 +66,7 @@
             pointer-events: none;
             z-index: 10000;
             mix-blend-mode: difference;
-            box-shadow: 0 0 0 0 rgba(217, 43, 43, 0.3);
-            transition: width 0.2s, height 0.2s, background 0.2s, border-color 0.2s, margin 0.2s, box-shadow 0.2s ease;
+            transition: width 0.2s, height 0.2s, background 0.2s, border-color 0.2s, margin 0.2s;
             transform: translate3d(-100px, -100px, 0);
             cursor: none;
             will-change: transform;
@@ -80,7 +78,6 @@
             border-color: var(--blood-bright);
             mix-blend-mode: normal;
             opacity: 0.85;
-            box-shadow: 0 0 26px rgba(217, 43, 43, 0.6);
         }
 
         .rize-count {
@@ -140,7 +137,7 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
-            box-shadow: 0 10px 34px rgba(0, 0, 0, 0.66), 0 0 0 1px rgba(255, 255, 255, 0.02) inset, 0 0 22px rgba(217, 43, 43, 0.12);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.02) inset;
             transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), left 0.6s cubic-bezier(0.22, 1, 0.36, 1), width 0.6s cubic-bezier(0.22, 1, 0.36, 1), padding 0.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease, border-color 0.4s ease;
             transform-origin: bottom left;
             overflow: hidden;
@@ -248,12 +245,6 @@
             cursor: none;
             -webkit-tap-highlight-color: transparent;
             transform: translate3d(0, 0, 0);
-            animation: higanbanaFloat 6s ease-in-out infinite;
-        }
-
-        @keyframes higanbanaFloat {
-            0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-            50% { transform: translate3d(0, -10px, 0) scale(1.02); }
         }
 
         .higanbana-glow-inner, .higanbana-glow-outer {
@@ -997,22 +988,13 @@
                 }
             }, { passive: true });
 
-            const reducedMotionProbe = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
-            const forceCinematicMotion = true;
-            if (reducedMotionProbe && reducedMotionProbe.matches && forceCinematicMotion) {
-                console.info('Motion override enabled: cinematic animation remains active despite the OS reduced-motion preference.');
-            }
-
             const lenis = new Lenis({ duration: 1.2, smoothWheel: true, wheelMultiplier: 1, touchMultiplier: 2 });
             lenis.on('scroll', ScrollTrigger.update);
             gsap.ticker.add((time) => { lenis.raf(time * 1000); });
             gsap.ticker.lagSmoothing(0);
 
             gsap.registerPlugin(ScrollTrigger);
-            gsap.to("#video-overlay", { opacity: 0.82, ease: "none", scrollTrigger: { trigger: "body", start: "top top", end: "100vh top", scrub: 0.6 } });
-            gsap.to(".rize-count", { y: -8, repeat: -1, yoyo: true, duration: 3.1, ease: "sine.inOut", force3D: true });
-            gsap.to(".music-player", { y: -10, repeat: -1, yoyo: true, duration: 4, ease: "sine.inOut", force3D: true });
-            gsap.to(".higanbana-wrap", { rotation: 2.2, repeat: -1, yoyo: true, duration: 5.4, ease: "sine.inOut", force3D: true });
+            gsap.to("#video-overlay", { opacity: 0.75, ease: "none", scrollTrigger: { trigger: "body", start: "top top", end: "100vh top", scrub: 0.5 } });
             
             gsap.utils.toArray('.social-card, .ghoul-card').forEach((card, i) => {
                 gsap.from(card, {
@@ -1091,16 +1073,7 @@
                 const card = document.createElement('div');
                 card.className = 'project-card'; card.dataset.index = i;
                 card.innerHTML = `<div class="card-bg-image" style="background-image: url('${p.img}');"></div><div class="card-bg-overlay"></div><div class="card-kanji font-jp">${p.kanji}</div><div class="card-content"><div><div class="card-number">${p.num}</div><h4 class="card-title">${p.title}</h4><div class="card-subtitle">${p.subtitle}</div><p class="card-desc">${p.desc}</p><div class="card-tags">${p.tags.map(t => `<span class="card-tag">${t}</span>`).join('')}</div></div><div class="card-footer"><span class="card-year">${p.year}</span><span class="card-cta">Analisar <span class="card-cta-arrow"></span></span></div></div>`;
-                card.addEventListener('click', (event) => {
-                    if (suppressClick) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        suppressClick = false;
-                        return;
-                    }
-                    const idx = parseInt(card.dataset.index);
-                    if (idx !== activeIndex) goTo(idx);
-                });
+                card.addEventListener('click', () => { const idx = parseInt(card.dataset.index); if (idx !== activeIndex) goTo(idx); });
                 fragment.appendChild(card);
                 const dot = document.createElement('div');
                 dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
@@ -1158,81 +1131,26 @@
                 isAnimating = true; activeIndex = index; updateCarousel();
                 setTimeout(() => { isAnimating = false; }, 600);
             }
-            function next() { if (!isAnimating) goTo((activeIndex + 1) % projects.length); }
-            function prev() { if (!isAnimating) goTo((activeIndex - 1 + projects.length) % projects.length); }
+            function next() { goTo((activeIndex + 1) % projects.length); }
+            function prev() { goTo((activeIndex - 1 + projects.length) % projects.length); }
 
             document.getElementById('carousel-next').addEventListener('click', next);
             document.getElementById('carousel-prev').addEventListener('click', prev);
             document.addEventListener('keydown', (e) => { if (e.ctrlKey) return; if (e.key === 'ArrowRight') next(); if (e.key === 'ArrowLeft') prev(); });
 
+            let dragStart = null;
             const wrapper = document.getElementById('carousel');
-            let suppressClick = false;
-            const dragState = { active: false, pointerId: null, startX: 0, startY: 0, moved: false };
-            const resetDrag = () => {
-                dragState.active = false;
-                dragState.pointerId = null;
-                dragState.startX = 0;
-                dragState.startY = 0;
-                dragState.moved = false;
-            };
-
-            wrapper.addEventListener('pointerdown', (e) => {
-                if (isAnimating || (e.pointerType === 'mouse' && e.button !== 0)) return;
-                dragState.active = true;
-                dragState.pointerId = e.pointerId;
-                dragState.startX = e.clientX;
-                dragState.startY = e.clientY;
-                dragState.moved = false;
-                wrapper.setPointerCapture?.(e.pointerId);
-            }, { passive: true });
-
-            wrapper.addEventListener('pointermove', (e) => {
-                if (!dragState.active || e.pointerId !== dragState.pointerId) return;
-                const dx = e.clientX - dragState.startX;
-                const dy = e.clientY - dragState.startY;
-                if (Math.abs(dx) > 8 || Math.abs(dy) > 8) {
-                    dragState.moved = true;
-                }
-                if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) {
-                    e.preventDefault();
-                }
-            }, { passive: false });
-
+            wrapper.addEventListener('pointerdown', (e) => { dragStart = e.clientX; e.preventDefault(); }, { passive: false });
             wrapper.addEventListener('pointerup', (e) => {
-                if (!dragState.active || e.pointerId !== dragState.pointerId) return;
-                const dx = e.clientX - dragState.startX;
-                const dy = e.clientY - dragState.startY;
-                const shouldNavigate = dragState.moved && Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy);
-                if (shouldNavigate) {
-                    suppressClick = true;
-                    if (dx < 0) next(); else prev();
-                } else {
-                    suppressClick = false;
-                }
-                resetDrag();
+                if (dragStart === null) return;
+                const diff = e.clientX - dragStart;
+                if (Math.abs(diff) > 50) { if (diff < 0) next(); else prev(); }
+                dragStart = null;
             }, { passive: true });
-
-            wrapper.addEventListener('pointercancel', () => {
-                suppressClick = false;
-                resetDrag();
-            }, { passive: true });
-            wrapper.addEventListener('pointerleave', () => {
-                if (dragState.active && window.innerWidth >= 768) {
-                    suppressClick = false;
-                    resetDrag();
-                }
-            }, { passive: true });
-            wrapper.addEventListener('click', (event) => {
-                if (suppressClick) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    suppressClick = false;
-                }
-            }, true);
 
             let wheelCooldown = false;
             wrapper.addEventListener('wheel', (e) => {
-                if (wheelCooldown || isAnimating) return;
+                if (wheelCooldown) return;
                 if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 30) {
                     e.stopPropagation();
                     if (e.deltaX > 0) next(); else prev();
