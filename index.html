@@ -64,7 +64,7 @@
             border-radius: 50%;
             position: fixed; top: 0; left: 0;
             pointer-events: none;
-            z-index: 10000;
+            z-index: 10002;
             mix-blend-mode: difference;
             transition: width 0.2s, height 0.2s, background 0.2s, border-color 0.2s, margin 0.2s;
             transform: translate3d(-100px, -100px, 0);
@@ -125,7 +125,7 @@
             position: fixed;
             bottom: 20px;
             left: 20px;
-            z-index: 101;
+            z-index: 10000;
             width: 360px;
             max-width: calc(100vw - 40px);
             background: var(--player-bg);
@@ -164,6 +164,13 @@
             background: linear-gradient(135deg, #1a0505 0%, #050000 100%);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(196, 30, 30, 0.15) inset;
             transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease;
+            display: block;
+            isolation: isolate;
+            image-rendering: auto;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            transform: translateZ(0);
+            will-change: transform;
         }
         .music-player.playing .player-cover { animation: cover-pulse 3s ease-in-out infinite; box-shadow: 0 4px 16px rgba(196, 30, 30, 0.4), 0 0 0 1px rgba(196, 30, 30, 0.3) inset; }
         @keyframes cover-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
@@ -338,7 +345,7 @@
         .quote-author::before { content: ''; position: absolute; left: 0; top: 50%; width: 1rem; height: 1px; background: var(--text-accent); transition: background 1s ease, width 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
         .quote-author:hover::before { width: 2rem; }
 
-        .entry-overlay { position: fixed; inset: 0; background: rgba(5, 5, 5, 0.98); z-index: 9999; display: flex; align-items: center; justify-content: center; cursor: none; -webkit-tap-highlight-color: transparent; }
+        .entry-overlay { position: fixed; inset: 0; background: rgba(5, 5, 5, 0.98); z-index: 10001; display: flex; align-items: center; justify-content: center; cursor: none; -webkit-tap-highlight-color: transparent; }
         .entry-text { font-family: 'Noto Serif JP', serif; font-size: 1.2rem; letter-spacing: 0.5em; color: var(--bone); text-transform: uppercase; animation: entry-pulse 2.5s ease-in-out infinite; }
         @keyframes entry-pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 
@@ -361,14 +368,16 @@
             justify-content: space-between; 
             cursor: none; 
             overflow: hidden; 
-            contain: layout style paint; 
             will-change: transform, opacity; 
             transform: translate3d(0,0,0);
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            isolation: isolate;
         }
-        .card-bg-image { position: absolute; inset: 0; background-size: cover; background-position: center top; background-repeat: no-repeat; opacity: 0.55; transition: opacity 0.7s ease, transform 0.7s ease; pointer-events: none; }
+        .card-bg-image { position: absolute; inset: 0; background-size: cover; background-position: center top; background-repeat: no-repeat; opacity: 0.55; transition: opacity 0.7s ease, transform 0.7s ease; pointer-events: none; backface-visibility: hidden; -webkit-backface-visibility: hidden; transform: translateZ(0); }
         .project-card.active .card-bg-image { opacity: 0.75; transform: scale(1.05); }
         .card-bg-overlay { position: absolute; inset: 0; background: linear-gradient(145deg, rgba(5, 2, 2, 0.55) 0%, rgba(5, 2, 2, 0.65) 50%, rgba(5, 2, 2, 0.85) 100%); pointer-events: none; }
-        .card-content { position: relative; z-index: 2; padding: 40px 36px; display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
+        .card-content { position: relative; z-index: 2; padding: 40px 36px; display: flex; flex-direction: column; justify-content: space-between; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; -webkit-font-smoothing: antialiased; }
         .project-card::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at top right, rgba(196, 30, 30, 0.15), transparent 60%); opacity: 0; transition: opacity 0.7s ease; pointer-events: none; z-index: 1; }
         .project-card::after { content: ''; position: absolute; inset: 0; border-radius: inherit; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); opacity: 0; transition: opacity 0.7s ease; pointer-events: none; }
         .project-card.active { border-color: rgba(196, 30, 30, 0.6); }
@@ -382,7 +391,7 @@
         .card-subtitle { font-family: 'Noto Serif JP', serif; font-size: 0.9rem; color: #ff4444; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 16px; font-style: italic; text-shadow: 0 2px 8px rgba(0,0,0,0.95); }
         .card-desc { color: #d8d8d8; font-size: 0.92rem; line-height: 1.6; margin-bottom: 20px; flex-grow: 1; text-shadow: 0 1px 6px rgba(0,0,0,1), 0 0 2px rgba(0,0,0,0.9); }
         .card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
-        .card-tag { font-size: 0.65rem; letter-spacing: 0.15em; padding: 4px 10px; border: 1px solid rgba(196, 30, 30, 0.5); color: #e4e4e4; text-transform: uppercase; border-radius: 2px; background: rgba(20, 5, 5, 0.75); backdrop-filter: blur(4px); }
+        .card-tag { font-size: 0.65rem; letter-spacing: 0.15em; padding: 4px 10px; border: 1px solid rgba(196, 30, 30, 0.5); color: #e4e4e4; text-transform: uppercase; border-radius: 2px; background: rgba(20, 5, 5, 0.75); }
         .card-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 16px; border-top: 1px solid rgba(196, 30, 30, 0.3); }
         .card-year { font-family: 'Noto Serif JP', serif; font-size: 0.85rem; color: #aaa; letter-spacing: 0.1em; text-shadow: 0 1px 4px rgba(0,0,0,0.9); }
         .card-cta { display: flex; align-items: center; gap: 8px; font-size: 0.7rem; letter-spacing: 0.25em; color: var(--blood-bright); text-transform: uppercase; opacity: 0; transform: translateX(-10px); transition: opacity 0.5s ease 0.2s, transform 0.5s ease 0.2s; font-weight: 500; }
@@ -561,7 +570,7 @@
         </button>
         <div class="player-top">
             <div class="player-cover-wrap">
-                <img src="music1image.jpg" alt="Album cover" class="player-cover" id="player-cover" loading="lazy" decoding="async">
+                <img src="music1image.jpg" alt="Album cover" class="player-cover" id="player-cover" loading="eager" fetchpriority="high" decoding="async">
             </div>
             <div class="player-info">
                 <div class="player-track-name" id="player-track-name">Nuts</div>
@@ -1115,6 +1124,7 @@
                         opacity: op, 
                         duration: 0.6, 
                         ease: "power3.out", 
+                        force3D: true,
                         overwrite: "all",
                         onStart: () => { 
                             card.style.zIndex = z; 
@@ -1140,12 +1150,22 @@
 
             let dragStart = null;
             const wrapper = document.getElementById('carousel');
-            wrapper.addEventListener('pointerdown', (e) => { dragStart = e.clientX; e.preventDefault(); }, { passive: false });
+            wrapper.addEventListener('pointerdown', (e) => {
+                if (e.target.closest('.carousel-nav, .carousel-dot')) return;
+                dragStart = e.clientX;
+                wrapper.setPointerCapture?.(e.pointerId);
+                e.preventDefault();
+            }, { passive: false });
             wrapper.addEventListener('pointerup', (e) => {
                 if (dragStart === null) return;
                 const diff = e.clientX - dragStart;
                 if (Math.abs(diff) > 50) { if (diff < 0) next(); else prev(); }
                 dragStart = null;
+                wrapper.releasePointerCapture?.(e.pointerId);
+            }, { passive: true });
+            wrapper.addEventListener('pointercancel', (e) => {
+                dragStart = null;
+                wrapper.releasePointerCapture?.(e.pointerId);
             }, { passive: true });
 
             let wheelCooldown = false;
