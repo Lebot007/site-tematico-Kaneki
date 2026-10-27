@@ -2,18 +2,25 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <!-- WCAG 1.4.4: zoom habilitado (removido maximum-scale/user-scalable=no que bloqueavam pinch-zoom) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#050505">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="description" content="Lebot — portfólio temático Tokyo Ghoul. Developer &amp; Creator.">
+    <meta property="og:title" content="Lebot | Portfolio">
+    <meta property="og:description" content="Portfólio temático Tokyo Ghoul — Developer &amp; Creator.">
+    <meta property="og:type" content="website">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90' fill='%23c41e1e'%3E%E5%96%B0%3C/text%3E%3C/svg%3E">
     <title>Lebot | Portfolio</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind compilado estaticamente (7,8 KB) no lugar do Play CDN (397,7 KB de JS runtime, "não usar em produção") -->
+    <link rel="preload" href="tailwind.css" as="style">
+    <link rel="stylesheet" href="tailwind.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@700;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.29/bundled/lenis.min.js"></script>
+    <!-- As libs são carregadas localmente (pinadas + SRI) imediatamente antes do script principal,
+         fora do caminho crítico de first paint. Ver /vendor. -->
     <style>
         :root {
             --void: #050505;
@@ -352,7 +359,43 @@
         .text-readable { color: #d4d4d4; }
         .text-readable-dim { color: #a3a3a3; }
         .text-readable-faint { color: #737373; }
+        /* era uma classe morta (o Play CDN nunca a gerou): agora definida de verdade */
+        .text-bone { color: var(--bone); }
 
+        /* Foco visível p/ teclado (WCAG 2.4.7) — não afeta mouse/touch */
+        :focus-visible { outline: 2px solid var(--blood-bright); outline-offset: 3px; border-radius: 2px; }
+
+        /* Política de movimento (ver AUDIT-PLAN §4):
+           - por padrão tudo animado (estética preservada);
+           - o toggle no HUD aplica [data-motion="reduced"] no <html>;
+           - quem tem prefers-reduced-motion no SO começa em modo reduzido e pode reativar.
+           Nada é removido: crossfades/opacity permanecem, apenas o movimento é pausado. */
+        html[data-motion="reduced"] *, html[data-motion="reduced"] *::before, html[data-motion="reduced"] *::after {
+            animation-duration: 0.001ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.001ms !important;
+            scroll-behavior: auto !important;
+        }
+        html[data-motion="reduced"] .noise-overlay { display: none; }
+
+        /* Botão de política de movimento (WCAG 2.3.3: mecanismo p/ desligar animação) */
+        .motion-toggle { position: fixed; top: calc(12px + env(safe-area-inset-top)); right: 12px; z-index: 10002;
+            width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+            background: rgba(10,4,4,0.7); border: 1px solid rgba(196,30,30,0.35); border-radius: 50%;
+            color: rgba(234,234,234,0.8); cursor: pointer; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+            transition: color .25s ease, border-color .25s ease, transform .2s ease; -webkit-tap-highlight-color: transparent; }
+        .motion-toggle:hover { color: var(--bone); border-color: var(--blood-bright); }
+        .motion-toggle svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+        .motion-toggle[aria-pressed="true"] { color: var(--blood-bright); }
+        .motion-toggle .icon-off { display: none; }
+        .motion-toggle[aria-pressed="true"] .icon-on { display: none; }
+        .motion-toggle[aria-pressed="true"] .icon-off { display: block; }
+
+        /* Pausa animações CSS infinitas quando o bloco sai da viewport (economia de GPU sem mudar estética) */
+        .anim-paused, .anim-paused * { animation-play-state: paused !important; }
+
+        /* camada GPU só durante o gesto (will-change permanente causava layer-thrashing em mobile) */
+        .carousel-wrapper.is-swiping .project-card { will-change: transform, opacity; }
         .carousel-wrapper { position: relative; width: 100%; height: 600px; user-select: none; -webkit-user-select: none; touch-action: pan-y; overflow: hidden; }
         .carousel-stage { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
         .project-card { 
@@ -368,13 +411,14 @@
             justify-content: space-between; 
             cursor: none; 
             overflow: hidden; 
-            will-change: transform, opacity; 
             transform: translate3d(0,0,0);
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
             isolation: isolate;
         }
-        .card-bg-image { position: absolute; inset: 0; background-size: cover; background-position: center top; background-repeat: no-repeat; opacity: 0.55; transition: opacity 0.7s ease, transform 0.7s ease; pointer-events: none; backface-visibility: hidden; -webkit-backface-visibility: hidden; transform: translateZ(0); }
+        /* <img> real (não background-image): permite preload/srcset/decoding assíncrono e
+           elimina o "pop-in" de decode no meio do swipe (causa nº1 do flicker). */
+        .card-bg-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center top; opacity: 0.55; transition: opacity 0.7s ease, transform 0.7s ease; pointer-events: none; backface-visibility: hidden; -webkit-backface-visibility: hidden; transform: translateZ(0); }
         .project-card.active .card-bg-image { opacity: 0.75; transform: scale(1.05); }
         .card-bg-overlay { position: absolute; inset: 0; background: linear-gradient(145deg, rgba(5, 2, 2, 0.55) 0%, rgba(5, 2, 2, 0.65) 50%, rgba(5, 2, 2, 0.85) 100%); pointer-events: none; }
         .card-content { position: relative; z-index: 2; padding: 40px 36px; display: flex; flex-direction: column; justify-content: space-between; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; -webkit-font-smoothing: antialiased; }
@@ -453,6 +497,16 @@
 
         #centipede-canvas { position: fixed; inset: 0; z-index: 9997; pointer-events: none; opacity: 0; transition: opacity 0.5s ease; }
         #centipede-canvas.active { opacity: 1; }
+
+        /* Em touch, backdrop-filter força readback do backdrop a cada frame de scroll.
+           Estes painéis já são ~72-85% opacos: o blur é quase invisível. Trocamos por um
+           fundo um pouco mais sólido = mesmo visual, zero custo de composição no mobile. */
+        @media (hover: none), (pointer: coarse) {
+            .music-player { --player-bg: rgba(8, 2, 2, 0.92); backdrop-filter: none; -webkit-backdrop-filter: none; }
+            .carousel-nav { background: rgba(10, 4, 4, 0.95); backdrop-filter: none; -webkit-backdrop-filter: none; }
+            .rize-count { background: rgba(15, 5, 5, 0.92); backdrop-filter: none; -webkit-backdrop-filter: none; }
+            .motion-toggle { background: rgba(10, 4, 4, 0.9); backdrop-filter: none; -webkit-backdrop-filter: none; }
+        }
 
         @media (hover: none), (pointer: coarse) {
             .cursor { display: none !important; }
@@ -555,14 +609,27 @@
     <div class="vignette"></div>
     <div class="cursor" id="cursor"></div>
 
-    <video id="bg-video" autoplay muted loop playsinline preload="metadata" webkit-playsinline class="fixed inset-0 w-full h-full object-cover z-[-2] opacity-60">
-        <source src="video.mp4" type="video/mp4">
+    <!-- Fundo em vídeo: AV1 1080p (originaL, sem perda) p/ navegadores modernos; H.264 720p como
+         fallback (Safari <=16 NÃO reproduz AV1 -> antes ficava preto). preload="none": os bytes só
+         entram quando o JS decide reproduzir (desktop / não-reduced / não-Save-Data). Poster cobre o resto. -->
+    <video id="bg-video" muted loop playsinline preload="none" poster="video-poster.webp"
+           disablepictureinpicture class="fixed inset-0 w-full h-full object-cover z-[-2] opacity-60">
+        <source src="video.mp4" type='video/mp4; codecs="av01.0.08M.08"'>
+        <source src="video-fallback.mp4" type="video/mp4">
     </video>
     <div id="video-overlay" class="fixed inset-0 bg-black z-[-1]" style="opacity: 0.2;"></div>
 
-    <audio id="bg-audio" preload="metadata">
+    <!-- preload="none": os ~26 MB de áudio NÃO são baixados no load; entram só quando o usuário dá play -->
+    <audio id="bg-audio" preload="none">
         <source id="audio-source" src="musica.mp3" type="audio/mpeg">
     </audio>
+
+    <!-- Toggle de política de movimento: default = tudo animado; respeita prefers-reduced-motion do SO
+         e permite override manual persistido (WCAG 2.3.3). -->
+    <button class="motion-toggle" id="motion-toggle" type="button" aria-pressed="false" title="Reduzir animações" aria-label="Alternar animações">
+        <svg class="icon-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12c3-6 6 6 9 0s6 6 9 0"/></svg>
+        <svg class="icon-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16"/><path d="M4 8h10M4 16h10" opacity=".5"/></svg>
+    </button>
 
     <div class="music-player" id="music-player">
         <button class="player-toggle" id="player-toggle" aria-label="Toggle player">
@@ -706,7 +773,7 @@
         <div class="max-w-6xl mx-auto w-full">
             <h3 class="text-3xl font-jp mb-4 text-center tracking-wide" style="color: #c41e1e;">O Banquete</h3>
             <p class="text-center text-readable-faint text-sm tracking-widest uppercase mb-16">Arquivos Classificados</p>
-            <div class="carousel-wrapper" id="carousel">
+            <div class="carousel-wrapper" id="carousel" role="region" aria-roledescription="carrossel" aria-label="Dossiês de personagens">
                 <div class="carousel-stage" id="carousel-stage"></div>
                 <button class="carousel-nav prev" id="carousel-prev" aria-label="Anterior"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
                 <button class="carousel-nav next" id="carousel-next" aria-label="Próximo"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
@@ -746,16 +813,82 @@
         <p>LEBOT © <span class="font-jp" style="color: #c41e1e;">喰</span></p>
     </footer>
 
+    <!-- Libs self-hosted e pinadas (GSAP 3.12.7 = mesma minor em produção; Lenis 1.3.27).
+         Carregadas aqui, fora do caminho crítico de first paint, com SRI. -->
+    <script src="vendor/gsap.min.js" integrity="sha384-pEQB1h4Zmn9xhS6jotzltHSIQq6N0Oh3BXkCNOH5LKI81R2NRbb9efarAJYw9gTY" crossorigin="anonymous"></script>
+    <script src="vendor/ScrollTrigger.min.js" integrity="sha384-TgZ1GoXcDnrw/czNfaiSZSFV1zgIRv8aQOevBA8ppS4SkNONmzYfjARpXsDfdnUE" crossorigin="anonymous"></script>
+    <script src="vendor/lenis.min.js" integrity="sha384-R18XzqnxvVLEF+BYfhpmDx30v7eP83fAckyfoRzK7/Uf6nGqufcmsk0eAKo7S3RU" crossorigin="anonymous"></script>
     <script>
         (function() {
             'use strict';
             const isTouchDevice = (window.matchMedia('(hover: none)').matches) || (window.matchMedia('(pointer: coarse)').matches) || ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
+            /* ── Política de movimento (a11y + WPO) ─────────────────────────────
+               Estado único lido por vídeo / GSAP / Lenis / centopeia / canvas.
+               - SO pede reduced-motion  -> inicia REDUZIDO (respeita o usuário);
+               - caso contrário          -> inicia COMPLETO (estética preservada);
+               - o toggle no HUD inverte a qualquer momento e persiste (localStorage).
+               Nada é "removido": no modo reduzido mantemos crossfades (opacity) e
+               pausamos apenas deslocamento/scroll-suave/canvas, que é o que causa
+               desconforto vestibular (WCAG 2.3.3).                                        */
+            const motionPref = window.matchMedia('(prefers-reduced-motion: reduce)');
+            const MOTION_KEY = 'lebot:motion';
+            function currentMotion() {
+                try { const saved = localStorage.getItem(MOTION_KEY); if (saved) return saved; } catch (e) {}
+                return motionPref.matches ? 'reduced' : 'full';
+            }
+            let motionMode = currentMotion();
+            function applyMotion(mode) {
+                motionMode = mode;
+                document.documentElement.dataset.motion = mode;
+                try { localStorage.setItem(MOTION_KEY, mode); } catch (e) {}
+                const btn = document.getElementById('motion-toggle');
+                if (btn) {
+                    btn.setAttribute('aria-pressed', mode === 'reduced' ? 'true' : 'false');
+                    btn.title = mode === 'reduced' ? 'Ativar animações' : 'Reduzir animações';
+                }
+                document.dispatchEvent(new CustomEvent('motion:change', { detail: { mode } }));
+            }
+            const isReduced = () => motionMode === 'reduced';
+            motionPref.addEventListener?.('change', (e) => { if (!localStorage.getItem(MOTION_KEY)) applyMotion(e.matches ? 'reduced' : 'full'); });
+
+            const saveData = navigator.connection && navigator.connection.saveData === true;
+            const tryPlay = (el) => { try { const pr = el && el.play ? el.play() : null; if (pr && typeof pr.catch === 'function') pr.catch(() => {}); } catch (e) {} };
+
             const bgVideo = document.getElementById('bg-video');
             if (bgVideo) {
-                bgVideo.addEventListener('ended', () => { bgVideo.currentTime = 0; bgVideo.play().catch(() => {}); }, { passive: true });
-                bgVideo.play().catch(() => { document.addEventListener('click', () => bgVideo.play().catch(() => {}), { once: true }); });
+                bgVideo.addEventListener('ended', () => { bgVideo.currentTime = 0; tryPlay(bgVideo); }, { passive: true });
+                const wantVideo = () => !isReduced() && !saveData && !(isTouchDevice && window.matchMedia('(max-width: 820px)').matches);
+                const startVideo = () => {
+                    if (!wantVideo()) return;              // mobile / reduced / Save-Data -> só o poster
+                    if (bgVideo.readyState === 0) bgVideo.load();   // preload="none": busca só agora
+                    tryPlay(bgVideo);
+                };
+                // só depois do first paint / LCP, para não disputar a main thread nem a banda
+                (window.requestIdleCallback || ((cb) => setTimeout(cb, 600)))(startVideo, { timeout: 2500 });
+                document.addEventListener('motion:change', () => { isReduced() ? bgVideo.pause() : startVideo(); });
+                // não decodificar vídeo em aba oculta (economia de CPU/GPU/bateria)
+                document.addEventListener('visibilitychange', () => { document.hidden ? bgVideo.pause() : startVideo(); }, { passive: true });
             }
+
+            const motionBtn = document.getElementById('motion-toggle');
+            if (motionBtn) {
+                motionBtn.addEventListener('click', () => applyMotion(isReduced() ? 'full' : 'reduced'));
+                applyMotion(motionMode);   // sincroniza o estado visual do botão no boot
+            }
+
+            /* Pausa blocos de animação CSS infinita (flor higanbana, visualizer, pulso da capa)
+               quando estão fora da viewport — mesmo visual, zero GPU desperdiçada. */
+            const animBlocks = document.querySelectorAll('.higanbana-stage, .music-player');
+            if ('IntersectionObserver' in window) {
+                const io = new IntersectionObserver((entries) => {
+                    entries.forEach(en => en.target.classList.toggle('anim-paused', !en.isIntersecting));
+                }, { rootMargin: '80px' });
+                animBlocks.forEach(el => io.observe(el));
+            }
+            document.addEventListener('visibilitychange', () => {
+                animBlocks.forEach(el => el.classList.toggle('anim-paused', document.hidden));
+            }, { passive: true });
 
             const cursor = document.getElementById('cursor');
             if (!isTouchDevice && cursor) {
@@ -779,9 +912,9 @@
             let hasInteracted = false;
 
             const playlist = [
-                { src: 'musica.mp3', img: 'music1image.jpg', name: 'Nuts', artist: 'Lil Peep' },
-                { src: 'musica2.mp3', img: 'music2image.jpg', name: 'CONSUME', artist: 'Chase Atlantic' },
-                { src: 'musica3.mp3', img: 'music3image.jpg', name: 'SWIM', artist: 'Chase Atlantic' }
+                { src: 'musica.mp3', img: 'music1image.webp', name: 'Nuts', artist: 'Lil Peep' },
+                { src: 'musica2.mp3', img: 'music2image.webp', name: 'CONSUME', artist: 'Chase Atlantic' },
+                { src: 'musica3.mp3', img: 'music3image.webp', name: 'SWIM', artist: 'Chase Atlantic' }
             ];
             let currentTrack = 0, isPlaying = false;
 
@@ -993,7 +1126,7 @@
                 if (document.hidden) document.body.classList.add('tab-hidden');
                 else {
                     document.body.classList.remove('tab-hidden');
-                    if (isPlaying && hasInteracted && audio.paused) audio.play().catch(() => {});
+                    if (isPlaying && hasInteracted && audio.paused) tryPlay(audio);
                 }
             }, { passive: true });
 
@@ -1001,68 +1134,48 @@
             lenis.on('scroll', ScrollTrigger.update);
             gsap.ticker.add((time) => { lenis.raf(time * 1000); });
             gsap.ticker.lagSmoothing(0);
+            // modo reduzido: desliga o smooth-scroll e volta ao scroll nativo do SO
+            const syncLenis = () => { isReduced() ? lenis.stop() : lenis.start(); };
+            document.addEventListener('motion:change', syncLenis);
+            syncLenis();
 
             gsap.registerPlugin(ScrollTrigger);
             gsap.to("#video-overlay", { opacity: 0.75, ease: "none", scrollTrigger: { trigger: "body", start: "top top", end: "100vh top", scrub: 0.5 } });
-            
-            gsap.utils.toArray('.social-card, .ghoul-card').forEach((card, i) => {
-                gsap.from(card, {
-                    y: 50,
-                    opacity: 0,
-                    scale: 0.95,
-                    filter: 'blur(12px)',
-                    duration: 1.2,
-                    ease: "expo.out",
-                    scrollTrigger: {
-                        trigger: card,
-                        start: "top 88%",
-                        toggleActions: "play none none reverse"
-                    },
-                    delay: i * 0.08
-                });
-            });
 
-            gsap.utils.toArray('section h3, section > div > p.text-center').forEach(el => {
-                gsap.from(el, {
-                    y: 30,
-                    opacity: 0,
-                    filter: 'blur(8px)',
-                    duration: 1,
-                    ease: "power3.out",
-                    scrollTrigger: {
-                        trigger: el,
-                        start: "top 90%",
-                        toggleActions: "play none none reverse"
-                    }
+            /* Revelações de entrada.
+               - filter:blur() NÃO é composited (repinta o bloco inteiro por frame): caro em touch.
+                 Em touch usamos a mesma revelação sem blur (y/opacity/scale = 100% compositor).
+               - toggleActions termina em "none" (não "reverse"): o swipe/scroll NUNCA reverte a
+                 animação no meio do gesto — causa direta do flicker relatado nos cards.
+               - once:true libera a camada GPU assim que a revelação termina.            */
+            const mm = gsap.matchMedia();
+            mm.add("(hover: none), (pointer: coarse)", () => {
+                gsap.utils.toArray('.social-card, .ghoul-card').forEach((card, i) => {
+                    gsap.from(card, { y: 50, opacity: 0, scale: 0.95, duration: 0.9, ease: "expo.out", delay: i * 0.06,
+                        scrollTrigger: { trigger: card, start: "top 88%", once: true } });
                 });
+                gsap.utils.toArray('section h3, section > div > p.text-center').forEach(el => {
+                    gsap.from(el, { y: 30, opacity: 0, duration: 0.8, ease: "power3.out",
+                        scrollTrigger: { trigger: el, start: "top 90%", once: true } });
+                });
+                gsap.from(".higanbana-stage", { y: 80, opacity: 0, scale: 0.9, duration: 1.1, ease: "expo.out",
+                    scrollTrigger: { trigger: ".higanbana-stage", start: "top 85%", once: true } });
+                gsap.from(".carousel-wrapper", { y: 100, opacity: 0, scale: 0.92, duration: 1.1, ease: "expo.out",
+                    scrollTrigger: { trigger: ".carousel-wrapper", start: "top 85%", once: true } });
             });
-            
-            gsap.from(".higanbana-stage", { 
-                y: 80, 
-                opacity: 0, 
-                scale: 0.9, 
-                filter: 'blur(15px)', 
-                duration: 1.5, 
-                ease: "expo.out", 
-                scrollTrigger: { 
-                    trigger: ".higanbana-stage", 
-                    start: "top 85%", 
-                    toggleActions: "play none none reverse" 
-                } 
-            });
-            
-            gsap.from(".carousel-wrapper", { 
-                y: 100, 
-                opacity: 0, 
-                scale: 0.92, 
-                filter: 'blur(12px)', 
-                duration: 1.5, 
-                ease: "expo.out", 
-                scrollTrigger: { 
-                    trigger: ".carousel-wrapper", 
-                    start: "top 85%", 
-                    toggleActions: "play none none reverse" 
-                } 
+            mm.add("(hover: hover) and (pointer: fine)", () => {
+                gsap.utils.toArray('.social-card, .ghoul-card').forEach((card, i) => {
+                    gsap.from(card, { y: 50, opacity: 0, scale: 0.95, filter: 'blur(12px)', duration: 1.2, ease: "expo.out", delay: i * 0.08,
+                        scrollTrigger: { trigger: card, start: "top 88%", once: true } });
+                });
+                gsap.utils.toArray('section h3, section > div > p.text-center').forEach(el => {
+                    gsap.from(el, { y: 30, opacity: 0, filter: 'blur(8px)', duration: 1, ease: "power3.out",
+                        scrollTrigger: { trigger: el, start: "top 90%", once: true } });
+                });
+                gsap.from(".higanbana-stage", { y: 80, opacity: 0, scale: 0.9, filter: 'blur(15px)', duration: 1.5, ease: "expo.out",
+                    scrollTrigger: { trigger: ".higanbana-stage", start: "top 85%", once: true } });
+                gsap.from(".carousel-wrapper", { y: 100, opacity: 0, scale: 0.92, filter: 'blur(12px)', duration: 1.5, ease: "expo.out",
+                    scrollTrigger: { trigger: ".carousel-wrapper", start: "top 85%", once: true } });
             });
 
             const projects = [
@@ -1081,12 +1194,21 @@
             projects.forEach((p, i) => {
                 const card = document.createElement('div');
                 card.className = 'project-card'; card.dataset.index = i;
-                card.innerHTML = `<div class="card-bg-image" style="background-image: url('${p.img}');"></div><div class="card-bg-overlay"></div><div class="card-kanji font-jp">${p.kanji}</div><div class="card-content"><div><div class="card-number">${p.num}</div><h4 class="card-title">${p.title}</h4><div class="card-subtitle">${p.subtitle}</div><p class="card-desc">${p.desc}</p><div class="card-tags">${p.tags.map(t => `<span class="card-tag">${t}</span>`).join('')}</div></div><div class="card-footer"><span class="card-year">${p.year}</span><span class="card-cta">Analisar <span class="card-cta-arrow"></span></span></div></div>`;
+                card.setAttribute('role', 'group');
+                card.setAttribute('aria-roledescription', 'slide');
+                card.setAttribute('aria-label', `${i + 1} de ${projects.length}: ${p.title}`);
+                /* <img> real + decoding="async": o browser decodifica fora da main thread e fora do
+                   frame do swipe. O background-image anterior só decodificava NO meio do gesto
+                   (pop-in = flicker). fetchpriority alto nos 2 primeiros = LCP do carrossel. */
+                card.innerHTML = `<img class="card-bg-image" src="${p.img}" alt="" decoding="async" fetchpriority="${i < 2 ? 'high' : 'low'}" draggable="false"><div class="card-bg-overlay"></div><div class="card-kanji font-jp">${p.kanji}</div><div class="card-content"><div><div class="card-number">${p.num}</div><h4 class="card-title">${p.title}</h4><div class="card-subtitle">${p.subtitle}</div><p class="card-desc">${p.desc}</p><div class="card-tags">${p.tags.map(t => `<span class="card-tag">${t}</span>`).join('')}</div></div><div class="card-footer"><span class="card-year">${p.year}</span><span class="card-cta">Analisar <span class="card-cta-arrow"></span></span></div></div>`;
                 card.addEventListener('click', () => { const idx = parseInt(card.dataset.index); if (idx !== activeIndex) goTo(idx); });
                 fragment.appendChild(card);
                 const dot = document.createElement('div');
                 dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
+                dot.setAttribute('role', 'button'); dot.setAttribute('tabindex', '0');
+                dot.setAttribute('aria-label', `Ir para ${p.title}`);
                 dot.addEventListener('click', () => goTo(i));
+                dot.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goTo(i); } });
                 dotsContainer.appendChild(dot);
             });
             stage.appendChild(fragment);
@@ -1094,50 +1216,69 @@
             const cards = stage.querySelectorAll('.project-card');
             const dots = dotsContainer.querySelectorAll('.carousel-dot');
 
+            /* Pré-decodifica todas as imagens ANTES de liberar o swipe: garante que nenhuma
+               textura GPU é enviada/decodificada durante o gesto (elimina o piscar). */
+            let imagesReady = false;
+            Promise.all(Array.from(cards).map(c => {
+                const img = c.querySelector('img');
+                return (img.decode ? img.decode() : img.complete ? Promise.resolve() : new Promise(r => { img.onload = img.onerror = r; }));
+            })).catch(() => {}).then(() => { imagesReady = true; });
+
+            /* Tweens persistentes por card (quickTo): zero kill/restart de tween, zero
+               "overwrite:all", zero pop. Cada propriedade anima no compositor (x/scale/opacity). */
+            const cardTweens = Array.from(cards).map(card => ({
+                x: gsap.quickTo(card, 'x', { duration: 0.6, ease: 'power3.out', force3D: true }),
+                scale: gsap.quickTo(card, 'scale', { duration: 0.6, ease: 'power3.out', force3D: true }),
+                opacity: gsap.quickTo(card, 'opacity', { duration: 0.45, ease: 'power2.out' })
+            }));
+
+            /* Offset CIRCULAR de caminho mínimo: com 5 cards, ir de 4 -> 0 antes dava offset -4
+               (todos |offset|>2 => TODOS somem por um frame = a "piscada" clássica do wrap).
+               Agora 4 -> 0 é offset +1: o carrossel gira sem vazio. */
+            const circularOffset = (i) => {
+                const n = projects.length;
+                let off = (i - activeIndex) % n;
+                if (off > n / 2) off -= n;
+                if (off < -n / 2) off += n;
+                return off;
+            };
+
             function updateCarousel() {
                 const isMobile = window.innerWidth < 768;
                 cards.forEach((card, i) => {
-                    const offset = i - activeIndex;
+                    const offset = circularOffset(i);
                     const absOff = Math.abs(offset);
+                    const t = cardTweens[i];
                     if (absOff > 2) {
-                        gsap.to(card, { opacity: 0, scale: 0.5, duration: 0.4, ease: "power2.in", overwrite: "all", onComplete: () => { card.style.visibility = 'hidden'; } });
-                        card.style.pointerEvents = 'none';
+                        /* some de forma síncrona e determinística (autoAlpha), nunca num callback
+                           assíncrono que podia aterrissar depois de o card voltar a ser visível. */
+                        t.opacity(0);
+                        gsap.set(card, { scale: 0.5, autoAlpha: 0, pointerEvents: 'none', zIndex: 0 });
                         card.classList.remove('active');
+                        card.setAttribute('aria-hidden', 'true');
                         return;
                     }
-                    card.style.visibility = 'visible';
-                    let tx, sc, op, z;
+                    gsap.set(card, { autoAlpha: 1, zIndex: 10 - absOff });
+                    card.setAttribute('aria-hidden', offset === 0 ? 'false' : 'true');
+                    let tx, sc, op;
                     if (isMobile) {
                         tx = offset * Math.min(230, window.innerWidth * 0.68);
                         sc = offset === 0 ? 1 : 0.78;
                         op = offset === 0 ? 1 : 0.35;
-                        z = 10 - absOff;
                     } else {
                         tx = offset * 340;
                         sc = offset === 0 ? 1 : (absOff === 1 ? 0.82 : 0.68);
                         op = offset === 0 ? 1 : (absOff === 1 ? 0.55 : 0.25);
-                        z = 10 - absOff;
                     }
-                    gsap.to(card, { 
-                        x: tx, 
-                        scale: sc, 
-                        opacity: op, 
-                        duration: 0.6, 
-                        ease: "power3.out", 
-                        force3D: true,
-                        overwrite: "all",
-                        onStart: () => { 
-                            card.style.zIndex = z; 
-                            card.style.pointerEvents = absOff === 0 ? 'auto' : 'none'; 
-                        } 
-                    });
+                    card.style.pointerEvents = absOff === 0 ? 'auto' : 'none';
+                    t.x(tx); t.scale(sc); t.opacity(op);
                     if (offset === 0) card.classList.add('active'); else card.classList.remove('active');
                 });
                 dots.forEach((d, i) => d.classList.toggle('active', i === activeIndex));
             }
 
             function goTo(index) {
-                if (isAnimating || index === activeIndex) return;
+                if (isAnimating || index === activeIndex || !imagesReady) return;
                 isAnimating = true; activeIndex = index; updateCarousel();
                 setTimeout(() => { isAnimating = false; }, 600);
             }
@@ -1146,27 +1287,55 @@
 
             document.getElementById('carousel-next').addEventListener('click', next);
             document.getElementById('carousel-prev').addEventListener('click', prev);
-            document.addEventListener('keydown', (e) => { if (e.ctrlKey) return; if (e.key === 'ArrowRight') next(); if (e.key === 'ArrowLeft') prev(); });
+            /* setas só quando o carrossel está na viewport (antes roubavam o teclado na página toda) */
+            const carouselInView = { v: false };
+            new IntersectionObserver((es) => { carouselInView.v = es[0].isIntersecting; }, { threshold: 0.25 })
+                .observe(document.getElementById('carousel'));
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey || e.metaKey || e.altKey || !carouselInView.v) return;
+                const tag = (e.target.tagName || '').toLowerCase();
+                if (tag === 'input' || tag === 'textarea' || e.target.isContentEditable) return;
+                if (e.key === 'ArrowRight') next(); else if (e.key === 'ArrowLeft') prev();
+            });
 
-            let dragStart = null;
+            /* Gesto de swipe com AXIS LOCK:
+               - decide horizontal vs vertical nos primeiros 10px;
+               - se vertical, devolve o gesto ao scroll nativo (NUNCA chama preventDefault) —
+                 antes o preventDefault() no pointerdown travava o pan da página sobre o carrossel;
+               - fling: swipe rápido avança mesmo com deslocamento curto (velocity);
+               - sem setPointerCapture em touch (quebra o stream de toque no iOS). */
             const wrapper = document.getElementById('carousel');
+            const AXIS_LOCK = 10, SWIPE_DIST = 50, SWIPE_VELOCITY = 0.5; // px/ms
+            let g = null;
             wrapper.addEventListener('pointerdown', (e) => {
                 if (e.target.closest('.carousel-nav, .carousel-dot')) return;
-                dragStart = e.clientX;
-                wrapper.setPointerCapture?.(e.pointerId);
-                e.preventDefault();
+                g = { id: e.pointerId, x: e.clientX, y: e.clientY, t: performance.now(), axis: null };
+                wrapper.classList.add('is-swiping');
+                if (e.pointerType === 'mouse') wrapper.setPointerCapture?.(e.pointerId);
+            }, { passive: true });
+            wrapper.addEventListener('pointermove', (e) => {
+                if (!g || e.pointerId !== g.id) return;
+                if (g.axis === null) {
+                    const dx = e.clientX - g.x, dy = e.clientY - g.y;
+                    if (Math.abs(dx) < AXIS_LOCK && Math.abs(dy) < AXIS_LOCK) return;
+                    g.axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+                }
+                if (g.axis === 'x') e.preventDefault(); // só no eixo horizontal: impede seleção/scroll-x
             }, { passive: false });
-            wrapper.addEventListener('pointerup', (e) => {
-                if (dragStart === null) return;
-                const diff = e.clientX - dragStart;
-                if (Math.abs(diff) > 50) { if (diff < 0) next(); else prev(); }
-                dragStart = null;
-                wrapper.releasePointerCapture?.(e.pointerId);
-            }, { passive: true });
-            wrapper.addEventListener('pointercancel', (e) => {
-                dragStart = null;
-                wrapper.releasePointerCapture?.(e.pointerId);
-            }, { passive: true });
+            const endGesture = (e, cancelled) => {
+                if (!g || e.pointerId !== g.id) return;
+                const dt = performance.now() - g.t;
+                const dx = e.clientX - g.x;
+                const isFling = dt > 0 && Math.abs(dx) / dt > SWIPE_VELOCITY;
+                if (!cancelled && g.axis === 'x' && (Math.abs(dx) > SWIPE_DIST || (isFling && Math.abs(dx) > 20))) {
+                    if (dx < 0) next(); else prev();
+                }
+                g = null;
+                wrapper.classList.remove('is-swiping');
+                if (e.pointerType === 'mouse') wrapper.releasePointerCapture?.(e.pointerId);
+            };
+            wrapper.addEventListener('pointerup', (e) => endGesture(e, false), { passive: true });
+            wrapper.addEventListener('pointercancel', (e) => endGesture(e, true), { passive: true });
 
             let wheelCooldown = false;
             wrapper.addEventListener('wheel', (e) => {
@@ -1179,24 +1348,100 @@
             }, { passive: true });
 
             updateCarousel();
-            let resizeTimer;
-            window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(updateCarousel, 150); }, { passive: true });
+            let resizeRaf = 0;
+            window.addEventListener('resize', () => {
+                cancelAnimationFrame(resizeRaf);
+                resizeRaf = requestAnimationFrame(updateCarousel);   // throttle por rAF, não timeout
+            }, { passive: true });
 
+            /* ══ Centopeia — motor procedural v2 ═══════════════════════════════
+               Rigging 3D adaptado para Canvas2D (ver AUDIT-PLAN §3):
+               · CORPO: cadeia de arcos com mola em spacing (compressão em curva /
+                 estiramento em reta = overlapping action) + onda lateral viajante
+                 (undulação lateral real de miriápodes) + follow-through na cauda.
+               · PERNAS: IK de 2 ossos com FOOT PLANTING (pé fixo no solo na fase de
+                 apoio, sem "patinar") e marcha metacrônica (defasagem entre segmentos).
+               · RENDER: sprites pré-rasterizados em offscreen (gradiente/bezier/sombra
+                 pagos UMA vez), pernas em UM único path (batching), zero alocação no
+                 hot-path, timestep fixo 120 Hz => movimento idêntico em 60/90/120/144 fps.
+               ════════════════════════════════════════════════════════════════ */
             class Centipede {
                 constructor(canvas) {
                     this.canvas = canvas; this.ctx = canvas.getContext('2d', { alpha: true });
-                    this.segments = []; this.numSegments = isTouchDevice ? 28 : 35; this.segmentSpacing = 10;
-                    this.running = false; this.path = []; this.distanceTraveled = 0; this.time = 0;
-                    this.rafId = null; this.lastTimestamp = 0; this.speed = 0; this.totalPathLength = 0;
-                    this.pathLengths = []; this.exitThreshold = 0; this.resize();
+                    this.segments = []; this.numSegments = isTouchDevice ? 24 : 32;
+                    this.restSpacing = 10;
+                    this.running = false; this.path = []; this.s = 0; this.time = 0;
+                    this.rafId = null; this.lastTimestamp = 0; this.speed = 0;
+                    this.totalPathLength = 0; this.pathLengths = []; this.exitThreshold = 0;
+                    this.dpr = 1; this.sprites = []; this.headSprite = null;
+                    this._p = { x: 0, y: 0 }; this._q = { x: 0, y: 0 };   // vetores reutilizáveis (zero GC)
+                    this._acc = 0; this.FIXED = 1000 / 120;
+                    this.resize();
                     let resizeTimeout;
                     window.addEventListener('resize', () => { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(() => this.resize(), 100); }, { passive: true });
                 }
                 resize() {
-                    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-                    this.canvas.width = window.innerWidth * dpr; this.canvas.height = window.innerHeight * dpr;
+                    // em touch limitamos o DPR: 390x844@3x = ~3.3 MP/frame de clearRect era caro demais
+                    this.dpr = Math.min(window.devicePixelRatio || 1, isTouchDevice ? 1.5 : 2);
+                    this.canvas.width = window.innerWidth * this.dpr; this.canvas.height = window.innerHeight * this.dpr;
                     this.canvas.style.width = window.innerWidth + 'px'; this.canvas.style.height = window.innerHeight + 'px';
-                    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                    this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+                    this.buildSprites();
+                }
+                /* Pré-rasteriza cada variante de segmento (e a cabeça) UMA vez.
+                   No loop só fazemos drawImage rotacionado: sem gradiente, sem bezier,
+                   sem shadowBlur por frame (shadowBlur é das ops mais caras do Canvas2D). */
+                buildSprites() {
+                    const dpr = this.dpr, pad = 24;
+                    this.sprites = [];
+                    for (let v = 0; v < 8; v++) {
+                        const progress = v / 7;
+                        const width = 13 - progress * 7, length = 9 - progress * 4;
+                        const w = Math.ceil((length * 2 + pad) * dpr), h = Math.ceil((width * 2 + pad) * dpr);
+                        const c = document.createElement('canvas'); c.width = w; c.height = h;
+                        const g = c.getContext('2d');
+                        g.setTransform(dpr, 0, 0, dpr, 0, 0);
+                        g.translate(w / (2 * dpr), h / (2 * dpr));
+                        if (!isTouchDevice) { g.shadowColor = 'rgba(0,0,0,0.9)'; g.shadowBlur = 6; g.shadowOffsetY = 3; }
+                        g.beginPath(); g.moveTo(length, 0);
+                        g.bezierCurveTo(length, width * 0.8, length * 0.5, width, -length * 0.5, width * 0.9);
+                        g.bezierCurveTo(-length, width * 0.5, -length, -width * 0.5, -length * 0.5, -width * 0.9);
+                        g.bezierCurveTo(length * 0.5, -width, length, -width * 0.8, length, 0); g.closePath();
+                        const grad = g.createLinearGradient(0, -width, 0, width);
+                        grad.addColorStop(0, '#0a0000'); grad.addColorStop(0.3, '#4a0000'); grad.addColorStop(0.5, '#7a0303');
+                        grad.addColorStop(0.7, '#4a0000'); grad.addColorStop(1, '#0a0000');
+                        g.fillStyle = grad; g.fill();
+                        g.shadowBlur = 0; g.shadowOffsetY = 0;
+                        g.strokeStyle = 'rgba(180,0,0,0.3)'; g.lineWidth = 0.8;
+                        g.beginPath(); g.moveTo(length * 0.7, 0); g.lineTo(-length * 0.7, 0); g.stroke();
+                        g.strokeStyle = '#000'; g.lineWidth = 1.2; g.stroke();
+                        this.sprites.push({ canvas: c, length, width, hw: w / (2 * dpr), hh: h / (2 * dpr) });
+                    }
+                    // cabeça
+                    const hw = Math.ceil(60 * dpr), hh = Math.ceil(44 * dpr);
+                    const hc = document.createElement('canvas'); hc.width = hw; hc.height = hh;
+                    const g = hc.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.translate(hw / (2 * dpr), hh / (2 * dpr));
+                    if (!isTouchDevice) { g.shadowColor = 'rgba(0,0,0,0.9)'; g.shadowBlur = 10; }
+                    g.beginPath(); g.moveTo(14, 0);
+                    g.bezierCurveTo(16, 11, 4, 15, -14, 12); g.bezierCurveTo(-18, 8, -18, -8, -14, -12);
+                    g.bezierCurveTo(4, -15, 16, -11, 14, 0); g.closePath();
+                    const headGrad = g.createRadialGradient(2, 0, 0, 0, 0, 18);
+                    headGrad.addColorStop(0, '#c41e1e'); headGrad.addColorStop(0.3, '#8a0000'); headGrad.addColorStop(1, '#050000');
+                    g.fillStyle = headGrad; g.fill();
+                    g.strokeStyle = '#000'; g.lineWidth = 1.5; g.stroke(); g.shadowBlur = 0;
+                    if (!isTouchDevice) { g.shadowColor = '#ff0000'; g.shadowBlur = 8; }
+                    g.fillStyle = '#ff2222';
+                    g.beginPath(); g.ellipse(8, -5, 3, 2, -0.3, 0, Math.PI * 2); g.fill();
+                    g.beginPath(); g.ellipse(8, 5, 3, 2, 0.3, 0, Math.PI * 2); g.fill();
+                    g.fillStyle = '#ffffff'; g.shadowBlur = 0;
+                    g.beginPath(); g.ellipse(9.5, -5, 1, 0.8, 0, 0, Math.PI * 2); g.fill();
+                    g.beginPath(); g.ellipse(9.5, 5, 1, 0.8, 0, 0, Math.PI * 2); g.fill();
+                    g.strokeStyle = '#1a0000'; g.lineWidth = 2.5; g.lineCap = 'round';
+                    g.beginPath(); g.moveTo(14, -4); g.quadraticCurveTo(22, -8, 26, -12); g.quadraticCurveTo(28, -8, 24, -6); g.stroke();
+                    g.beginPath(); g.moveTo(14, -2); g.quadraticCurveTo(24, -4, 30, -2); g.quadraticCurveTo(28, 2, 22, 2); g.stroke();
+                    g.beginPath(); g.moveTo(14, 4); g.quadraticCurveTo(22, 8, 26, 12); g.quadraticCurveTo(28, 8, 24, 6); g.stroke();
+                    g.beginPath(); g.moveTo(14, 2); g.quadraticCurveTo(24, 4, 30, 2); g.quadraticCurveTo(28, -2, 22, -2); g.stroke();
+                    this.headSprite = { canvas: hc, hw: hw / (2 * dpr), hh: hh / (2 * dpr) };
                 }
                 generatePath() {
                     this.path = []; this.pathLengths = [];
@@ -1215,26 +1460,36 @@
                     this.path.push(points[points.length - 1]);
                     let acc = 0; this.pathLengths.push(0);
                     for (let i = 1; i < this.path.length; i++) {
-                        const dx = this.path[i].x - this.path[i-1].x, dy = this.path[i].y - this.path[i-1].y;
+                        const dx = this.path[i].x - this.path[i - 1].x, dy = this.path[i].y - this.path[i - 1].y;
                         acc += Math.sqrt(dx * dx + dy * dy); this.pathLengths.push(acc);
                     }
-                    this.totalPathLength = acc; this.speed = this.totalPathLength / 5500;
-                    this.exitThreshold = this.totalPathLength - (this.numSegments * this.segmentSpacing) - 50;
+                    this.totalPathLength = acc;
+                    // easing de entrada/saída na velocidade: anticipation + settle (nada de velocidade constante)
+                    this.speed = this.totalPathLength / 5500;
+                    this.exitThreshold = this.totalPathLength - (this.numSegments * this.restSpacing) - 50;
                 }
-                getPositionAtDistance(dist) {
-                    if (dist <= 0) return { x: this.path[0].x, y: this.path[0].y };
-                    if (dist >= this.totalPathLength) return this.path[this.path.length - 1];
+                getPositionAtDistance(dist, out) {
+                    out = out || this._p;
+                    if (dist <= 0) { const a = this.path[0]; out.x = a.x; out.y = a.y; return out; }
+                    if (dist >= this.totalPathLength) { const a = this.path[this.path.length - 1]; out.x = a.x; out.y = a.y; return out; }
                     let lo = 0, hi = this.pathLengths.length - 1;
                     while (lo < hi - 1) { const mid = (lo + hi) >> 1; if (this.pathLengths[mid] <= dist) lo = mid; else hi = mid; }
-                    const segStart = this.pathLengths[lo], segEnd = this.pathLengths[hi], t = (dist - segStart) / (segEnd - segStart);
+                    const segStart = this.pathLengths[lo], segEnd = this.pathLengths[hi];
+                    const t = (dist - segStart) / (segEnd - segStart || 1);
                     const p1 = this.path[lo], p2 = this.path[hi];
-                    return { x: p1.x + (p2.x - p1.x) * t, y: p1.y + (p2.y - p1.y) * t };
+                    out.x = p1.x + (p2.x - p1.x) * t; out.y = p1.y + (p2.y - p1.y) * t;
+                    return out;
                 }
                 start() {
-                    this.generatePath(); this.distanceTraveled = 0; this.time = 0; this.lastTimestamp = 0; this.segments = [];
+                    if (isReduced()) return;                       // a11y: sem animação de movimento
+                    this.generatePath(); this.s = 0; this.time = 0; this.lastTimestamp = 0; this._acc = 0;
+                    this.segments = [];
                     for (let i = 0; i < this.numSegments; i++) {
-                        const pos = this.getPositionAtDistance(-i * this.segmentSpacing);
-                        this.segments.push({ x: pos.x, y: pos.y, angle: 0 });
+                        const pos = this.getPositionAtDistance(-i * this.restSpacing, { x: 0, y: 0 });
+                        this.segments.push({
+                            s: -i * this.restSpacing, x: pos.x, y: pos.y, angle: 0,
+                            plant: null, phase: -i * 0.55          // marcha metacrônica
+                        });
                     }
                     this.running = true; this.canvas.classList.add('active');
                     this.rafId = requestAnimationFrame((t) => this.animate(t));
@@ -1244,93 +1499,140 @@
                     if (this.rafId) { cancelAnimationFrame(this.rafId); this.rafId = null; }
                     this.canvas.classList.remove('active');
                 }
+                /* Física a passo fixo (120 Hz): o movimento NÃO depende do refresh rate. */
                 animate(timestamp) {
                     if (!this.running) return;
                     if (!this.lastTimestamp) this.lastTimestamp = timestamp;
-                    const deltaTime = Math.min(timestamp - this.lastTimestamp, 50); this.lastTimestamp = timestamp;
-                    this.time += deltaTime * 0.005; this.distanceTraveled += this.speed * deltaTime;
-                    const tailPos = this.getPositionAtDistance(this.distanceTraveled - (this.numSegments - 1) * this.segmentSpacing);
-                    if (tailPos.x > window.innerWidth + 50) { this.stop(); return; }
-                    const headPos = this.getPositionAtDistance(this.distanceTraveled);
-                    this.segments[0].x = headPos.x; this.segments[0].y = headPos.y;
-                    const smoothing = 1 - Math.pow(1 - 0.72, deltaTime / 16);
-                    for (let i = 1; i < this.segments.length; i++) {
-                        const pos = this.getPositionAtDistance(this.distanceTraveled - i * this.segmentSpacing);
-                        const curr = this.segments[i];
-                        curr.x += (pos.x - curr.x) * smoothing; curr.y += (pos.y - curr.y) * smoothing;
-                        const prev = this.segments[i - 1]; curr.angle = Math.atan2(prev.y - curr.y, prev.x - curr.x);
-                    }
-                    if (this.segments.length > 1) this.segments[0].angle = Math.atan2(this.segments[1].y - this.segments[0].y, this.segments[1].x - this.segments[0].x) + Math.PI;
-                    this.draw(); this.rafId = requestAnimationFrame((t) => this.animate(t));
+                    let dt = Math.min(timestamp - this.lastTimestamp, 50); this.lastTimestamp = timestamp;
+                    this._acc += dt;
+                    let steps = 0;
+                    while (this._acc >= this.FIXED && steps < 6) { this.step(this.FIXED); this._acc -= this.FIXED; steps++; }
+                    if (steps === 6) this._acc = 0;
+                    this.render();
+                    this.rafId = requestAnimationFrame((t) => this.animate(t));
                 }
-                draw() {
+                step(dt) {
+                    // velocidade com ease-in (arranque) e ease-out (chegada) => anticipation/settle
+                    const prog = this.s / this.totalPathLength;
+                    const ease = prog < 0.12 ? (prog / 0.12) * (prog / 0.12) : (prog > 0.85 ? Math.max(0.35, 1 - (prog - 0.85) / 0.3) : 1);
+                    this.s += this.speed * ease * dt;
+                    this.time += dt * 0.005;
+                    const tail = this.getPositionAtDistance(this.s - (this.numSegments - 1) * this.restSpacing, this._q);
+                    if (tail.x > window.innerWidth + 50) { this.stop(); return; }
+                    // cabeça segue o arco
+                    const head = this.getPositionAtDistance(this.s, this._p);
+                    this.segments[0].s = this.s;
+                    // cadeia com mola: cada segmento persegue o da frente com lag progressivo
+                    // (compression nas curvas, stretch nas retas = overlapping action + follow-through)
+                    for (let i = 1; i < this.segments.length; i++) {
+                        const seg = this.segments[i], prev = this.segments[i - 1];
+                        const curvature = Math.abs(prev.angle - seg.angle);
+                        const rest = this.restSpacing * (1 - Math.min(0.35, curvature * 0.9)); // comprime em curva
+                        const target = prev.s - rest;
+                        const k = 1 - Math.pow(1 - 0.55, dt / 16);                            // lag => follow-through
+                        seg.s += (target - seg.s) * k;
+                        seg.phase += dt * 0.0062;                                            // ciclo da passada
+                    }
+                    // posição final = ponto do arco + undulação lateral viajante (amplitude cresce p/ cauda)
+                    for (let i = 0; i < this.segments.length; i++) {
+                        const seg = this.segments[i];
+                        const pos = this.getPositionAtDistance(seg.s, this._p);
+                        const ahead = this.getPositionAtDistance(seg.s + 4, this._q);
+                        const tx = ahead.x - pos.x, ty = ahead.y - pos.y;
+                        const tl = Math.hypot(tx, ty) || 1;
+                        const nx = -ty / tl, ny = tx / tl;                                   // normal ao percurso
+                        const tailness = i / (this.segments.length - 1);
+                        const wave = Math.sin(this.time * 3 - i * 0.55) * (2.2 + 5.5 * tailness);
+                        seg.x = pos.x + nx * wave; seg.y = pos.y + ny * wave;
+                    }
+                    // ângulos suavizados (evita snap) — cabeça olha p/ segmento seguinte
+                    for (let i = this.segments.length - 1; i >= 1; i--) {
+                        const cur = this.segments[i], prev = this.segments[i - 1];
+                        const a = Math.atan2(prev.y - cur.y, prev.x - cur.x);
+                        cur.angle += (a - cur.angle) * Math.min(1, dt / 40);
+                    }
+                    if (this.segments.length > 1) {
+                        const h = this.segments[0], n = this.segments[1];
+                        const a = Math.atan2(n.y - h.y, n.x - h.x) + Math.PI;
+                        h.angle += (a - h.angle) * Math.min(1, dt / 40);
+                    }
+                }
+                render() {
                     const ctx = this.ctx, w = window.innerWidth, h = window.innerHeight;
-                    ctx.clearRect(0, 0, w, h); this.drawLegs();
+                    ctx.clearRect(0, 0, w, h);
+                    this.drawLegs();
                     for (let i = this.segments.length - 1; i >= 1; i--) this.drawSegment(i);
                     this.drawHead();
                 }
                 drawSegment(i) {
-                    const seg = this.segments[i], ctx = this.ctx, progress = i / this.segments.length;
-                    const width = 13 - progress * 7, length = 9 - progress * 4;
+                    const seg = this.segments[i], ctx = this.ctx;
+                    const v = Math.min(7, Math.round((i / this.segments.length) * 7));
+                    const sp = this.sprites[v];
                     ctx.save(); ctx.translate(seg.x, seg.y); ctx.rotate(seg.angle);
-                    if (!isTouchDevice) { ctx.shadowColor = 'rgba(0, 0, 0, 0.9)'; ctx.shadowBlur = 6; ctx.shadowOffsetY = 3; }
-                    ctx.beginPath(); ctx.moveTo(length, 0);
-                    ctx.bezierCurveTo(length, width * 0.8, length * 0.5, width, -length * 0.5, width * 0.9);
-                    ctx.bezierCurveTo(-length, width * 0.5, -length, -width * 0.5, -length * 0.5, -width * 0.9);
-                    ctx.bezierCurveTo(length * 0.5, -width, length, -width * 0.8, length, 0); ctx.closePath();
-                    const grad = ctx.createLinearGradient(0, -width, 0, width);
-                    grad.addColorStop(0, '#0a0000'); grad.addColorStop(0.3, '#4a0000'); grad.addColorStop(0.5, '#7a0303'); grad.addColorStop(0.7, '#4a0000'); grad.addColorStop(1, '#0a0000');
-                    ctx.fillStyle = grad; ctx.fill();
-                    ctx.strokeStyle = 'rgba(180, 0, 0, 0.3)'; ctx.lineWidth = 0.8;
-                    ctx.beginPath(); ctx.moveTo(length * 0.7, 0); ctx.lineTo(-length * 0.7, 0); ctx.stroke();
-                    ctx.shadowBlur = 0;
-                    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.2; ctx.stroke();
+                    ctx.drawImage(sp.canvas, -sp.hw, -sp.hh, sp.hw * 2, sp.hh * 2);
                     ctx.restore();
                 }
                 drawHead() {
-                    const head = this.segments[0], ctx = this.ctx;
+                    const head = this.segments[0], ctx = this.ctx, sp = this.headSprite;
                     ctx.save(); ctx.translate(head.x, head.y); ctx.rotate(head.angle);
-                    if (!isTouchDevice) { ctx.shadowColor = 'rgba(0, 0, 0, 0.9)'; ctx.shadowBlur = 10; }
-                    ctx.beginPath(); ctx.moveTo(14, 0);
-                    ctx.bezierCurveTo(16, 11, 4, 15, -14, 12);
-                    ctx.bezierCurveTo(-18, 8, -18, -8, -14, -12);
-                    ctx.bezierCurveTo(4, -15, 16, -11, 14, 0); ctx.closePath();
-                    const headGrad = ctx.createRadialGradient(2, 0, 0, 0, 0, 18);
-                    headGrad.addColorStop(0, '#c41e1e'); headGrad.addColorStop(0.3, '#8a0000'); headGrad.addColorStop(1, '#050000');
-                    ctx.fillStyle = headGrad; ctx.fill();
-                    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5; ctx.stroke();
-                    ctx.shadowBlur = 0;
-                    if (!isTouchDevice) { ctx.shadowColor = '#ff0000'; ctx.shadowBlur = 8; }
-                    ctx.fillStyle = '#ff2222';
-                    ctx.beginPath(); ctx.ellipse(8, -5, 3, 2, -0.3, 0, Math.PI * 2); ctx.fill();
-                    ctx.beginPath(); ctx.ellipse(8, 5, 3, 2, 0.3, 0, Math.PI * 2); ctx.fill();
-                    ctx.fillStyle = '#ffffff'; ctx.shadowBlur = 0;
-                    ctx.beginPath(); ctx.ellipse(9.5, -5, 1, 0.8, 0, 0, Math.PI * 2); ctx.fill();
-                    ctx.beginPath(); ctx.ellipse(9.5, 5, 1, 0.8, 0, 0, Math.PI * 2); ctx.fill();
-                    ctx.strokeStyle = '#1a0000'; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
-                    ctx.beginPath(); ctx.moveTo(14, -4); ctx.quadraticCurveTo(22, -8, 26, -12); ctx.quadraticCurveTo(28, -8, 24, -6); ctx.stroke();
-                    ctx.beginPath(); ctx.moveTo(14, -2); ctx.quadraticCurveTo(24, -4, 30, -2); ctx.quadraticCurveTo(28, 2, 22, 2); ctx.stroke();
-                    ctx.beginPath(); ctx.moveTo(14, 4); ctx.quadraticCurveTo(22, 8, 26, 12); ctx.quadraticCurveTo(28, 8, 24, 6); ctx.stroke();
-                    ctx.beginPath(); ctx.moveTo(14, 2); ctx.quadraticCurveTo(24, 4, 30, 2); ctx.quadraticCurveTo(28, -2, 22, -2); ctx.stroke();
-                    ctx.strokeStyle = 'rgba(180, 0, 0, 0.5)'; ctx.lineWidth = 1;
-                    ctx.beginPath(); ctx.moveTo(10, -10); ctx.quadraticCurveTo(5, -14, -5, -11); ctx.stroke();
+                    ctx.drawImage(sp.canvas, -sp.hw, -sp.hh, sp.hw * 2, sp.hh * 2);
                     ctx.restore();
                 }
+                /* Pernas: IK de 2 ossos + FOOT PLANTING.
+                   Na fase de APOIO o pé fica congelado no mundo (zero sliding); na fase de
+                   BALANÇO ele voa até o próximo ponto de apoio. Marcha metacrônica (defasagem
+                   constante entre segmentos) => o padrão de ondulação real de miriápodes.
+                   Todas as pernas vão para UM único path -> um stroke só (batching). */
                 drawLegs() {
-                    const ctx = this.ctx; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+                    const ctx = this.ctx;
+                    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+                    const L1 = 9, L2 = 14;
+                    ctx.beginPath();
                     for (let i = 1; i < this.segments.length - 1; i++) {
-                        const seg = this.segments[i], progress = i / this.segments.length;
-                        const legLen1 = 9, legLen2 = 14 - progress * 6, perpAngle = seg.angle + Math.PI / 2;
-                        const phase = this.time * 3 + i * 0.7, wave = Math.sin(phase) * 0.5, wave2 = Math.cos(phase) * 0.4;
+                        const seg = this.segments[i];
+                        const progress = i / this.segments.length;
+                        const legLen2 = L2 - progress * 6;
+                        const nx = Math.cos(seg.angle + Math.PI / 2), ny = Math.sin(seg.angle + Math.PI / 2);
+                        const fx = Math.cos(seg.angle), fy = Math.sin(seg.angle);
                         for (let side = -1; side <= 1; side += 2) {
-                            const baseAngle = perpAngle * side;
-                            const j1X = seg.x + Math.cos(baseAngle) * 7, j1Y = seg.y + Math.sin(baseAngle) * 7;
-                            const j2X = j1X + Math.cos(baseAngle + wave * side) * legLen1, j2Y = j1Y + Math.sin(baseAngle + wave * side) * legLen1;
-                            const eX = j2X + Math.cos(baseAngle + wave * side + 0.9 * side + wave2) * legLen2, eY = j2Y + Math.sin(baseAngle + wave * side + 0.9 * side + wave2) * legLen2;
-                            ctx.strokeStyle = '#0a0000'; ctx.lineWidth = 2.2;
-                            ctx.beginPath(); ctx.moveTo(seg.x, seg.y); ctx.lineTo(j1X, j1Y); ctx.lineTo(j2X, j2Y); ctx.lineTo(eX, eY); ctx.stroke();
+                            const hipX = seg.x + nx * side * 6, hipY = seg.y + ny * side * 6;
+                            const phase = (seg.phase + i * 0.0) * Math.PI * 2 * 0.5;
+                            const cyc = ((phase % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+                            const stanceFrac = 0.62;
+                            let footX, footY;
+                            if (cyc < Math.PI * 2 * stanceFrac) {
+                                // APOIO: planta o pé uma vez e segura (mundo), => sem patinar
+                                if (!seg.plant) seg.plant = [{}, {}];
+                                const pl = seg.plant[side === -1 ? 0 : 1];
+                                if (pl.x === undefined) { pl.x = hipX + nx * side * (L1 + legLen2) * 0.8 + fx * 4; pl.y = hipY + ny * side * (L1 + legLen2) * 0.8 + fy * 4; }
+                                footX = pl.x; footY = pl.y;
+                            } else {
+                                // BALANÇO: alvo à frente do corpo; pé "levanta" (encolhe) no meio
+                                seg.plant && (seg.plant[side === -1 ? 0 : 1] = {});
+                                const t = (cyc - Math.PI * 2 * stanceFrac) / (Math.PI * 2 * (1 - stanceFrac));
+                                const reach = (L1 + legLen2) * 0.8;
+                                const from = (seg.plant && seg.plant[side === -1 ? 0 : 1]) || {};
+                                const sx = (from.x !== undefined ? from.x : hipX + nx * side * reach);
+                                const sy = (from.y !== undefined ? from.y : hipY + ny * side * reach);
+                                const tx2 = hipX + nx * side * reach * 0.55 + fx * 10, ty2 = hipY + ny * side * reach * 0.55 + fy * 10;
+                                const e = t * t * (3 - 2 * t);
+                                footX = sx + (tx2 - sx) * e; footY = sy + (ty2 - sy) * e;
+                            }
+                            // IK 2 ossos (lei dos cossenos) => joelho
+                            let dx = footX - hipX, dy = footY - hipY;
+                            let d = Math.hypot(dx, dy);
+                            const maxd = L1 + legLen2 - 0.001;
+                            if (d > maxd) { dx *= maxd / d; dy *= maxd / d; d = maxd; footX = hipX + dx; footY = hipY + dy; }
+                            d = Math.max(d, 0.001);
+                            const a1 = Math.acos(Math.min(1, Math.max(-1, (L1 * L1 + d * d - legLen2 * legLen2) / (2 * L1 * d))));
+                            const base = Math.atan2(dy, dx);
+                            const kneeA = base + a1 * side;
+                            const kneeX = hipX + Math.cos(kneeA) * L1, kneeY = hipY + Math.sin(kneeA) * L1;
+                            ctx.moveTo(seg.x, seg.y);
+                            ctx.lineTo(hipX, hipY); ctx.lineTo(kneeX, kneeY); ctx.lineTo(footX, footY);
                         }
                     }
+                    ctx.strokeStyle = '#0a0000'; ctx.lineWidth = 2.2; ctx.stroke();
                 }
             }
 
@@ -1370,24 +1672,14 @@
                     const isMid = chain.classList.contains('chain-mid-l') || chain.classList.contains('chain-mid-r');
                     const startY = isTop ? -150 : (isMid ? 0 : 150);
                     const startX = isMid ? (chain.classList.contains('chain-mid-l') ? -150 : 150) : 0;
-                    
-                    gsap.set(chain, { 
-                        opacity: 0, 
-                        rotation: rot + (isTop ? -15 : 15), 
-                        y: startY, 
-                        x: startX, 
-                        scale: 0.8 
-                    });
-                    
-                    gsap.to(chain, { 
-                        opacity: 1, 
-                        rotation: rot, 
-                        y: 0, 
-                        x: 0, 
-                        scale: 1, 
-                        duration: 1.2, 
-                        ease: "power3.out", 
-                        delay: i * 0.08,
+                    if (isReduced()) {   // modo reduzido: posiciona direto, sem entrada animada nem sway infinito
+                        gsap.set(chain, { opacity: 1, rotation: rot, x: 0, y: 0, scale: 1 });
+                        return;
+                    }
+                    gsap.set(chain, { opacity: 0, rotation: rot + (isTop ? -15 : 15), y: startY, x: startX, scale: 0.8 });
+                    gsap.to(chain, {
+                        opacity: 1, rotation: rot, y: 0, x: 0, scale: 1,
+                        duration: 1.2, ease: "power3.out", delay: i * 0.08,
                         onComplete: () => {
                             const swayTl = gsap.timeline({ repeat: -1, yoyo: true });
                             const swayAmount = 2 + Math.random() * 2;
@@ -1406,13 +1698,9 @@
                 chainGroups.forEach((chain, i) => {
                     const rot = parseFloat(chain.dataset.rot) || 0;
                     const isTop = chain.classList.contains('chain-tl') || chain.classList.contains('chain-tr');
-                    gsap.to(chain, { 
-                        opacity: 0, 
-                        y: isTop ? -100 : 100, 
-                        rotation: rot + (isTop ? 10 : -10), 
-                        duration: 0.6, 
-                        ease: "power2.in", 
-                        delay: i * 0.04 
+                    gsap.to(chain, {
+                        opacity: 0, y: isReduced() ? 0 : (isTop ? -100 : 100), rotation: rot + (isReduced() ? 0 : (isTop ? 10 : -10)),
+                        duration: 0.6, ease: "power2.in", delay: i * 0.04
                     });
                 });
                 setTimeout(() => { chainsOverlay.classList.remove('active'); }, 800);
@@ -1421,6 +1709,19 @@
             function triggerKaneki() {
                 if (kanekiActive || kanekiCooldown) return;
                 kanekiActive = true; kanekiCooldown = true;
+                if (isReduced()) {
+                    // versão acessível: crossfades apenas, sem centopeia / glitch / slide / vibração
+                    gsap.to(darkenOverlay, { opacity: 1, duration: 0.4 });
+                    animateChainsIn();
+                    gsap.to(kanekiContainer, { x: '0%', opacity: 1, duration: 0.4 });
+                    setTimeout(() => {
+                        gsap.to(kanekiContainer, { opacity: 0, duration: 0.4, onComplete: () => { kanekiActive = false; } });
+                        animateChainsOut();
+                        gsap.to(darkenOverlay, { opacity: 0, duration: 0.4, delay: 0.2 });
+                    }, 4000);
+                    setTimeout(() => { kanekiCooldown = false; }, 5200);
+                    return;
+                }
                 gsap.to(darkenOverlay, { opacity: 1, duration: 0.8, ease: "power2.inOut" });
                 animateChainsIn();
                 glitchOverlay.classList.add('active');
@@ -1429,7 +1730,7 @@
                 gsap.fromTo(kanekiContainer, { x: '100%', opacity: 0 }, { x: '0%', opacity: 1, duration: 0.9, ease: "power3.out", delay: 0.4 });
                 setTimeout(() => { glitchOverlay.classList.add('active'); setTimeout(() => glitchOverlay.classList.remove('active'), 400); }, 3000);
                 setTimeout(() => {
-                    glitchOverlay.classList.add('active'); 
+                    glitchOverlay.classList.add('active');
                     setTimeout(() => glitchOverlay.classList.remove('active'), 300);
                     gsap.to(kanekiContainer, { x: '100%', opacity: 0, duration: 1.2, ease: "power3.in", onComplete: () => { kanekiActive = false; } });
                     animateChainsOut();
