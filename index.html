@@ -430,7 +430,50 @@
         body.site-entered .motion-toggle { opacity: 1; pointer-events: auto; }
         .motion-toggle:hover { color: var(--bone); border-color: var(--blood-bright); }
         .motion-toggle:active { scale: 0.88; }
-        .motion-toggle[aria-pressed="true"] { color: var(--blood-bright); border-color: rgba(196, 30, 30, 0.65); }
+        /* Pressionado = preenchido, não só contorno: contorno sozinho some no fundo
+           escuro do herói (foi por isso que o clique "não pareceu fazer nada"). */
+        .motion-toggle[aria-pressed="true"] {
+            color: var(--blood-bright);
+            border-color: rgba(196, 30, 30, 0.8);
+            background: rgba(196, 30, 30, 0.18);
+            box-shadow: inset 0 0 0 1px rgba(196, 30, 30, 0.3);
+        }
+
+        /* Confirmação perceptível do toggle. Um controle que muda efeitos AMBIENTE
+           (brasas, vídeo, parallax) precisa anunciar a si mesmo, senão o visitante
+           clica e acha que o site está quebrado. role=status => leitores de tela
+           leem também (WCAG 4.1.3 Status Messages). */
+        .motion-toast {
+            position: fixed;
+            top: calc(12px + env(safe-area-inset-top) + 52px);
+            right: calc(12px + env(safe-area-inset-right));
+            z-index: 10002;
+            max-width: min(72vw, 260px);
+            padding: 8px 13px;
+            border: 1px solid rgba(196, 30, 30, 0.45);
+            border-radius: 999px;
+            background: rgba(10, 4, 4, 0.92);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            color: var(--bone);
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            text-align: center;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(-6px);
+            transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .motion-toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .motion-toast { backdrop-filter: none; -webkit-backdrop-filter: none; }
+        }
         .motion-toggle svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
         .motion-toggle .icon-off { display: none; }
         .motion-toggle[aria-pressed="true"] .icon-on { display: none; }
@@ -786,6 +829,7 @@
         <svg class="icon-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12h4l3-7 4 14 3-7h6"/></svg>
         <svg class="icon-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12h20"/><path d="M4 4l16 16" opacity="0.6"/></svg>
     </button>
+    <div class="motion-toast" id="motion-toast" role="status" aria-live="polite"></div>
 
     <div class="noise-overlay"></div>
     <div class="vignette"></div>
@@ -1047,11 +1091,29 @@
             applyMotion(motionMode, false);
 
             const motionBtn = document.getElementById('motion-toggle');
+            const motionToast = document.getElementById('motion-toast');
+            let motionToastTimer = 0;
+
+            /* Sem isto, o clique "não faz nada" aos olhos de quem usa: os efeitos que
+               o toggle muda são ambiente (brasas, vídeo, parallax) e no topo da página
+               a diferença visível é mínima. O toast torna a troca perceptível na hora
+               e confirma que a escolha foi salva. */
+            function announceMotion(mode) {
+                if (!motionToast) return;
+                motionToast.textContent = mode === 'reduced'
+                    ? 'Movimento reduzido · salvo neste navegador'
+                    : 'Movimento completo · salvo neste navegador';
+                motionToast.classList.add('show');
+                clearTimeout(motionToastTimer);
+                motionToastTimer = setTimeout(() => motionToast.classList.remove('show'), 2600);
+            }
+
             if (motionBtn) {
                 motionBtn.addEventListener('click', () => {
                     const next = isReduced() ? 'full' : 'reduced';
                     applyMotion(next, true);
                     try { localStorage.setItem(MOTION_KEY, next); } catch (e) {}
+                    announceMotion(next);
                     if (navigator.vibrate) navigator.vibrate(12);
                 });
             }
