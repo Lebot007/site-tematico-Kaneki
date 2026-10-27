@@ -612,7 +612,7 @@
     <!-- Fundo em vídeo: AV1 1080p (originaL, sem perda) p/ navegadores modernos; H.264 720p como
          fallback (Safari <=16 NÃO reproduz AV1 -> antes ficava preto). preload="none": os bytes só
          entram quando o JS decide reproduzir (desktop / não-reduced / não-Save-Data). Poster cobre o resto. -->
-    <video id="bg-video" muted loop playsinline preload="none" poster="video-poster.webp"
+    <video id="bg-video" autoplay muted loop playsinline preload="metadata" poster="video-poster.webp"
            disablepictureinpicture class="fixed inset-0 w-full h-full object-cover z-[-2] opacity-60">
         <source src="video.mp4" type='video/mp4; codecs="av01.0.08M.08"'>
         <source src="video-fallback.mp4" type="video/mp4">
@@ -620,7 +620,7 @@
     <div id="video-overlay" class="fixed inset-0 bg-black z-[-1]" style="opacity: 0.2;"></div>
 
     <!-- preload="none": os ~26 MB de áudio NÃO são baixados no load; entram só quando o usuário dá play -->
-    <audio id="bg-audio" preload="none">
+    <audio id="bg-audio" preload="metadata">
         <source id="audio-source" src="musica.mp3" type="audio/mpeg">
     </audio>
 
@@ -858,14 +858,9 @@
             const bgVideo = document.getElementById('bg-video');
             if (bgVideo) {
                 bgVideo.addEventListener('ended', () => { bgVideo.currentTime = 0; tryPlay(bgVideo); }, { passive: true });
-                const wantVideo = () => !isReduced() && !saveData && !(isTouchDevice && window.matchMedia('(max-width: 820px)').matches);
-                const startVideo = () => {
-                    if (!wantVideo()) return;              // mobile / reduced / Save-Data -> só o poster
-                    if (bgVideo.readyState === 0) bgVideo.load();   // preload="none": busca só agora
-                    tryPlay(bgVideo);
-                };
-                // só depois do first paint / LCP, para não disputar a main thread nem a banda
-                (window.requestIdleCallback || ((cb) => setTimeout(cb, 600)))(startVideo, { timeout: 2500 });
+                const wantVideo = () => !isReduced() && !saveData;   // toca em todo device, como no original
+                const startVideo = () => { if (wantVideo()) tryPlay(bgVideo); };
+                startVideo();   // autoplay imediato, comportamento original
                 document.addEventListener('motion:change', () => { isReduced() ? bgVideo.pause() : startVideo(); });
                 // não decodificar vídeo em aba oculta (economia de CPU/GPU/bateria)
                 document.addEventListener('visibilitychange', () => { document.hidden ? bgVideo.pause() : startVideo(); }, { passive: true });
@@ -1368,80 +1363,18 @@
             class Centipede {
                 constructor(canvas) {
                     this.canvas = canvas; this.ctx = canvas.getContext('2d', { alpha: true });
-                    this.segments = []; this.numSegments = isTouchDevice ? 24 : 32;
-                    this.restSpacing = 10;
-                    this.running = false; this.path = []; this.s = 0; this.time = 0;
-                    this.rafId = null; this.lastTimestamp = 0; this.speed = 0;
-                    this.totalPathLength = 0; this.pathLengths = []; this.exitThreshold = 0;
-                    this.dpr = 1; this.sprites = []; this.headSprite = null;
-                    this._p = { x: 0, y: 0 }; this._q = { x: 0, y: 0 };   // vetores reutilizáveis (zero GC)
-                    this._acc = 0; this.FIXED = 1000 / 120;
-                    this.resize();
+                    this.segments = []; this.numSegments = isTouchDevice ? 28 : 35; this.segmentSpacing = 10;
+                    this.running = false; this.path = []; this.distanceTraveled = 0; this.time = 0;
+                    this.rafId = null; this.lastTimestamp = 0; this.speed = 0; this.totalPathLength = 0;
+                    this.pathLengths = []; this.exitThreshold = 0; this.resize();
                     let resizeTimeout;
                     window.addEventListener('resize', () => { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(() => this.resize(), 100); }, { passive: true });
                 }
                 resize() {
-                    // em touch limitamos o DPR: 390x844@3x = ~3.3 MP/frame de clearRect era caro demais
-                    this.dpr = Math.min(window.devicePixelRatio || 1, isTouchDevice ? 1.5 : 2);
-                    this.canvas.width = window.innerWidth * this.dpr; this.canvas.height = window.innerHeight * this.dpr;
+                    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+                    this.canvas.width = window.innerWidth * dpr; this.canvas.height = window.innerHeight * dpr;
                     this.canvas.style.width = window.innerWidth + 'px'; this.canvas.style.height = window.innerHeight + 'px';
-                    this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
-                    this.buildSprites();
-                }
-                /* Pré-rasteriza cada variante de segmento (e a cabeça) UMA vez.
-                   No loop só fazemos drawImage rotacionado: sem gradiente, sem bezier,
-                   sem shadowBlur por frame (shadowBlur é das ops mais caras do Canvas2D). */
-                buildSprites() {
-                    const dpr = this.dpr, pad = 24;
-                    this.sprites = [];
-                    for (let v = 0; v < 8; v++) {
-                        const progress = v / 7;
-                        const width = 13 - progress * 7, length = 9 - progress * 4;
-                        const w = Math.ceil((length * 2 + pad) * dpr), h = Math.ceil((width * 2 + pad) * dpr);
-                        const c = document.createElement('canvas'); c.width = w; c.height = h;
-                        const g = c.getContext('2d');
-                        g.setTransform(dpr, 0, 0, dpr, 0, 0);
-                        g.translate(w / (2 * dpr), h / (2 * dpr));
-                        if (!isTouchDevice) { g.shadowColor = 'rgba(0,0,0,0.9)'; g.shadowBlur = 6; g.shadowOffsetY = 3; }
-                        g.beginPath(); g.moveTo(length, 0);
-                        g.bezierCurveTo(length, width * 0.8, length * 0.5, width, -length * 0.5, width * 0.9);
-                        g.bezierCurveTo(-length, width * 0.5, -length, -width * 0.5, -length * 0.5, -width * 0.9);
-                        g.bezierCurveTo(length * 0.5, -width, length, -width * 0.8, length, 0); g.closePath();
-                        const grad = g.createLinearGradient(0, -width, 0, width);
-                        grad.addColorStop(0, '#0a0000'); grad.addColorStop(0.3, '#4a0000'); grad.addColorStop(0.5, '#7a0303');
-                        grad.addColorStop(0.7, '#4a0000'); grad.addColorStop(1, '#0a0000');
-                        g.fillStyle = grad; g.fill();
-                        g.shadowBlur = 0; g.shadowOffsetY = 0;
-                        g.strokeStyle = 'rgba(180,0,0,0.3)'; g.lineWidth = 0.8;
-                        g.beginPath(); g.moveTo(length * 0.7, 0); g.lineTo(-length * 0.7, 0); g.stroke();
-                        g.strokeStyle = '#000'; g.lineWidth = 1.2; g.stroke();
-                        this.sprites.push({ canvas: c, length, width, hw: w / (2 * dpr), hh: h / (2 * dpr) });
-                    }
-                    // cabeça
-                    const hw = Math.ceil(60 * dpr), hh = Math.ceil(44 * dpr);
-                    const hc = document.createElement('canvas'); hc.width = hw; hc.height = hh;
-                    const g = hc.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.translate(hw / (2 * dpr), hh / (2 * dpr));
-                    if (!isTouchDevice) { g.shadowColor = 'rgba(0,0,0,0.9)'; g.shadowBlur = 10; }
-                    g.beginPath(); g.moveTo(14, 0);
-                    g.bezierCurveTo(16, 11, 4, 15, -14, 12); g.bezierCurveTo(-18, 8, -18, -8, -14, -12);
-                    g.bezierCurveTo(4, -15, 16, -11, 14, 0); g.closePath();
-                    const headGrad = g.createRadialGradient(2, 0, 0, 0, 0, 18);
-                    headGrad.addColorStop(0, '#c41e1e'); headGrad.addColorStop(0.3, '#8a0000'); headGrad.addColorStop(1, '#050000');
-                    g.fillStyle = headGrad; g.fill();
-                    g.strokeStyle = '#000'; g.lineWidth = 1.5; g.stroke(); g.shadowBlur = 0;
-                    if (!isTouchDevice) { g.shadowColor = '#ff0000'; g.shadowBlur = 8; }
-                    g.fillStyle = '#ff2222';
-                    g.beginPath(); g.ellipse(8, -5, 3, 2, -0.3, 0, Math.PI * 2); g.fill();
-                    g.beginPath(); g.ellipse(8, 5, 3, 2, 0.3, 0, Math.PI * 2); g.fill();
-                    g.fillStyle = '#ffffff'; g.shadowBlur = 0;
-                    g.beginPath(); g.ellipse(9.5, -5, 1, 0.8, 0, 0, Math.PI * 2); g.fill();
-                    g.beginPath(); g.ellipse(9.5, 5, 1, 0.8, 0, 0, Math.PI * 2); g.fill();
-                    g.strokeStyle = '#1a0000'; g.lineWidth = 2.5; g.lineCap = 'round';
-                    g.beginPath(); g.moveTo(14, -4); g.quadraticCurveTo(22, -8, 26, -12); g.quadraticCurveTo(28, -8, 24, -6); g.stroke();
-                    g.beginPath(); g.moveTo(14, -2); g.quadraticCurveTo(24, -4, 30, -2); g.quadraticCurveTo(28, 2, 22, 2); g.stroke();
-                    g.beginPath(); g.moveTo(14, 4); g.quadraticCurveTo(22, 8, 26, 12); g.quadraticCurveTo(28, 8, 24, 6); g.stroke();
-                    g.beginPath(); g.moveTo(14, 2); g.quadraticCurveTo(24, 4, 30, 2); g.quadraticCurveTo(28, -2, 22, -2); g.stroke();
-                    this.headSprite = { canvas: hc, hw: hw / (2 * dpr), hh: hh / (2 * dpr) };
+                    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
                 }
                 generatePath() {
                     this.path = []; this.pathLengths = [];
@@ -1460,36 +1393,26 @@
                     this.path.push(points[points.length - 1]);
                     let acc = 0; this.pathLengths.push(0);
                     for (let i = 1; i < this.path.length; i++) {
-                        const dx = this.path[i].x - this.path[i - 1].x, dy = this.path[i].y - this.path[i - 1].y;
+                        const dx = this.path[i].x - this.path[i-1].x, dy = this.path[i].y - this.path[i-1].y;
                         acc += Math.sqrt(dx * dx + dy * dy); this.pathLengths.push(acc);
                     }
-                    this.totalPathLength = acc;
-                    // easing de entrada/saída na velocidade: anticipation + settle (nada de velocidade constante)
-                    this.speed = this.totalPathLength / 5500;
-                    this.exitThreshold = this.totalPathLength - (this.numSegments * this.restSpacing) - 50;
+                    this.totalPathLength = acc; this.speed = this.totalPathLength / 5500;
+                    this.exitThreshold = this.totalPathLength - (this.numSegments * this.segmentSpacing) - 50;
                 }
-                getPositionAtDistance(dist, out) {
-                    out = out || this._p;
-                    if (dist <= 0) { const a = this.path[0]; out.x = a.x; out.y = a.y; return out; }
-                    if (dist >= this.totalPathLength) { const a = this.path[this.path.length - 1]; out.x = a.x; out.y = a.y; return out; }
+                getPositionAtDistance(dist) {
+                    if (dist <= 0) return { x: this.path[0].x, y: this.path[0].y };
+                    if (dist >= this.totalPathLength) return this.path[this.path.length - 1];
                     let lo = 0, hi = this.pathLengths.length - 1;
                     while (lo < hi - 1) { const mid = (lo + hi) >> 1; if (this.pathLengths[mid] <= dist) lo = mid; else hi = mid; }
-                    const segStart = this.pathLengths[lo], segEnd = this.pathLengths[hi];
-                    const t = (dist - segStart) / (segEnd - segStart || 1);
+                    const segStart = this.pathLengths[lo], segEnd = this.pathLengths[hi], t = (dist - segStart) / (segEnd - segStart);
                     const p1 = this.path[lo], p2 = this.path[hi];
-                    out.x = p1.x + (p2.x - p1.x) * t; out.y = p1.y + (p2.y - p1.y) * t;
-                    return out;
+                    return { x: p1.x + (p2.x - p1.x) * t, y: p1.y + (p2.y - p1.y) * t };
                 }
                 start() {
-                    if (isReduced()) return;                       // a11y: sem animação de movimento
-                    this.generatePath(); this.s = 0; this.time = 0; this.lastTimestamp = 0; this._acc = 0;
-                    this.segments = [];
+                    this.generatePath(); this.distanceTraveled = 0; this.time = 0; this.lastTimestamp = 0; this.segments = [];
                     for (let i = 0; i < this.numSegments; i++) {
-                        const pos = this.getPositionAtDistance(-i * this.restSpacing, { x: 0, y: 0 });
-                        this.segments.push({
-                            s: -i * this.restSpacing, x: pos.x, y: pos.y, angle: 0,
-                            plant: null, phase: -i * 0.55          // marcha metacrônica
-                        });
+                        const pos = this.getPositionAtDistance(-i * this.segmentSpacing);
+                        this.segments.push({ x: pos.x, y: pos.y, angle: 0 });
                     }
                     this.running = true; this.canvas.classList.add('active');
                     this.rafId = requestAnimationFrame((t) => this.animate(t));
@@ -1499,140 +1422,93 @@
                     if (this.rafId) { cancelAnimationFrame(this.rafId); this.rafId = null; }
                     this.canvas.classList.remove('active');
                 }
-                /* Física a passo fixo (120 Hz): o movimento NÃO depende do refresh rate. */
                 animate(timestamp) {
                     if (!this.running) return;
                     if (!this.lastTimestamp) this.lastTimestamp = timestamp;
-                    let dt = Math.min(timestamp - this.lastTimestamp, 50); this.lastTimestamp = timestamp;
-                    this._acc += dt;
-                    let steps = 0;
-                    while (this._acc >= this.FIXED && steps < 6) { this.step(this.FIXED); this._acc -= this.FIXED; steps++; }
-                    if (steps === 6) this._acc = 0;
-                    this.render();
-                    this.rafId = requestAnimationFrame((t) => this.animate(t));
-                }
-                step(dt) {
-                    // velocidade com ease-in (arranque) e ease-out (chegada) => anticipation/settle
-                    const prog = this.s / this.totalPathLength;
-                    const ease = prog < 0.12 ? (prog / 0.12) * (prog / 0.12) : (prog > 0.85 ? Math.max(0.35, 1 - (prog - 0.85) / 0.3) : 1);
-                    this.s += this.speed * ease * dt;
-                    this.time += dt * 0.005;
-                    const tail = this.getPositionAtDistance(this.s - (this.numSegments - 1) * this.restSpacing, this._q);
-                    if (tail.x > window.innerWidth + 50) { this.stop(); return; }
-                    // cabeça segue o arco
-                    const head = this.getPositionAtDistance(this.s, this._p);
-                    this.segments[0].s = this.s;
-                    // cadeia com mola: cada segmento persegue o da frente com lag progressivo
-                    // (compression nas curvas, stretch nas retas = overlapping action + follow-through)
+                    const deltaTime = Math.min(timestamp - this.lastTimestamp, 50); this.lastTimestamp = timestamp;
+                    this.time += deltaTime * 0.005; this.distanceTraveled += this.speed * deltaTime;
+                    const tailPos = this.getPositionAtDistance(this.distanceTraveled - (this.numSegments - 1) * this.segmentSpacing);
+                    if (tailPos.x > window.innerWidth + 50) { this.stop(); return; }
+                    const headPos = this.getPositionAtDistance(this.distanceTraveled);
+                    this.segments[0].x = headPos.x; this.segments[0].y = headPos.y;
+                    const smoothing = 1 - Math.pow(1 - 0.72, deltaTime / 16);
                     for (let i = 1; i < this.segments.length; i++) {
-                        const seg = this.segments[i], prev = this.segments[i - 1];
-                        const curvature = Math.abs(prev.angle - seg.angle);
-                        const rest = this.restSpacing * (1 - Math.min(0.35, curvature * 0.9)); // comprime em curva
-                        const target = prev.s - rest;
-                        const k = 1 - Math.pow(1 - 0.55, dt / 16);                            // lag => follow-through
-                        seg.s += (target - seg.s) * k;
-                        seg.phase += dt * 0.0062;                                            // ciclo da passada
+                        const pos = this.getPositionAtDistance(this.distanceTraveled - i * this.segmentSpacing);
+                        const curr = this.segments[i];
+                        curr.x += (pos.x - curr.x) * smoothing; curr.y += (pos.y - curr.y) * smoothing;
+                        const prev = this.segments[i - 1]; curr.angle = Math.atan2(prev.y - curr.y, prev.x - curr.x);
                     }
-                    // posição final = ponto do arco + undulação lateral viajante (amplitude cresce p/ cauda)
-                    for (let i = 0; i < this.segments.length; i++) {
-                        const seg = this.segments[i];
-                        const pos = this.getPositionAtDistance(seg.s, this._p);
-                        const ahead = this.getPositionAtDistance(seg.s + 4, this._q);
-                        const tx = ahead.x - pos.x, ty = ahead.y - pos.y;
-                        const tl = Math.hypot(tx, ty) || 1;
-                        const nx = -ty / tl, ny = tx / tl;                                   // normal ao percurso
-                        const tailness = i / (this.segments.length - 1);
-                        const wave = Math.sin(this.time * 3 - i * 0.55) * (2.2 + 5.5 * tailness);
-                        seg.x = pos.x + nx * wave; seg.y = pos.y + ny * wave;
-                    }
-                    // ângulos suavizados (evita snap) — cabeça olha p/ segmento seguinte
-                    for (let i = this.segments.length - 1; i >= 1; i--) {
-                        const cur = this.segments[i], prev = this.segments[i - 1];
-                        const a = Math.atan2(prev.y - cur.y, prev.x - cur.x);
-                        cur.angle += (a - cur.angle) * Math.min(1, dt / 40);
-                    }
-                    if (this.segments.length > 1) {
-                        const h = this.segments[0], n = this.segments[1];
-                        const a = Math.atan2(n.y - h.y, n.x - h.x) + Math.PI;
-                        h.angle += (a - h.angle) * Math.min(1, dt / 40);
-                    }
+                    if (this.segments.length > 1) this.segments[0].angle = Math.atan2(this.segments[1].y - this.segments[0].y, this.segments[1].x - this.segments[0].x) + Math.PI;
+                    this.draw(); this.rafId = requestAnimationFrame((t) => this.animate(t));
                 }
-                render() {
+                draw() {
                     const ctx = this.ctx, w = window.innerWidth, h = window.innerHeight;
-                    ctx.clearRect(0, 0, w, h);
-                    this.drawLegs();
+                    ctx.clearRect(0, 0, w, h); this.drawLegs();
                     for (let i = this.segments.length - 1; i >= 1; i--) this.drawSegment(i);
                     this.drawHead();
                 }
                 drawSegment(i) {
-                    const seg = this.segments[i], ctx = this.ctx;
-                    const v = Math.min(7, Math.round((i / this.segments.length) * 7));
-                    const sp = this.sprites[v];
+                    const seg = this.segments[i], ctx = this.ctx, progress = i / this.segments.length;
+                    const width = 13 - progress * 7, length = 9 - progress * 4;
                     ctx.save(); ctx.translate(seg.x, seg.y); ctx.rotate(seg.angle);
-                    ctx.drawImage(sp.canvas, -sp.hw, -sp.hh, sp.hw * 2, sp.hh * 2);
+                    if (!isTouchDevice) { ctx.shadowColor = 'rgba(0, 0, 0, 0.9)'; ctx.shadowBlur = 6; ctx.shadowOffsetY = 3; }
+                    ctx.beginPath(); ctx.moveTo(length, 0);
+                    ctx.bezierCurveTo(length, width * 0.8, length * 0.5, width, -length * 0.5, width * 0.9);
+                    ctx.bezierCurveTo(-length, width * 0.5, -length, -width * 0.5, -length * 0.5, -width * 0.9);
+                    ctx.bezierCurveTo(length * 0.5, -width, length, -width * 0.8, length, 0); ctx.closePath();
+                    const grad = ctx.createLinearGradient(0, -width, 0, width);
+                    grad.addColorStop(0, '#0a0000'); grad.addColorStop(0.3, '#4a0000'); grad.addColorStop(0.5, '#7a0303'); grad.addColorStop(0.7, '#4a0000'); grad.addColorStop(1, '#0a0000');
+                    ctx.fillStyle = grad; ctx.fill();
+                    ctx.strokeStyle = 'rgba(180, 0, 0, 0.3)'; ctx.lineWidth = 0.8;
+                    ctx.beginPath(); ctx.moveTo(length * 0.7, 0); ctx.lineTo(-length * 0.7, 0); ctx.stroke();
+                    ctx.shadowBlur = 0;
+                    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.2; ctx.stroke();
                     ctx.restore();
                 }
                 drawHead() {
-                    const head = this.segments[0], ctx = this.ctx, sp = this.headSprite;
+                    const head = this.segments[0], ctx = this.ctx;
                     ctx.save(); ctx.translate(head.x, head.y); ctx.rotate(head.angle);
-                    ctx.drawImage(sp.canvas, -sp.hw, -sp.hh, sp.hw * 2, sp.hh * 2);
+                    if (!isTouchDevice) { ctx.shadowColor = 'rgba(0, 0, 0, 0.9)'; ctx.shadowBlur = 10; }
+                    ctx.beginPath(); ctx.moveTo(14, 0);
+                    ctx.bezierCurveTo(16, 11, 4, 15, -14, 12);
+                    ctx.bezierCurveTo(-18, 8, -18, -8, -14, -12);
+                    ctx.bezierCurveTo(4, -15, 16, -11, 14, 0); ctx.closePath();
+                    const headGrad = ctx.createRadialGradient(2, 0, 0, 0, 0, 18);
+                    headGrad.addColorStop(0, '#c41e1e'); headGrad.addColorStop(0.3, '#8a0000'); headGrad.addColorStop(1, '#050000');
+                    ctx.fillStyle = headGrad; ctx.fill();
+                    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5; ctx.stroke();
+                    ctx.shadowBlur = 0;
+                    if (!isTouchDevice) { ctx.shadowColor = '#ff0000'; ctx.shadowBlur = 8; }
+                    ctx.fillStyle = '#ff2222';
+                    ctx.beginPath(); ctx.ellipse(8, -5, 3, 2, -0.3, 0, Math.PI * 2); ctx.fill();
+                    ctx.beginPath(); ctx.ellipse(8, 5, 3, 2, 0.3, 0, Math.PI * 2); ctx.fill();
+                    ctx.fillStyle = '#ffffff'; ctx.shadowBlur = 0;
+                    ctx.beginPath(); ctx.ellipse(9.5, -5, 1, 0.8, 0, 0, Math.PI * 2); ctx.fill();
+                    ctx.beginPath(); ctx.ellipse(9.5, 5, 1, 0.8, 0, 0, Math.PI * 2); ctx.fill();
+                    ctx.strokeStyle = '#1a0000'; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
+                    ctx.beginPath(); ctx.moveTo(14, -4); ctx.quadraticCurveTo(22, -8, 26, -12); ctx.quadraticCurveTo(28, -8, 24, -6); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(14, -2); ctx.quadraticCurveTo(24, -4, 30, -2); ctx.quadraticCurveTo(28, 2, 22, 2); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(14, 4); ctx.quadraticCurveTo(22, 8, 26, 12); ctx.quadraticCurveTo(28, 8, 24, 6); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(14, 2); ctx.quadraticCurveTo(24, 4, 30, 2); ctx.quadraticCurveTo(28, -2, 22, -2); ctx.stroke();
+                    ctx.strokeStyle = 'rgba(180, 0, 0, 0.5)'; ctx.lineWidth = 1;
+                    ctx.beginPath(); ctx.moveTo(10, -10); ctx.quadraticCurveTo(5, -14, -5, -11); ctx.stroke();
                     ctx.restore();
                 }
-                /* Pernas: IK de 2 ossos + FOOT PLANTING.
-                   Na fase de APOIO o pé fica congelado no mundo (zero sliding); na fase de
-                   BALANÇO ele voa até o próximo ponto de apoio. Marcha metacrônica (defasagem
-                   constante entre segmentos) => o padrão de ondulação real de miriápodes.
-                   Todas as pernas vão para UM único path -> um stroke só (batching). */
                 drawLegs() {
-                    const ctx = this.ctx;
-                    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-                    const L1 = 9, L2 = 14;
-                    ctx.beginPath();
+                    const ctx = this.ctx; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
                     for (let i = 1; i < this.segments.length - 1; i++) {
-                        const seg = this.segments[i];
-                        const progress = i / this.segments.length;
-                        const legLen2 = L2 - progress * 6;
-                        const nx = Math.cos(seg.angle + Math.PI / 2), ny = Math.sin(seg.angle + Math.PI / 2);
-                        const fx = Math.cos(seg.angle), fy = Math.sin(seg.angle);
+                        const seg = this.segments[i], progress = i / this.segments.length;
+                        const legLen1 = 9, legLen2 = 14 - progress * 6, perpAngle = seg.angle + Math.PI / 2;
+                        const phase = this.time * 3 + i * 0.7, wave = Math.sin(phase) * 0.5, wave2 = Math.cos(phase) * 0.4;
                         for (let side = -1; side <= 1; side += 2) {
-                            const hipX = seg.x + nx * side * 6, hipY = seg.y + ny * side * 6;
-                            const phase = (seg.phase + i * 0.0) * Math.PI * 2 * 0.5;
-                            const cyc = ((phase % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
-                            const stanceFrac = 0.62;
-                            let footX, footY;
-                            if (cyc < Math.PI * 2 * stanceFrac) {
-                                // APOIO: planta o pé uma vez e segura (mundo), => sem patinar
-                                if (!seg.plant) seg.plant = [{}, {}];
-                                const pl = seg.plant[side === -1 ? 0 : 1];
-                                if (pl.x === undefined) { pl.x = hipX + nx * side * (L1 + legLen2) * 0.8 + fx * 4; pl.y = hipY + ny * side * (L1 + legLen2) * 0.8 + fy * 4; }
-                                footX = pl.x; footY = pl.y;
-                            } else {
-                                // BALANÇO: alvo à frente do corpo; pé "levanta" (encolhe) no meio
-                                seg.plant && (seg.plant[side === -1 ? 0 : 1] = {});
-                                const t = (cyc - Math.PI * 2 * stanceFrac) / (Math.PI * 2 * (1 - stanceFrac));
-                                const reach = (L1 + legLen2) * 0.8;
-                                const from = (seg.plant && seg.plant[side === -1 ? 0 : 1]) || {};
-                                const sx = (from.x !== undefined ? from.x : hipX + nx * side * reach);
-                                const sy = (from.y !== undefined ? from.y : hipY + ny * side * reach);
-                                const tx2 = hipX + nx * side * reach * 0.55 + fx * 10, ty2 = hipY + ny * side * reach * 0.55 + fy * 10;
-                                const e = t * t * (3 - 2 * t);
-                                footX = sx + (tx2 - sx) * e; footY = sy + (ty2 - sy) * e;
-                            }
-                            // IK 2 ossos (lei dos cossenos) => joelho
-                            let dx = footX - hipX, dy = footY - hipY;
-                            let d = Math.hypot(dx, dy);
-                            const maxd = L1 + legLen2 - 0.001;
-                            if (d > maxd) { dx *= maxd / d; dy *= maxd / d; d = maxd; footX = hipX + dx; footY = hipY + dy; }
-                            d = Math.max(d, 0.001);
-                            const a1 = Math.acos(Math.min(1, Math.max(-1, (L1 * L1 + d * d - legLen2 * legLen2) / (2 * L1 * d))));
-                            const base = Math.atan2(dy, dx);
-                            const kneeA = base + a1 * side;
-                            const kneeX = hipX + Math.cos(kneeA) * L1, kneeY = hipY + Math.sin(kneeA) * L1;
-                            ctx.moveTo(seg.x, seg.y);
-                            ctx.lineTo(hipX, hipY); ctx.lineTo(kneeX, kneeY); ctx.lineTo(footX, footY);
+                            const baseAngle = perpAngle * side;
+                            const j1X = seg.x + Math.cos(baseAngle) * 7, j1Y = seg.y + Math.sin(baseAngle) * 7;
+                            const j2X = j1X + Math.cos(baseAngle + wave * side) * legLen1, j2Y = j1Y + Math.sin(baseAngle + wave * side) * legLen1;
+                            const eX = j2X + Math.cos(baseAngle + wave * side + 0.9 * side + wave2) * legLen2, eY = j2Y + Math.sin(baseAngle + wave * side + 0.9 * side + wave2) * legLen2;
+                            ctx.strokeStyle = '#0a0000'; ctx.lineWidth = 2.2;
+                            ctx.beginPath(); ctx.moveTo(seg.x, seg.y); ctx.lineTo(j1X, j1Y); ctx.lineTo(j2X, j2Y); ctx.lineTo(eX, eY); ctx.stroke();
                         }
                     }
-                    ctx.strokeStyle = '#0a0000'; ctx.lineWidth = 2.2; ctx.stroke();
                 }
             }
 
