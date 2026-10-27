@@ -627,7 +627,13 @@
         @keyframes glitch-flash { 0%, 100% { opacity: 0; } 10%, 30%, 50%, 70%, 90% { opacity: 1; transform: translateX(-3px); } 20%, 40%, 60%, 80% { opacity: 1; transform: translateX(3px); } }
         @keyframes glitch-shift { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px) skewX(3deg); } 75% { transform: translateX(8px) skewX(-3deg); } }
 
-        .chains-overlay { position: fixed; inset: 0; z-index: 9993; pointer-events: none; opacity: 0; transition: opacity 0.8s ease; }
+        /* Fade da camada: `ease` genérico lê como "seco" numa camada full-viewport.
+           Entrada com expo-out (cubic-bezier(0.16,1,0.3,1)) = aparece já presente e
+           assenta devagar; saída com a curva padrão do Material (0.4,0,0.2,1), mais
+           longa, para a tela não "piscar" quando as correntes vão embora.
+           Ref: https://easings.net/ (easeOutExpo) / material.io motion curves.      */
+        .chains-overlay { position: fixed; inset: 0; z-index: 9993; pointer-events: none; opacity: 0; transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1); }
+        .chains-overlay.leaving { transition: opacity 0.9s cubic-bezier(0.4, 0, 0.2, 1); }
         .chains-overlay.active { opacity: 1; }
         .chain-group { 
             position: absolute; 
@@ -2335,66 +2341,154 @@
             const centipedeCanvas = document.getElementById('centipede-canvas');
             const centipede = new Centipede(centipedeCanvas);
             const chainGroups = document.querySelectorAll('.chain-group');
-            let chainSwayTimelines = [];
-            
+            /* Todas as timelines das correntes (entrada, assentamento e sway) ficam
+               rastreadas: antes só o sway era morto, então sair no meio da entrada
+               deixava dois tweens brigando pelo mesmo elemento.                        */
+            let chainTimelines = [];
+
+            /* Estado inicial (NÃO remover): o painel do Kaneki começa fora da tela e
+               cada corrente começa invisível, já girada para o seu ângulo de repouso e
+               com transformOrigin explícito — é em torno dele que o assentamento oscila. */
             gsap.set(kanekiContainer, { x: '100%', opacity: 0 });
-            
+
             chainGroups.forEach((chain) => {
                 const rot = parseFloat(chain.dataset.rot) || 0;
-                gsap.set(chain, { 
-                    rotation: rot, 
-                    opacity: 0, 
-                    x: 0, 
-                    y: 0, 
+                gsap.set(chain, {
+                    rotation: rot,
+                    opacity: 0,
+                    x: 0,
+                    y: 0,
                     scale: 1,
                     transformOrigin: 'center center'
                 });
             });
-            
+
             let longPressTimer = null, kanekiActive = false, kanekiCooldown = false;
 
+            function killChainTimelines() {
+                chainTimelines.forEach((tl) => { try { tl.kill(); } catch (e) {} });
+                chainTimelines = [];
+            }
+
+            /* ── CORRENTES: follow-through ─────────────────────────────────────────────
+               O que estava "seco": a corrente entrava com power3.out e PARAVA de vez no
+               lugar. Movimento rígido é literalmente isso — "stiff motion occurs when an
+               object moves from one position to another ... and stops suddenly; in
+               reality objects slow down, overlap, and settle naturally" (RebusFarm,
+               Follow Through & Overlapping Action). Metal pesado tem inércia: ele passa
+               do ponto de repouso e volta oscilando até amortecer.
+
+               Receita (oscilador amortecido escrito em keyframes, não em elastic.out,
+               para a amplitude ser controlável e o repouso ser exato):
+                 1) power4.out na queda principal  → chega rápido, com peso;
+                 2) 3 meias-oscilações em sine.inOut (a curva real de um pêndulo: rápida
+                    no centro, lenta nos extremos) com amplitude caindo para 45% da
+                    anterior — o "assentar" que faltava;
+                 3) o sway infinito só começa em repouso (v=0 dos dois lados) → a troca
+                    de fase não dá tranco;
+                 4) will-change só enquanto anima (GSAP perf skill: nunca deixar fixo —
+                    cada .chain-link carrega 2 drop-shadow, e camada fixa = raster caro);
+                 5) stagger irregular: correntes não caem como metrônomo.
+
+               Refs: GSAP Easing (back/elastic = overshoot configurável), Disney
+               "The Illusion of Life" — follow through, overlapping action, slow in/out. */
+            const CHAIN_DAMPING = 0.45;
+
+            function chainSettle(chain, rot, isTop, isMid, isLeft) {
+                /* direção da inércia: quem vem de cima continua para baixo;
+                   quem vem da lateral continua para dentro.                              */
+                const dy = isTop ? 1 : -1;
+                const dx = isMid ? (isLeft ? 1 : -1) : 0;
+                const dr = isTop ? -1 : 1;
+                let ampY = isMid ? 0 : 13;
+                let ampX = isMid ? 16 : 0;
+                let ampR = 3.6;
+                const tl = gsap.timeline();
+                for (let k = 0; k < 3; k++) {
+                    const sign = k % 2 === 0 ? 1 : -1;
+                    tl.to(chain, {
+                        y: sign * ampY * dy,
+                        x: sign * ampX * dx,
+                        rotation: rot + sign * ampR * dr,
+                        duration: 0.30 - k * 0.02,
+                        ease: 'sine.inOut'
+                    });
+                    ampY *= CHAIN_DAMPING; ampX *= CHAIN_DAMPING; ampR *= CHAIN_DAMPING;
+                }
+                return tl.to(chain, { y: 0, x: 0, rotation: rot, duration: 0.26, ease: 'sine.inOut' });
+            }
+
             function animateChainsIn() {
+                chainsOverlay.classList.remove('leaving');
                 chainsOverlay.classList.add('active');
-                chainSwayTimelines.forEach(tl => tl.kill());
-                chainSwayTimelines = [];
+                killChainTimelines();
                 chainGroups.forEach((chain, i) => {
                     const rot = parseFloat(chain.dataset.rot) || 0;
                     const isTop = chain.classList.contains('chain-tl') || chain.classList.contains('chain-tr');
                     const isMid = chain.classList.contains('chain-mid-l') || chain.classList.contains('chain-mid-r');
+                    const isLeft = chain.classList.contains('chain-tl') || chain.classList.contains('chain-mid-l');
                     const startY = isTop ? -150 : (isMid ? 0 : 150);
-                    const startX = isMid ? (chain.classList.contains('chain-mid-l') ? -150 : 150) : 0;
-                    if (isReduced()) {   // modo reduzido: posiciona direto, sem entrada animada nem sway infinito
+                    const startX = isMid ? (isLeft ? -150 : 150) : 0;
+
+                    gsap.killTweensOf(chain);
+                    if (isReduced()) {   // modo reduzido: posiciona direto, sem entrada nem sway
                         gsap.set(chain, { opacity: 1, rotation: rot, x: 0, y: 0, scale: 1 });
                         return;
                     }
-                    gsap.set(chain, { opacity: 0, rotation: rot + (isTop ? -15 : 15), y: startY, x: startX, scale: 0.8 });
-                    gsap.to(chain, {
+                    chain.style.willChange = 'transform, opacity';
+                    gsap.set(chain, { opacity: 0, rotation: rot + (isTop ? -15 : 15), y: startY, x: startX, scale: 0.86 });
+
+                    const tl = gsap.timeline({ delay: i * 0.075 + (i % 2 ? 0.03 : 0) });
+                    tl.to(chain, {
                         opacity: 1, rotation: rot, y: 0, x: 0, scale: 1,
-                        duration: 1.2, ease: "power3.out", delay: i * 0.08,
-                        onComplete: () => {
-                            const swayTl = gsap.timeline({ repeat: -1, yoyo: true });
-                            const swayAmount = 2 + Math.random() * 2;
-                            const swayRot = 1.5 + Math.random() * 1;
-                            const duration = 3.5 + Math.random() * 2;
-                            swayTl.to(chain, { rotation: rot + swayRot, x: swayAmount, duration: duration, ease: "sine.inOut" });
-                            chainSwayTimelines.push(swayTl);
-                        }
-                    });
+                        duration: 0.85, ease: 'power4.out'
+                    })
+                      .add(chainSettle(chain, rot, isTop, isMid, isLeft))
+                      .call(() => {
+                          chain.style.willChange = '';
+                          const swayTl = gsap.timeline({ repeat: -1, yoyo: true });
+                          const swayAmount = 2 + Math.random() * 2;
+                          const swayRot = 1.5 + Math.random() * 1;
+                          const duration = 3.5 + Math.random() * 2;
+                          swayTl.to(chain, { rotation: rot + swayRot, x: swayAmount, duration: duration, ease: 'sine.inOut' });
+                          chainTimelines.push(swayTl);
+                      });
+                    chainTimelines.push(tl);
                 });
             }
 
             function animateChainsOut() {
-                chainSwayTimelines.forEach(tl => tl.kill());
-                chainSwayTimelines = [];
+                killChainTimelines();
                 chainGroups.forEach((chain, i) => {
                     const rot = parseFloat(chain.dataset.rot) || 0;
                     const isTop = chain.classList.contains('chain-tl') || chain.classList.contains('chain-tr');
-                    gsap.to(chain, {
-                        opacity: 0, y: isReduced() ? 0 : (isTop ? -100 : 100), rotation: rot + (isReduced() ? 0 : (isTop ? 10 : -10)),
-                        duration: 0.6, ease: "power2.in", delay: i * 0.04
-                    });
+                    gsap.killTweensOf(chain);
+                    if (isReduced()) {
+                        gsap.to(chain, { opacity: 0, duration: 0.45, ease: 'power1.inOut' });
+                        return;
+                    }
+                    chain.style.willChange = 'transform, opacity';
+                    /* Anticipation: um leve preparo CONTRÁRIO antes de sair. Sem ele a
+                       saída é um corte — o mesmo "seco" da entrada, só no fim.           */
+                    const tl = gsap.timeline({ delay: i * 0.045 });
+                    tl.to(chain, {
+                        y: isTop ? 10 : -10,
+                        rotation: rot + (isTop ? -2.5 : 2.5),
+                        duration: 0.22, ease: 'power1.out'
+                    })
+                      .to(chain, {
+                          opacity: 0,
+                          y: isTop ? -120 : 120,
+                          rotation: rot + (isTop ? 9 : -9),
+                          scale: 0.92,
+                          duration: 0.72, ease: 'power2.in',
+                          onComplete: () => { chain.style.willChange = ''; }
+                      });
+                    chainTimelines.push(tl);
                 });
-                setTimeout(() => { chainsOverlay.classList.remove('active'); }, 800);
+                chainsOverlay.classList.add('leaving');
+                setTimeout(() => { chainsOverlay.classList.remove('active'); }, 1000);
+                setTimeout(() => { chainsOverlay.classList.remove('leaving'); }, 2000);
             }
 
             function triggerKaneki() {
