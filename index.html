@@ -262,7 +262,20 @@
         .ghoul-card:hover { border-color: #c41e1e; transform: translateY(-3px); }
         .ghoul-card:hover::after { opacity: 1; }
 
-        .kanji-bg { font-size: 45vw; color: rgba(138, 3, 3, 0.05); position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 0; pointer-events: none; user-select: none; }
+        /* Centralização SEM transform: o parallax do MOTION PASS escreve `transform` via
+           GSAP, e o GSAP também grava `translate:none; rotate:none; scale:none` inline
+           (verificado: ele zera as individual transform properties para o próprio
+           `transform` ser autoritativo). Qualquer centralização por `translate`/`transform`
+           seria (a) atropelada e (b) convertida de % para px fixo no primeiro render —
+           quebrando em resize. Solução: a caixa ocupa a seção inteira e o glifo é
+           centralizado por flex. Escala/parallax acontecem em volta do MESMO ponto central,
+           então o resultado visual é idêntico ao translate(-50%,-50%) anterior. */
+        .kanji-bg {
+            font-size: 45vw; color: rgba(138, 3, 3, 0.05);
+            position: absolute; inset: 0; z-index: 0;
+            display: flex; align-items: center; justify-content: center;
+            pointer-events: none; user-select: none;
+        }
 
         .higanbana-stage { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2rem; padding: 2rem 1rem; min-height: 420px; justify-content: center; }
 
@@ -429,6 +442,86 @@
         /* Pausa animações CSS infinitas quando o bloco sai da viewport (economia de GPU sem mudar estética) */
         .anim-paused, .anim-paused * { animation-play-state: paused !important; }
 
+        /* ══ MOTION PASS — CSS ══════════════════════════════════════════════════════
+           Regra de ouro (web.dev "Stick to Compositor-Only Properties" + guide oficial
+           gsap-performance): só `transform`/`opacity`/`translate`/`scale` animam aqui.
+           Nada de width/height/top/left/margin/box-shadow/filter em loop.
+           · https://web.dev/articles/stick-to-compositor-only-properties-and-manage-layer-count
+           · https://web.dev/articles/animations-guide
+           · https://github.com/greensock/gsap-skills/blob/main/skills/gsap-performance/SKILL.md
+           Tudo que é contínuo fica sob `html[data-motion]`/`[data-motion-tier]` e é
+           pausado por IntersectionObserver + visibilitychange (ver JS).              */
+
+        /* 1) Barra de progresso de scroll — 1 camada de 2px, scaleX no compositor.
+              Custo por frame ~zero; dá leitura de posição e "vida" ao scroll. */
+        .scroll-progress {
+            position: fixed; top: 0; left: 0; height: 2px; width: 100%; z-index: 10000;
+            transform: scaleX(0); transform-origin: 0 50%;
+            background: linear-gradient(90deg, rgba(196, 30, 30, 0.25), var(--blood-bright) 55%, #ff5a3c);
+            pointer-events: none; opacity: 0; transition: opacity 0.5s ease;
+            will-change: transform;
+        }
+        body.site-entered .scroll-progress { opacity: 1; }
+        html[data-motion="reduced"] .scroll-progress { display: none; }
+
+        /* 2) Canvas de brasas do hero — CONFINADO à seção (não fixed na página: uma
+              camada fixed do tamanho da viewport recomposição a cada scroll). */
+        .ember-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+
+        /* 3) Vida ambiente BARATA no touch: camadas minúsculas, loop lento, só
+              `translate`/`scale` (compositor). Custo constante ~zero e não entra na
+              conta de composição do swipe dos cards — que é o que causava o flicker. */
+        @keyframes rize-float { from { translate: 0 0; } to { translate: 0 -6px; } }
+        @keyframes kanji-breathe { from { scale: 1; } to { scale: 1.035; } }
+        @media (hover: none), (pointer: coarse) {
+            html[data-motion="full"] .rize-count { animation: rize-float 6s ease-in-out infinite alternate; }
+            html[data-motion="full"] .kanji-bg { animation: kanji-breathe 11s ease-in-out infinite alternate; }
+        }
+
+        /* 4) Ken Burns no dossiê ativo (desktop): deriva lentíssima de escala sobre a
+              foto — o truque mais barato de "parece vivo" que existe, 100% compositor.
+              Só no tier full e só no card .active (1 camada por vez). */
+        @keyframes ken-burns {
+            from { transform: scale(1.05) translate3d(0, 0, 0); }
+            to   { transform: scale(1.11) translate3d(-1.2%, -1.4%, 0); }
+        }
+        html[data-motion-tier="full"] .project-card.active .card-bg-image {
+            animation: ken-burns 16s ease-in-out infinite alternate;
+        }
+
+        /* 5) Glare do tilt 3D nos social-cards (desktop). Custom properties --gx/--gy
+              movem um radial-gradient pequeno. É paint (não compositor), por isso:
+              área mínima, só durante hover real, só no tier full, e sem transição. */
+        .social-card .card-glare {
+            position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+            opacity: 0; transition: opacity 0.35s ease; z-index: 3;
+            background: radial-gradient(220px circle at var(--gx, 50%) var(--gy, 50%),
+                        rgba(255, 90, 60, 0.16), rgba(196, 30, 30, 0.05) 45%, transparent 70%);
+        }
+        html[data-motion-tier="full"] .social-card:hover .card-glare { opacity: 1; }
+        .social-card > *:not(.card-glare) { position: relative; z-index: 4; }
+
+        /* 6) Perspectiva do tilt 3D: vem de `transformPerspective` no quickTo (GSAP injeta
+              perspective() no transform do próprio elemento), NÃO de `perspective` no grid.
+              Um perspective no pai criaria um contexto 3D para os 5 cards de uma vez
+              (camada de composição maior, sem ganho visual) — cada card ter o próprio ponto
+              de fuga é justamente o look "tilt card" que se quer. Nada a declarar aqui. */
+
+        /* 7) Modo reduzido: desliga o que é movimento, mantém o que é crossfade.
+              Nada é "removido" — a informação continua lá, só não se desloca. */
+        html[data-motion="reduced"] .ember-canvas,
+        html[data-motion="reduced"] .social-card .card-glare { display: none; }
+        html[data-motion="reduced"] .rize-count,
+        html[data-motion="reduced"] .kanji-bg,
+        html[data-motion="reduced"] .project-card.active .card-bg-image { animation: none !important; }
+
+        /* 8) Acessibilidade: texto só para leitor de tela (usado no decode de títulos
+              para nunca expor o texto embaralhado como nome acessível). */
+        .sr-only {
+            position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+            overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+        }
+
         /* camada GPU só durante o gesto (will-change permanente causava layer-thrashing em mobile) */
         .carousel-wrapper.is-swiping .project-card { will-change: transform, opacity; }
         .carousel-wrapper { position: relative; width: 100%; height: 600px; user-select: none; -webkit-user-select: none; touch-action: pan-y; overflow: hidden; }
@@ -478,21 +571,44 @@
         .card-cta-arrow { width: 24px; height: 1px; background: var(--blood-bright); position: relative; }
         .card-cta-arrow::after { content: ''; position: absolute; right: 0; top: -3px; width: 7px; height: 7px; border-top: 1px solid var(--blood-bright); border-right: 1px solid var(--blood-bright); transform: rotate(45deg); }
 
-        .carousel-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 50px; height: 50px; background: rgba(10, 4, 4, 0.85); border: 1px solid rgba(196, 30, 30, 0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: none; z-index: 10; transition: background 0.3s, border-color 0.3s, transform 0.2s; color: var(--blood-bright); -webkit-tap-highlight-color: transparent; backdrop-filter: blur(10px); }
+        /* Centralização vertical SEM transform (top/bottom:0 + margin:auto). Motivo: o
+           hover magnético do MOTION PASS escreve `transform` inline via quickTo, e o GSAP
+           (a) substitui o `transform: translateY(-50%)` e (b) grava `translate:none` inline,
+           convertendo a centralização de % para px fixo no primeiro render -> desalinha em
+           resize. Com margin:auto o GSAP fica 100% dono do `transform`.
+           `transform` também saiu da transição: CSS transition brigaria com os writes por
+           frame do quickTo (sensação de "borracha"). O feedback de clique foi para o <svg>
+           interno, que o GSAP nunca toca. */
+        .carousel-nav { position: absolute; top: 0; bottom: 0; margin: auto 0; width: 50px; height: 50px; background: rgba(10, 4, 4, 0.85); border: 1px solid rgba(196, 30, 30, 0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: none; z-index: 10; transition: background 0.3s, border-color 0.3s; color: var(--blood-bright); -webkit-tap-highlight-color: transparent; backdrop-filter: blur(10px); }
         .carousel-nav:hover { background: rgba(196, 30, 30, 0.2); border-color: var(--blood-bright); }
-        .carousel-nav:active { transform: translateY(-50%) scale(0.92); }
+        .carousel-nav svg { transition: scale 0.2s cubic-bezier(0.22, 1, 0.36, 1); }
+        .carousel-nav:active svg { scale: 0.9; }
         .carousel-nav.prev { left: 20px; }
         .carousel-nav.next { right: 20px; }
         .carousel-nav svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 2; fill: none; }
         .carousel-dots { position: absolute; bottom: -30px; left: 50%; transform: translateX(-50%); display: flex; gap: 12px; z-index: 5; }
-        .carousel-dot { width: 6px; height: 6px; background: rgba(196, 30, 30, 0.3); border-radius: 50%; cursor: none; transition: all 0.4s ease; -webkit-tap-highlight-color: transparent; }
+        .carousel-dot { width: 6px; height: 6px; background: rgba(196, 30, 30, 0.3); border-radius: 50%; cursor: none; transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1), height 0.4s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.4s ease, border-radius 0.4s ease; -webkit-tap-highlight-color: transparent; }
+        /* ^ `transition: all` era anti-padrão por dois motivos: (1) animava propriedades
+             não intencionadas e (2) incluía `transform`, que brigaria com o quickTo do
+             hover magnético (o GSAP escreve por frame; a transição CSS atrasaria cada
+             write => sensação de borracha). Lista explícita, sem transform. */
         .carousel-dot.active { background: var(--blood-bright); width: 24px; border-radius: 3px; }
 
-        .social-card { background: rgba(15, 5, 5, 0.75); border: 1px solid rgba(138, 3, 3, 0.35); transition: border-color 0.3s, transform 0.3s, background 0.3s; position: relative; contain: layout style paint; -webkit-tap-highlight-color: transparent; }
+        .social-card { background: rgba(15, 5, 5, 0.75); border: 1px solid rgba(138, 3, 3, 0.35); transition: border-color 0.3s, translate 0.35s cubic-bezier(0.22, 1, 0.36, 1), background 0.3s; position: relative; contain: layout style paint; -webkit-tap-highlight-color: transparent; }
         .social-card::after { content: ''; position: absolute; inset: -1px; border-radius: inherit; box-shadow: 0 0 25px rgba(196, 30, 30, 0.4); opacity: 0; transition: opacity 0.3s; pointer-events: none; }
-        .social-card:hover { border-color: #c41e1e; transform: translateY(-4px); background: rgba(25, 8, 8, 0.85); }
+        .social-card:hover { border-color: #c41e1e; background: rgba(25, 8, 8, 0.85); }
         .social-card:hover::after { opacity: 1; }
         .social-card:hover .social-icon { color: #ff3333; transform: scale(1.1); }
+        /* O lift do hover saiu de `transform: translateY(-4px)` para `translate: 0 -4px`
+           (propriedade independente) porque o tilt 3D do MOTION PASS escreve `transform`
+           via GSAP no mesmo elemento — os dois compõem em vez de se sobrescrever.
+           @supports mantém o comportamento antigo em browsers sem `translate`. */
+        @supports (translate: 0 -4px) {
+            .social-card:hover { translate: 0 -4px; }
+        }
+        @supports not (translate: 0 -4px) {
+            .social-card:hover { transform: translateY(-4px); }
+        }
         .social-icon { transition: color 0.3s, transform 0.3s; color: var(--bone); }
         .social-label { font-size: 0.75rem; letter-spacing: 0.2em; color: #a3a3a3; text-transform: uppercase; }
         .social-handle { font-size: 0.85rem; color: #737373; margin-top: 4px; font-family: 'Space Grotesk', sans-serif; }
@@ -644,6 +760,10 @@
     </style>
 </head>
 <body>
+
+    <!-- Progresso de scroll: 1 camada de 2px, animada só com scaleX (compositor).
+         aria-hidden porque é redundante com a scrollbar nativa / AT. -->
+    <div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
 
     <div class="entry-overlay" id="entry-overlay">
         <div class="text-center">
@@ -833,7 +953,7 @@
     <section class="min-h-[70vh] flex flex-col items-center justify-center px-6 py-20">
         <h3 class="text-3xl font-jp mb-4 tracking-wide text-center" style="color: #c41e1e;">Conexões</h3>
         <p class="text-center text-readable-faint text-sm tracking-widest uppercase mb-12">Onde me encontrar</p>
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-5 max-w-6xl w-full">
+        <div class="social-grid grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-5 max-w-6xl w-full">
             <a href="https://www.instagram.com/https.jvalves/" target="_blank" rel="noopener" class="social-card rounded-sm p-6 flex flex-col items-center text-center cursor-pointer block group">
                 <svg class="social-icon w-10 h-10 mb-3" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
                 <div class="social-label">Instagram</div><div class="social-handle">@https.jvalves</div>
@@ -946,7 +1066,11 @@
 
             /* Pausa blocos de animação CSS infinita (flor higanbana, visualizer, pulso da capa)
                quando estão fora da viewport — mesmo visual, zero GPU desperdiçada. */
-            const animBlocks = document.querySelectorAll('.higanbana-stage, .music-player');
+            /* Pausa blocos de animação CSS infinita (flor higanbana, visualizer, pulso da capa,
+               ken-burns do dossiê ativo) quando estão fora da viewport — mesmo visual, zero
+               GPU desperdiçada. `.carousel-wrapper` entrou junto com o MOTION PASS: o
+               ken-burns só precisa rodar com o carrossel visível. */
+            const animBlocks = document.querySelectorAll('.higanbana-stage, .music-player, .carousel-wrapper');
             if ('IntersectionObserver' in window) {
                 const io = new IntersectionObserver((entries) => {
                     entries.forEach(en => en.target.classList.toggle('anim-paused', !en.isIntersecting));
@@ -1260,41 +1384,513 @@
 
             gsap.to("#video-overlay", { opacity: 0.75, ease: "none", scrollTrigger: { trigger: "body", start: "top top", end: "100vh top", scrub: 0.5 } });
 
-            /* Revelações de entrada.
-               - filter:blur() NÃO é composited (repinta o bloco inteiro por frame): caro em touch.
-                 Em touch usamos a mesma revelação sem blur (y/opacity/scale = 100% compositor).
-               - toggleActions termina em "none" (não "reverse"): o swipe/scroll NUNCA reverte a
-                 animação no meio do gesto — causa direta do flicker relatado nos cards.
-               - once:true libera a camada GPU assim que a revelação termina.            */
-            const mm = gsap.matchMedia();
-            mm.add("(hover: none), (pointer: coarse)", () => {
-                gsap.utils.toArray('.social-card, .ghoul-card').forEach((card, i) => {
-                    gsap.from(card, { y: 50, opacity: 0, scale: 0.95, duration: 0.9, ease: "expo.out", delay: i * 0.06,
-                        scrollTrigger: { trigger: card, start: "top 88%", once: true } });
+            /* ══ REVEALS + MOTION PASS v2 ═══════════════════════════════════════════════
+               Objetivo: mais vida no desktop E no mobile sem remover nada, sem
+               reintroduzir o flicker do swipe e sem estourar orçamento de frame.
+
+               Fontes cruzadas antes de escrever (protocolo research-driven):
+               · GSAP official performance skill — "Use stagger instead of many separate
+                 tweens with manual delays"; "quickTo() for frequently updated properties";
+                 "will-change only on elements that are actually animating"; "kill/pause
+                 off-screen animations".
+                 https://github.com/greensock/gsap-skills/blob/main/skills/gsap-performance/SKILL.md
+               · web.dev — Stick to Compositor-Only Properties and Manage Layer Count
+                 https://web.dev/articles/stick-to-compositor-only-properties-and-manage-layer-count
+               · web.dev — How to create high-performance CSS animations
+                 https://web.dev/articles/animations-guide
+               · Chrome/Lighthouse — Avoid non-composited animations (filter/box-shadow
+                 rodam em paint, não no compositor)
+                 https://developer.chrome.com/docs/lighthouse/performance/non-composited-animations
+               · MDN — CSS `translate`/`rotate`/`scale` (individual transform properties):
+                 compõem com `transform` na ordem translate -> rotate -> scale -> transform
+                 https://developer.mozilla.org/en-US/docs/Web/CSS/translate
+               · Lenis README — GSAP ScrollTrigger integration (lenis.on('scroll',
+                 ScrollTrigger.update) + gsap.ticker) https://github.com/darkroomengineering/lenis
+               · 12 princípios de animação (Thomas & Johnston) aplicados a UI:
+                 follow-through/overlapping action => stagger + easing assimétrica;
+                 secondary action => brasas e ken-burns rodam em camadas separadas do gesto
+                 principal, nunca competindo com ele.
+
+               REGRA ANTI-FLICKER (a que corrigimos em 7a5e550 — NÃO NEGOCIÁVEL):
+                 · nada aqui anima durante o swipe; brasas/parallax/magnético são camadas
+                   ou eventos separados dos cards do carrossel;
+                 · reveals usam `once: true` e NUNCA revertem no meio de um gesto;
+                 · `will-change` continua transiente (só durante o gesto);
+                 • no touch, o pan nativo segue dono do scroll (Lenis syncTouch:false).
+
+               TIERS (orçamento de motion por capacidade real do device):
+                 full = desktop com hover+pointer fino -> tudo;
+                 lite = touch capaz (>=6 cores e >=4 GB)  -> reveals, decode, brasas 14@30fps;
+                 mini = touch fraco                        -> reveals 1x + barra (custo ~0);
+                 none = modo reduzido (toggle)             -> nada de deslocamento.            */
+
+            const ROOT = document.documentElement;
+            const heroSection = document.querySelector('section');
+            const cleanups = [];
+            let motionCtx = null;
+
+            function deviceTier() {
+                if (!isTouchDevice) return 'full';
+                const cores = navigator.hardwareConcurrency || 4;
+                const mem = navigator.deviceMemory || 4;   // ausente no Safari/Firefox -> assume capaz
+                return (cores >= 6 && mem >= 4) ? 'lite' : 'mini';
+            }
+
+            /* ── decode/scramble katakana ────────────────────────────────────────────
+               "Secondary action" de awwwards sem depender de SplitText (plugin pago).
+
+               TRÊS otimizações que importam de verdade aqui:
+               1) FONT WARM-UP. Os <h3> usam .font-jp = 'Noto Serif JP', que o Google Fonts
+                  serve em ~120 subsets por unicode-range. Nenhum texto visível do site usa
+                  katakana (só kanji: 喰 眼 食 兎 死 梟), então o subset U+30A0–U+30FF NÃO
+                  está carregado — injetar katakana no meio do scroll dispararia um fetch de
+                  woff2 + fallback de glifo por frame. `document.fonts.load()` resolve isso
+                  ANTES de começar; se falhar, cai para glifos ASCII (mesmo efeito, zero fonte).
+               2) THROTTLE A 30 fps. Efeito de texto não precisa de 60; corta layout+paint
+                  pela metade sem diferença perceptível.
+               3) CSS CONTAINMENT durante o scramble: `contain: layout paint style` impede a
+                  invalidação de layout de escapar do <h3> para a seção inteira.
+                  https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment
+               A11y: aria-label fixo com o texto final => leitor de tela NUNCA lê o
+               embaralhado (o nome acessível sobrescreve o conteúdo).                  */
+            const GLYPHS_JP = 'アカサタナハマヤラワガザダジヅデドヴ0123456789#*+/<=';
+            const GLYPHS_ASCII = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#*+/<=@$%&';
+            let glyphsReady = null;
+            function loadScrambleFont() {
+                if (glyphsReady) return glyphsReady;
+                const probe = GLYPHS_JP.slice(0, 12);
+                glyphsReady = (document.fonts && document.fonts.load
+                    ? Promise.race([
+                        Promise.all([
+                            document.fonts.load('900 1em "Noto Serif JP"', probe),
+                            document.fonts.load('700 1em "Noto Serif JP"', probe)
+                        ]),
+                        new Promise(r => setTimeout(r, 2500))       // nunca trava a animação
+                      ]).then(() => true).catch(() => false)
+                    : Promise.resolve(false));
+                return glyphsReady;
+            }
+            function makeScrambler(el, dur) {
+                const final = el.dataset.scrambleFinal || (el.dataset.scrambleFinal = el.textContent.trim());
+                el.setAttribute('aria-label', final);
+                const chars = final.split('');
+                let raf = 0, t0 = 0, last = 0, GLYPHS = GLYPHS_ASCII, stopped = false;
+                const tick = (now) => {
+                    if (stopped) return;
+                    raf = requestAnimationFrame(tick);
+                    if (now - last < 33) return;                    // 30 fps
+                    last = now;
+                    const p = Math.min(1, (now - t0) / dur);
+                    const locked = Math.floor(p * chars.length);
+                    let out = '';
+                    for (let i = 0; i < chars.length; i++) {
+                        out += (i < locked || chars[i] === ' ') ? chars[i] : GLYPHS[(Math.random() * GLYPHS.length) | 0];
+                    }
+                    if (p < 1) el.textContent = out;
+                    else { el.textContent = final; el.style.contain = ''; cancelAnimationFrame(raf); raf = 0; }
+                };
+                const start = () => {
+                    if (stopped) return;
+                    loadScrambleFont().then((jp) => {
+                        if (stopped) return;
+                        GLYPHS = jp ? GLYPHS_JP : GLYPHS_ASCII;
+                        el.style.contain = 'layout paint style';
+                        t0 = performance.now(); last = 0;
+                        if (!raf) raf = requestAnimationFrame(tick);
+                    });
+                };
+                const stop = () => {
+                    stopped = true;
+                    if (raf) cancelAnimationFrame(raf);
+                    raf = 0; el.textContent = final; el.style.contain = '';
+                };
+                return { start, stop };
+            }
+
+            /* ── Sinal único de "viewport mudou" ───────────────────────────────────────
+               makeMagnetic/makeTilt precisam invalidar o getBoundingClientRect() cacheado
+               quando a página rola. Registrar um listener de scroll POR ELEMENTO dava ~26
+               listeners na window (8 magnéticos + 5 tilts, x2 com resize). Um único par de
+               listeners compartilhados faz o mesmo trabalho com 2 callbacks por evento.   */
+            let viewportDirty = true;
+            const markViewportDirty = () => { viewportDirty = true; };
+            window.addEventListener('scroll', markViewportDirty, { passive: true });
+            window.addEventListener('resize', markViewportDirty, { passive: true });
+
+            /* ── hover magnético ───────────────────────────────────────────────────────
+               quickTo (guide oficial GSAP para props atualizadas com frequência).
+               getBoundingClientRect() é CACHEADO e só é relido quando scroll/resize
+               invalidam — evita leitura de layout a cada pointermove (layout thrashing).
+               Só pointerType === 'mouse': no touch não existe hover e o gesto pertence
+               ao scroll nativo.                                                         */
+            function makeMagnetic(el, strength) {
+                const vars = { duration: 0.5, ease: 'power3.out' };
+                const qx = gsap.quickTo(el, 'x', vars);
+                const qy = gsap.quickTo(el, 'y', vars);
+                let rect = null;
+                const onMove = (e) => {
+                    if (e.pointerType !== 'mouse') return;
+                    if (viewportDirty || !rect) { rect = el.getBoundingClientRect(); viewportDirty = false; }
+                    qx((e.clientX - rect.left - rect.width / 2) * strength);
+                    qy((e.clientY - rect.top - rect.height / 2) * strength);
+                };
+                const onLeave = () => { qx(0); qy(0); };
+                el.addEventListener('pointermove', onMove, { passive: true });
+                el.addEventListener('pointerleave', onLeave, { passive: true });
+                return () => {
+                    el.removeEventListener('pointermove', onMove);
+                    el.removeEventListener('pointerleave', onLeave);
+                    qx(0); qy(0);
+                };
+            }
+
+            /* ── tilt 3D + glare nos social-cards ──────────────────────────────────────
+               rotationX/rotationY/z são componentes REAIS do transform parser do GSAP
+               (diferente de `scale`, que é alias -> ver fix 609c9c6). transformPerspective
+               injeta perspective() no próprio elemento, então o grid não precisa mudar.
+
+               ⚠ O "lift" do hover usa `z` (translateZ) e NÃO `y`: o reveal anima `y` no
+               mesmo elemento, e dois tweens escrevendo a mesma componente brigam. Com `z`
+               a sobreposição é impossível — e a perspectiva ainda dá um lift mais bonito
+               (o card vem na direção do viewer em vez de só subir).
+               O `translate: 0 -4px` do CSS fica como fallback de progressive enhancement:
+               vale enquanto o GSAP não renderizar transform no card (JS/vendor fora).   */
+            function makeTilt(card) {
+                const vars = { duration: 0.45, ease: 'power3.out', transformPerspective: 900, force3D: true };
+                const rx = gsap.quickTo(card, 'rotationX', vars);
+                const ry = gsap.quickTo(card, 'rotationY', vars);
+                const rz = gsap.quickTo(card, 'z', vars);
+                const glare = document.createElement('div');
+                glare.className = 'card-glare';
+                glare.setAttribute('aria-hidden', 'true');
+                card.appendChild(glare);
+                let rect = null;
+                const onMove = (e) => {
+                    if (e.pointerType !== 'mouse') return;
+                    if (viewportDirty || !rect) { rect = card.getBoundingClientRect(); viewportDirty = false; }
+                    const px = (e.clientX - rect.left) / rect.width;
+                    const py = (e.clientY - rect.top) / rect.height;
+                    ry((px - 0.5) * 13);
+                    rx((0.5 - py) * 13);
+                    rz(26);
+                    glare.style.setProperty('--gx', (px * 100).toFixed(1) + '%');
+                    glare.style.setProperty('--gy', (py * 100).toFixed(1) + '%');
+                };
+                const onLeave = () => { rx(0); ry(0); rz(0); };
+                card.addEventListener('pointermove', onMove, { passive: true });
+                card.addEventListener('pointerleave', onLeave, { passive: true });
+                return () => {
+                    card.removeEventListener('pointermove', onMove);
+                    card.removeEventListener('pointerleave', onLeave);
+                    rx(0); ry(0); rz(0);
+                    glare.remove();
+                };
+            }
+
+            /* ── brasas (embers) ───────────────────────────────────────────────────────
+               Canvas CONFINADO ao hero (não fixed): uma camada fixed do tamanho da
+               viewport é recomposta a cada pixel de scroll. Aqui a camada só existe
+               enquanto o hero está na tela.
+               · sprite pré-rasterizado em canvas offscreen, pago UMA vez
+                 (MDN "Optimizing canvas": evitar gradient/shadow por frame);
+               · DPR limitado a 2 (acima disso é pixel invisível a custo real);
+               · IntersectionObserver + visibilitychange -> rAF cancelado quando não dá
+                 para ver (guide GSAP: "pause or kill off-screen animations");
+               · lite roda a 30 fps com o MESMO visual (menos partículas), full a rAF.  */
+            function makeEmbers(count, halfRate) {
+                const hero = heroSection;
+                if (!hero) return () => {};
+                const cv = document.createElement('canvas');
+                cv.className = 'ember-canvas';
+                cv.setAttribute('aria-hidden', 'true');
+                hero.appendChild(cv);
+                const ctx = cv.getContext('2d', { alpha: true });
+                /* BUFFER REDUZIDO — a otimização que mais importa aqui.
+                   Brasas são blobs radiais suaves: densidade de pixel é invisível nelas.
+                   Renderizar em ~1/3 do tamanho CSS e deixar o CSS esticar corta a área de
+                   clearRect/drawImage em ~9x (e em ~35x contra um canvas em DPR 2), sem
+                   NENHUMA diferença visual perceptível. DPR fica em 1 de propósito.
+                   Ref: MDN "Optimizing canvas" (scale down + CSS upscale) e
+                   web.dev "Manage layer count" (área de camada = custo de raster).
+                   setTransform(RENDER_SCALE,...) mantém o desenho em coordenadas CSS,
+                   então a lógica das partículas não muda.                            */
+                const RENDER_SCALE = 0.34;
+                let w = 0, h = 0;
+                const sizeCanvas = () => {
+                    w = hero.clientWidth; h = hero.clientHeight;
+                    cv.width = Math.max(1, Math.round(w * RENDER_SCALE));
+                    cv.height = Math.max(1, Math.round(h * RENDER_SCALE));
+                    ctx.setTransform(RENDER_SCALE, 0, 0, RENDER_SCALE, 0, 0);
+                };
+                sizeCanvas();
+                let sizeRaf = 0;
+                const onResize = () => {
+                    if (sizeRaf) return;
+                    sizeRaf = requestAnimationFrame(() => { sizeRaf = 0; sizeCanvas(); });
+                };
+                window.addEventListener('resize', onResize, { passive: true });
+
+                const sprite = document.createElement('canvas');
+                sprite.width = sprite.height = 24;
+                const sc = sprite.getContext('2d');
+                const sg = sc.createRadialGradient(12, 12, 0, 12, 12, 12);
+                sg.addColorStop(0, 'rgba(255,120,80,0.95)');
+                sg.addColorStop(0.35, 'rgba(196,30,30,0.5)');
+                sg.addColorStop(1, 'rgba(196,30,30,0)');
+                sc.fillStyle = sg; sc.fillRect(0, 0, 24, 24);
+
+                const P = Array.from({ length: count }, () => ({
+                    x: Math.random(), y: Math.random(),
+                    s: 0.35 + Math.random() * 0.95,
+                    v: 0.010 + Math.random() * 0.024,
+                    ph: Math.random() * Math.PI * 2,
+                    w: 0.35 + Math.random() * 0.85
+                }));
+
+                let visible = true, tabHidden = document.hidden, raf = 0, last = 0;
+                const tick = (ts) => {
+                    raf = requestAnimationFrame(tick);
+                    if (halfRate && ts - last < 33) return;      // lite: 30 fps
+                    last = ts;
+                    ctx.clearRect(0, 0, w, h);
+                    ctx.globalCompositeOperation = 'lighter';     // aditivo = brilho de brasa
+                    const t = ts * 0.001;
+                    for (let i = 0; i < P.length; i++) {
+                        const p = P[i];
+                        p.y -= p.v * 0.016 * p.s;
+                        if (p.y < -0.06) { p.y = 1.06; p.x = Math.random(); }
+                        const x = (p.x + Math.sin(t * p.w + p.ph) * 0.018) * w;
+                        const y = p.y * h;
+                        ctx.globalAlpha = 0.14 + 0.34 * (0.5 + 0.5 * Math.sin(t * 1.6 + p.ph));
+                        const d = 13 * p.s;
+                        ctx.drawImage(sprite, x - d / 2, y - d / 2, d, d);
+                    }
+                    ctx.globalAlpha = 1;
+                    ctx.globalCompositeOperation = 'source-over';
+                };
+                const pump = () => {
+                    const want = visible && !tabHidden && !isReduced();
+                    if (want && !raf) { last = 0; raf = requestAnimationFrame(tick); }
+                    else if (!want && raf) { cancelAnimationFrame(raf); raf = 0; ctx.clearRect(0, 0, w, h); }
+                };
+                const io = new IntersectionObserver((es) => { visible = es[0].isIntersecting; pump(); }, { threshold: 0 });
+                io.observe(hero);
+                const onVis = () => { tabHidden = document.hidden; pump(); };
+                document.addEventListener('visibilitychange', onVis, { passive: true });
+                const onMotion = () => pump();
+                document.addEventListener('motion:change', onMotion);
+                pump();
+                return () => {
+                    if (raf) cancelAnimationFrame(raf);
+                    if (sizeRaf) cancelAnimationFrame(sizeRaf);
+                    io.disconnect();
+                    window.removeEventListener('resize', onResize);
+                    document.removeEventListener('visibilitychange', onVis);
+                    document.removeEventListener('motion:change', onMotion);
+                    cv.remove();
+                };
+            }
+
+            /* ── montagem (roda no boot e a cada troca do toggle) ──────────────────────
+               gsap.context() coleta tudo que é criado aqui; ctx.revert() mata os tweens,
+               os ScrollTriggers e AINDA devolve os inline styles ao estado anterior.
+               É o mecanismo oficial de teardown — sem ele, toggling vazaria listeners. */
+            function buildMotion() {
+                if (motionCtx) { motionCtx.revert(); motionCtx = null; }
+                cleanups.forEach(fn => { try { fn(); } catch (e) {} });
+                cleanups.length = 0;
+
+                const reduced = isReduced();
+                const tier = reduced ? 'none' : deviceTier();
+                ROOT.dataset.motionTier = tier;
+
+                /* Modo reduzido: sem deslocamento, sem blur, sem canvas — mas o conteúdo
+                   PRECISA estar visível. Nada de autoAlpha 0 aqui. */
+                if (reduced) {
+                    gsap.utils.toArray('.social-card, .ghoul-card, .higanbana-stage, .carousel-wrapper, section h3')
+                        .forEach(el => gsap.set(el, { clearProps: 'transform,opacity,filter,visibility' }));
+                    return;
+                }
+
+                const isFull = tier === 'full';
+                const useBlur = isFull;               // filter:blur = paint, só onde sobra orçamento
+                const bar = document.getElementById('scroll-progress');
+
+                motionCtx = gsap.context(() => {
+                    /* 1) REVEALS — ScrollTrigger.batch + stagger (padrão do guide oficial).
+                          Antes: forEach com `delay: i * 0.06` = N tweens + N ScrollTriggers
+                          e delays ABSOLUTOS (o guide diz explicitamente para usar stagger).
+                          Agora: 1 tween por lote, delays RELATIVOS à entrada do lote,
+                          menos ScrollTrigger instanciados e cadência coordenada.
+                          `once: true` preservado (anti-flicker) e `overwrite: 'auto'`
+                          (não 'true') para não matar os quickTo de tilt/magnético.     */
+                    const revealVars = (dy, sc, blur, dur, ease) => {
+                        const v = { autoAlpha: 1, duration: dur, ease, stagger: 0.09, overwrite: 'auto' };
+                        if (dy) v.y = 0;
+                        if (sc) v.scale = 1;
+                        if (blur) v.filter = 'blur(0px)';
+                        return v;
+                    };
+                    const fromVars = (dy, sc, blur) => {
+                        const v = { autoAlpha: 0 };
+                        if (dy) v.y = dy;
+                        if (sc) v.scale = sc;
+                        if (blur) v.filter = `blur(${blur}px)`;
+                        return v;
+                    };
+
+                    const cardsSel = '.social-card, .ghoul-card';
+                    const cards = gsap.utils.toArray(cardsSel);
+                    if (cards.length) {
+                        gsap.set(cards, fromVars(46, 0.96, useBlur ? 10 : 0));
+                        ScrollTrigger.batch(cards, {
+                            start: 'top 90%', once: true,
+                            onEnter: (batch) => gsap.to(batch, revealVars(46, 0.96, useBlur, isFull ? 1.05 : 0.85, 'expo.out'))
+                        });
+                    }
+
+                    const heads = gsap.utils.toArray('section h3, section > div > p.text-center');
+                    if (heads.length) {
+                        gsap.set(heads, fromVars(28, 0, useBlur ? 7 : 0));
+                        ScrollTrigger.batch(heads, {
+                            start: 'top 92%', once: true,
+                            onEnter: (batch) => gsap.to(batch, revealVars(28, 0, useBlur, isFull ? 0.95 : 0.75, 'power3.out'))
+                        });
+                    }
+
+                    ['.higanbana-stage', '.carousel-wrapper'].forEach((sel, i) => {
+                        const el = document.querySelector(sel);
+                        if (!el) return;
+                        gsap.set(el, fromVars(i ? 90 : 70, i ? 0.93 : 0.9, useBlur ? (i ? 12 : 14) : 0));
+                        ScrollTrigger.create({
+                            trigger: el, start: 'top 86%', once: true,
+                            onEnter: () => gsap.to(el, revealVars(1, 1, useBlur, isFull ? 1.35 : 1.0, 'expo.out'))
+                        });
+                    });
+
+                    /* 2) BARRA DE PROGRESSO — scaleX puro (compositor), 1 ScrollTrigger.
+                          scrub pequeno = sensação "amortecida" sem atraso perceptível. */
+                    if (bar) {
+                        gsap.fromTo(bar, { scaleX: 0 }, {
+                            scaleX: 1, ease: 'none',
+                            scrollTrigger: {
+                                trigger: ROOT, start: 'top top', end: 'bottom bottom',
+                                scrub: 0.18, invalidateOnRefresh: true
+                            }
+                        });
+                    }
+
+                    /* 3) PARALLAX DE PROFUNDIDADE no kanji 喰 (full e lite).
+                          scrub + `y`/`scale` apenas. A centralização mora em `translate`
+                          (CSS, @supports) justamente para o GSAP poder usar `transform`. */
+                    if (tier !== 'mini' && heroSection) {
+                        const kanji = heroSection.querySelector('.kanji-bg');
+                        if (kanji) {
+                            /* SÓ translate, sem scale. O kanji tem font-size 45vw (~650x970px):
+                               animar `scale` força o browser a re-rasterizar essa camada de
+                               texto gigantesca a cada frame do scrub. `y` puro é composição
+                               de camada já rasterizada = custo ~zero. A leitura de
+                               profundidade vem do parallax em si, não da escala.        */
+                            gsap.to(kanji, {
+                                y: () => Math.round(window.innerHeight * 0.26),
+                                ease: 'none', force3D: true,
+                                scrollTrigger: {
+                                    trigger: heroSection, start: 'top top', end: 'bottom top',
+                                    scrub: 0.6, invalidateOnRefresh: true
+                                }
+                            });
+                            /* 3b) mouse-parallax só no full: `x`/`rotation` são componentes
+                               diferentes do `y` do scrub => compõem sem brigar.
+
+                               ⚠ GATE OBRIGATÓRIO: o listener vivia na `window` e re-renderia
+                               o transform desta camada de texto de ~650x970px a CADA
+                               pointermove, inclusive com o hero completamente fora da tela
+                               (medido: fonte de long tasks durante o scroll). Agora o
+                               listener só é ligado enquanto o hero está visível, e o rAF do
+                               quickTo não roda à toa.                                   */
+                            if (isFull) {
+                                const kx = gsap.quickTo(kanji, 'x', { duration: 1.1, ease: 'power3.out' });
+                                const kr = gsap.quickTo(kanji, 'rotation', { duration: 1.4, ease: 'power3.out' });
+                                let heroVisible = true;
+                                const onMove = (e) => {
+                                    if (!heroVisible || document.hidden) return;
+                                    const nx = (e.clientX / window.innerWidth) - 0.5;
+                                    kx(nx * -46);
+                                    kr(nx * 2.2);
+                                };
+                                const onVis = () => { if (document.hidden) { kx(0); kr(0); } };
+                                const heroIO = new IntersectionObserver((es) => {
+                                    heroVisible = es[0].isIntersecting;
+                                    if (!heroVisible) { kx(0); kr(0); }
+                                }, { threshold: 0 });
+                                heroIO.observe(heroSection);
+                                window.addEventListener('pointermove', onMove, { passive: true });
+                                document.addEventListener('visibilitychange', onVis, { passive: true });
+                                cleanups.push(() => {
+                                    window.removeEventListener('pointermove', onMove);
+                                    document.removeEventListener('visibilitychange', onVis);
+                                    heroIO.disconnect();
+                                    kx(0); kr(0);
+                                });
+                            }
+                        }
+                    }
+
+                    /* 4) HOVER MAGNÉTICO (full): setas do carrossel, dots e o contador 1000-7.
+                          Alvos escolhidos por NÃO terem transform estrutural em CSS
+                          (ou por já tê-lo migrado para `translate`/`scale`).            */
+                    if (isFull) {
+                        document.querySelectorAll('.carousel-nav').forEach(el => cleanups.push(makeMagnetic(el, 0.3)));
+                        document.querySelectorAll('.carousel-dot').forEach(el => cleanups.push(makeMagnetic(el, 0.45)));
+                        const rize = document.getElementById('rize-count');
+                        if (rize) cleanups.push(makeMagnetic(rize, 0.18));
+
+                        /* 5) TILT 3D + glare (full) */
+                        document.querySelectorAll('.social-card').forEach(el => cleanups.push(makeTilt(el)));
+                    }
+
+                    /* 6) DECODE KATAKANA nos títulos (full e lite).
+                          Disparo por ScrollTrigger, NÃO por IntersectionObserver cru:
+                          um IO só avalia a posição atual, então num scroll rápido/âncora
+                          os títulos já ultrapassados NUNCA recebiam onEnter e ficavam sem
+                          decodificar (medido: 1 de 3 decodificava ao saltar p/ o rodapé).
+                          ScrollTrigger avalia todos os triggers a cada update e dispara
+                          onEnter para o que já passou do start — mesma garantia dos reveals.
+                          `once: true` => o trigger se mata depois de disparar.          */
+                    if (tier !== 'mini') {
+                        const scr = [];
+                        gsap.utils.toArray('section h3').forEach(el => {
+                            ScrollTrigger.create({
+                                trigger: el, start: 'top 82%', once: true,
+                                onEnter: () => { const s = makeScrambler(el, 680); scr.push(s); s.start(); }
+                            });
+                        });
+                        cleanups.push(() => scr.forEach(s => s.stop()));
+                    }
                 });
-                gsap.utils.toArray('section h3, section > div > p.text-center').forEach(el => {
-                    gsap.from(el, { y: 30, opacity: 0, duration: 0.8, ease: "power3.out",
-                        scrollTrigger: { trigger: el, start: "top 90%", once: true } });
+
+                /* 7) BRASAS (full 34 | lite 14@30fps | mini 0) — fora do gsap.context
+                      porque é canvas puro; o cleanup é manual e registrado à parte. */
+                const embers = tier === 'full' ? 34 : (tier === 'lite' ? 14 : 0);
+                if (embers) cleanups.push(makeEmbers(embers, tier !== 'full'));
+
+                /* Diagnóstico inofensivo: permite auditar o estado sem abrir o DevTools
+                   em dispositivo físico (window.__lebot.motion()). */
+                window.__lebot = window.__lebot || {};
+                window.__lebot.motion = () => ({
+                    tier: ROOT.dataset.motionTier, motion: ROOT.dataset.motion,
+                    osPrefersReduced: motionPref.matches, touch: isTouchDevice,
+                    lenisStopped: !!(window.lenis && document.documentElement.classList.contains('lenis-stopped')),
+                    cores: navigator.hardwareConcurrency, mem: navigator.deviceMemory
                 });
-                gsap.from(".higanbana-stage", { y: 80, opacity: 0, scale: 0.9, duration: 1.1, ease: "expo.out",
-                    scrollTrigger: { trigger: ".higanbana-stage", start: "top 85%", once: true } });
-                gsap.from(".carousel-wrapper", { y: 100, opacity: 0, scale: 0.92, duration: 1.1, ease: "expo.out",
-                    scrollTrigger: { trigger: ".carousel-wrapper", start: "top 85%", once: true } });
-            });
-            mm.add("(hover: hover) and (pointer: fine)", () => {
-                gsap.utils.toArray('.social-card, .ghoul-card').forEach((card, i) => {
-                    gsap.from(card, { y: 50, opacity: 0, scale: 0.95, filter: 'blur(12px)', duration: 1.2, ease: "expo.out", delay: i * 0.08,
-                        scrollTrigger: { trigger: card, start: "top 88%", once: true } });
-                });
-                gsap.utils.toArray('section h3, section > div > p.text-center').forEach(el => {
-                    gsap.from(el, { y: 30, opacity: 0, filter: 'blur(8px)', duration: 1, ease: "power3.out",
-                        scrollTrigger: { trigger: el, start: "top 90%", once: true } });
-                });
-                gsap.from(".higanbana-stage", { y: 80, opacity: 0, scale: 0.9, filter: 'blur(15px)', duration: 1.5, ease: "expo.out",
-                    scrollTrigger: { trigger: ".higanbana-stage", start: "top 85%", once: true } });
-                gsap.from(".carousel-wrapper", { y: 100, opacity: 0, scale: 0.92, filter: 'blur(12px)', duration: 1.5, ease: "expo.out",
-                    scrollTrigger: { trigger: ".carousel-wrapper", start: "top 85%", once: true } });
-            });
+            }
+
+            document.addEventListener('motion:change', buildMotion);
+            /* ⚠ buildMotion() é invocado no FIM do IIFE (não aqui): os `.carousel-dot`
+               são criados dinamicamente mais abaixo, e o hover magnético precisa deles
+               no DOM. Tudo continua síncrono no mesmo bloco de script, então o
+               `gsap.set(autoAlpha:0)` dos reveals acontece ANTES do primeiro paint —
+               sem flash de conteúdo. */
 
             const projects = [
                 { kanji: '眼', num: 'DOSSIÊ 01', title: 'Ken Kaneki', subtitle: 'O Trágico · Eyepatch', desc: 'Estudante universitário transformado em meio-ghoul após o transplante de órgãos de Rize. Carrega o peso de dois mundos e a dor de uma máscara que revela mais do que esconde. Seu Kagune Rinkaku se manifesta como quatro tentáculos escarlates.', tags: ['Rinkaku', 'Meio-Ghoul', 'Anteiku', 'Aogiri', 'Dragão'], year: 'RC: 911', img: 'kanekiprofile.jpg' },
@@ -1977,6 +2573,15 @@
 
                 initFirstQuote();
             })();
+
+            /* ── Boot do MOTION PASS ─────────────────────────────────────────────────
+               Aqui (fim do IIFE) e não antes: precisa do DOM completo, incluindo os
+               `.carousel-dot` gerados dinamicamente pelo carrossel.                */
+            buildMotion();
+            /* Imagens/fontes mudam a altura do documento depois do boot; um refresh único
+               (não por resize) realinha os triggers. Guide GSAP: "call ScrollTrigger.refresh()
+               only when layout actually changes, debounced". */
+            window.addEventListener('load', () => requestAnimationFrame(() => ScrollTrigger.refresh()), { once: true });
         })();
     </script>
 </body>
