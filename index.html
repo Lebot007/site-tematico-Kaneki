@@ -494,6 +494,19 @@
             .rize-count { background: rgba(15, 5, 5, 0.92); backdrop-filter: none; -webkit-backdrop-filter: none; }
         }
 
+        /* DIETA DE COMPOSIÇÃO NO SWIPE (touch): medido na gravação real do celular
+           (87 fps): a página só repintava a ~15-22 fps durante a transição dos cards —
+           o micro-stutter. Causa: ~10 camadas grandes fazendo alpha-blend por frame
+           (opacity/scale do img + opacity de ::before/::after com box-shadow, cada uma
+           com transition própria de 0.7 s) SOMADAS ao tween GSAP do card. No touch o
+           estado vira discreto (1 frame) e só o transform/opacity do card anima:
+           1 clock (GSAP), 5 camadas, zero blend interno por frame. */
+        @media (hover: none), (pointer: coarse) {
+            .card-bg-image { transition: none; }
+            .project-card.active .card-bg-image { opacity: 0.62; transform: translateZ(0); }
+            .project-card::before, .project-card::after { transition: none; }
+        }
+
         @media (hover: none), (pointer: coarse) {
             .cursor { display: none !important; }
             body, a, button, .carousel-nav, .carousel-dot, .rize-count, .social-card, .project-card, .entry-overlay, .player-btn, .player-toggle, .player-progress-bar, .player-volume-btn, .player-volume-slider, .higanbana-wrap { cursor: auto !important; }
@@ -800,6 +813,10 @@
         (function() {
             'use strict';
             const isTouchDevice = (window.matchMedia('(hover: none)').matches) || (window.matchMedia('(pointer: coarse)').matches) || ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+            /* Tela touch de 90/120 Hz não sustenta composição a 120 fps: o resultado é
+               "tenta 120, perde metade" = cadência irregular (micro-stutter medido).
+               Cap em 60 fps dá cadência estável (pula 1 frame de 2), mesmo movimento. */
+            if (isTouchDevice && window.gsap) gsap.ticker.fps(60);
 
             /* ── Política de movimento (a11y + WPO) ─────────────────────────────
                Estado único lido por vídeo / GSAP / Lenis / centopeia / canvas.
@@ -1183,6 +1200,9 @@
                 const img = c.querySelector('img');
                 return (img.decode ? img.decode() : img.complete ? Promise.resolve() : new Promise(r => { img.onload = img.onerror = r; }));
             })).catch(() => {}).then(() => { imagesReady = true; });
+            /* Rede lenta: esperar o decode eterno deixaria o carrossel MUDO (parece bug).
+               Destrava após 4 s — um pop residual é preferível a um controle morto. */
+            setTimeout(() => { imagesReady = true; }, 4000);
 
             /* Tweens persistentes por card (quickTo): zero kill/restart de tween, zero
                "overwrite:all", zero pop. Cada propriedade anima no compositor (x/scale/opacity). */
@@ -1239,8 +1259,10 @@
 
             function goTo(index) {
                 if (isAnimating || index === activeIndex || !imagesReady) return;
-                isAnimating = true; activeIndex = index; updateCarousel();
-                setTimeout(() => { isAnimating = false; }, 600);
+                isAnimating = true; activeIndex = index;
+                wrapper.classList.add('is-swiping');   // will-change vivo durante todo o tween
+                updateCarousel();
+                setTimeout(() => { isAnimating = false; wrapper.classList.remove('is-swiping'); }, 700);
             }
             function next() { goTo((activeIndex + 1) % projects.length); }
             function prev() { goTo((activeIndex - 1 + projects.length) % projects.length); }
@@ -1291,7 +1313,10 @@
                     if (dx < 0) next(); else prev();
                 }
                 g = null;
-                wrapper.classList.remove('is-swiping');
+                /* will-change permanece vivo durante o tween de 0.6 s que continua APÓS o
+                   pointerup: derrubar a camada no meio do tween = promotion/demotion
+                   visível ("solavanco"). Só remove quando não há gesto ativo. */
+                setTimeout(() => { if (!g) wrapper.classList.remove('is-swiping'); }, 700);
                 if (e.pointerType === 'mouse') wrapper.releasePointerCapture?.(e.pointerId);
             };
             wrapper.addEventListener('pointerup', (e) => endGesture(e, false), { passive: true });
@@ -1401,7 +1426,11 @@
                     let n = 0;
                     while (this._acc >= this.FIXED && n < 6) { this.step(this.FIXED); this._acc -= this.FIXED; n++; }
                     if (n === 6) this._acc = 0;
-                    this.draw();
+                    /* Touch: simula a 120 Hz (passo fixo) mas DESENHA a no máx. ~60 fps —
+                       metade do custo de composição em telas de 90/120 Hz, movimento idêntico. */
+                    if (!(isTouchDevice && timestamp - (this._lastDrawTs || 0) < 14)) {
+                        this._lastDrawTs = timestamp; this.draw();
+                    }
                     this.rafId = requestAnimationFrame((t) => this.animate(t));
                 }
                 /* Cinemática orgânica (v4): mesma SILHUETA original, movimento vivo.
@@ -1424,15 +1453,24 @@
                         const bend = Math.abs(this._angDiff(segs[i - 1].angle, segs[i].angle));
                         segs[i].arc = segs[i - 1].arc - this.segmentSpacing * (1 - Math.min(0.28, bend * 0.8));
                     }
-                    // posição = arco + onda lateral viajante (amplitude cresce p/ cauda, mas contida)
+                    // posição = arco + onda lateral viajante de DOIS harmônicos (undulação
+                    // rica, ainda suave). Amplitude modulada pela velocidade real suavizada:
+                    // rápido = passada mais longa e viva; parado = quase plana (orgânico).
+                    const vNow = this.speed * ease;
+                    this._vSm = this._vSm === undefined ? vNow : this._vSm + (vNow - this._vSm) * 0.08;
+                    const vigour = 0.7 + 0.5 * Math.min(1, this._vSm / (this.speed || 1));
                     for (let i = 0; i < segs.length; i++) {
                         const base = this.getPositionAtDistance(segs[i].arc, this._p);
                         const ahead = this.getPositionAtDistance(segs[i].arc + 4, this._q);
                         let tx = ahead.x - base.x, ty = ahead.y - base.y;
                         const tl = Math.hypot(tx, ty) || 1; tx /= tl; ty /= tl;
                         const tailness = i / (segs.length - 1);
-                        const wave = Math.sin(this.time * 2.2 - i * 0.42) * (0.7 + 2.4 * tailness);
+                        const ph = this.time * 2.2 - i * 0.42;
+                        const wave = (Math.sin(ph) * 0.82 + Math.sin(2 * ph + 1.7) * 0.18) * (0.7 + 2.4 * tailness) * vigour;
                         segs[i].x = base.x + (-ty) * wave; segs[i].y = base.y + tx * wave;
+                        // BANKING pseudo-3D: a rolagem do segmento acompanha a derivada da
+                        // onda => a largura "respira" no ritmo da undulação (volume sem WebGL).
+                        segs[i].bank = Math.cos(ph) * (0.35 + 0.65 * tailness);
                     }
                     // ângulos suavizados
                     for (let i = segs.length - 1; i >= 1; i--) {
@@ -1440,8 +1478,12 @@
                         segs[i].angle += this._angDiff(a, segs[i].angle) * Math.min(1, dt / 45);
                     }
                     if (segs.length > 1) {
-                        const a = Math.atan2(segs[1].y - segs[0].y, segs[1].x - segs[0].x) + Math.PI;
-                        segs[0].angle += this._angDiff(a, segs[0].angle) * Math.min(1, dt / 45);
+                        // LOOK-AHEAD: a cabeça mira um ponto à frente no CAMINHO (não só o
+                        // segmento seguinte) => ANTICIPA a curva; o corpo vem atrás
+                        // (overlapping action real, ideia de rigging 3D adaptada).
+                        const lead = this.getPositionAtDistance(this.distanceTraveled + 16, this._q);
+                        const a = Math.atan2(lead.y - segs[0].y, lead.x - segs[0].x);
+                        segs[0].angle += this._angDiff(a, segs[0].angle) * Math.min(1, dt / 40);
                     }
                 }
                 _angDiff(a, b) { let d = a - b; while (d > Math.PI) d -= Math.PI * 2; while (d < -Math.PI) d += Math.PI * 2; return d; }
@@ -1453,14 +1495,15 @@
                 }
                 drawSegment(i) {
                     const seg = this.segments[i], ctx = this.ctx, progress = i / this.segments.length;
-                    const width = 13 - progress * 7, length = 9 - progress * 4;
+                    const bank = seg.bank || 0;
+                    const width = (13 - progress * 7) * (1 + bank * 0.16), length = 9 - progress * 4;
                     ctx.save(); ctx.translate(seg.x, seg.y); ctx.rotate(seg.angle);
                     if (!isTouchDevice) { ctx.shadowColor = 'rgba(0, 0, 0, 0.9)'; ctx.shadowBlur = 6; ctx.shadowOffsetY = 3; }
                     ctx.beginPath(); ctx.moveTo(length, 0);
                     ctx.bezierCurveTo(length, width * 0.8, length * 0.5, width, -length * 0.5, width * 0.9);
                     ctx.bezierCurveTo(-length, width * 0.5, -length, -width * 0.5, -length * 0.5, -width * 0.9);
                     ctx.bezierCurveTo(length * 0.5, -width, length, -width * 0.8, length, 0); ctx.closePath();
-                    const grad = ctx.createLinearGradient(0, -width, 0, width);
+                    const grad = ctx.createLinearGradient(0, -width + bank * 2, 0, width + bank * 2);
                     grad.addColorStop(0, '#0a0000'); grad.addColorStop(0.3, '#4a0000'); grad.addColorStop(0.5, '#7a0303'); grad.addColorStop(0.7, '#4a0000'); grad.addColorStop(1, '#0a0000');
                     ctx.fillStyle = grad; ctx.fill();
                     ctx.strokeStyle = 'rgba(180, 0, 0, 0.3)'; ctx.lineWidth = 0.8;
