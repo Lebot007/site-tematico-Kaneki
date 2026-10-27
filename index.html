@@ -1124,10 +1124,16 @@
             const bgVideo = document.getElementById('bg-video');
             if (bgVideo) {
                 bgVideo.addEventListener('ended', () => { bgVideo.currentTime = 0; tryPlay(bgVideo); }, { passive: true });
-                const wantVideo = () => !isReduced() && !saveData;   // toca em todo device, como no original
+                /* DECISÃO DO DONO (28/10): o vídeo de fundo toca em QUALQUER modo.
+                   Mesmo com movimento reduzido ele não é gatilho vestibular a remover —
+                   é a paisagem do site; o que o modo reduzido remove é
+                   deslocamento/escala/blur/canvas. Por isso wantVideo() não consulta
+                   mais isReduced() e o listener de motion:change que pausava foi
+                   embora. A única pausa que resta é a de aba oculta (bateria), que é
+                   ortogonal ao modo.                                                */
+                const wantVideo = () => !saveData;   // toca em todo device e em todo modo
                 const startVideo = () => { if (wantVideo()) tryPlay(bgVideo); };
                 startVideo();   // autoplay imediato, comportamento original
-                document.addEventListener('motion:change', () => { isReduced() ? bgVideo.pause() : startVideo(); });
                 // não decodificar vídeo em aba oculta (economia de CPU/GPU/bateria)
                 document.addEventListener('visibilitychange', () => { document.hidden ? bgVideo.pause() : startVideo(); }, { passive: true });
             }
