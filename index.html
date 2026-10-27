@@ -382,11 +382,17 @@
         /* Foco visível p/ teclado (WCAG 2.4.7) — não afeta mouse/touch */
         :focus-visible { outline: 2px solid var(--blood-bright); outline-offset: 3px; border-radius: 2px; }
 
-        /* Política de movimento (ver AUDIT-PLAN §4):
-           - por padrão tudo animado (estética preservada);
-           - o toggle no HUD aplica [data-motion="reduced"] no <html>;
-           - quem tem prefers-reduced-motion no SO começa em modo reduzido e pode reativar.
-           Nada é removido: crossfades/opacity permanecem, apenas o movimento é pausado. */
+        /* Política de movimento — AUDIT-PLAN §4 (restaurada):
+           - DEFAULT = tudo animado. A preferência prefers-reduced-motion do SO NÃO mata
+             mais a estética do desktop (era o item #4 do brief e o que deixou o desktop
+             "sem vida": quem tem "Mostrar animações no Windows" desligado caía em modo
+             reduzido sem aviso e ainda perdia a roda do mouse — ver fix d03182c).
+           - WCAG 2.3.3 (Animation from Interactions) é cumprida pelo MECANISMO EXPLÍCITO
+             de desligar: o botão #motion-toggle abaixo, sempre visível e persistido.
+             https://www.w3.org/WAI/WCAG22/Understanding/animation-from-interactions.html
+           - Nada é removido no modo reduzido: crossfades (opacity) permanecem; apenas
+             deslocamento/escala/blur/canvas são desligados, que é o que causa desconforto
+             vestibular. O scroll continua 100% funcional (Lenis nunca é parado). */
         html[data-motion="reduced"] *, html[data-motion="reduced"] *::before, html[data-motion="reduced"] *::after {
             animation-duration: 0.001ms !important;
             animation-iteration-count: 1 !important;
@@ -394,6 +400,31 @@
             scroll-behavior: auto !important;
         }
         html[data-motion="reduced"] .noise-overlay { display: none; }
+
+        /* Botão de política de movimento (HUD). 44x44 no touch = alvo mínimo WCAG 2.5.8.
+           Some durante a tela de entrada para não competir com o "Click to Enter". */
+        .motion-toggle {
+            position: fixed; top: calc(12px + env(safe-area-inset-top)); right: calc(12px + env(safe-area-inset-right));
+            z-index: 10002; width: 44px; height: 44px; padding: 0;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(10, 4, 4, 0.55); border: 1px solid rgba(196, 30, 30, 0.35); border-radius: 50%;
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            color: rgba(234, 234, 234, 0.6); cursor: pointer;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.6s ease, color 0.3s ease, border-color 0.3s ease, scale 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+            -webkit-tap-highlight-color: transparent;
+        }
+        body.site-entered .motion-toggle { opacity: 1; pointer-events: auto; }
+        .motion-toggle:hover { color: var(--bone); border-color: var(--blood-bright); }
+        .motion-toggle:active { scale: 0.88; }
+        .motion-toggle[aria-pressed="true"] { color: var(--blood-bright); border-color: rgba(196, 30, 30, 0.65); }
+        .motion-toggle svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+        .motion-toggle .icon-off { display: none; }
+        .motion-toggle[aria-pressed="true"] .icon-on { display: none; }
+        .motion-toggle[aria-pressed="true"] .icon-off { display: block; }
+        @media (max-width: 768px) {
+            .motion-toggle { background: rgba(10, 4, 4, 0.88); backdrop-filter: none; -webkit-backdrop-filter: none; }
+        }
 
         /* Pausa animações CSS infinitas quando o bloco sai da viewport (economia de GPU sem mudar estética) */
         .anim-paused, .anim-paused * { animation-play-state: paused !important; }
@@ -621,6 +652,15 @@
         </div>
     </div>
 
+    <!-- Política de movimento (WCAG 2.3.3): default = animações COMPLETAS.
+         Este botão é o mecanismo explícito para reduzi-las; o estado persiste.
+         aria-pressed="true" => movimento reduzido ATIVO. -->
+    <button class="motion-toggle" id="motion-toggle" type="button" aria-pressed="false"
+            aria-label="Reduzir animações" title="Reduzir animações">
+        <svg class="icon-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12h4l3-7 4 14 3-7h6"/></svg>
+        <svg class="icon-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12h20"/><path d="M4 4l16 16" opacity="0.6"/></svg>
+    </button>
+
     <div class="noise-overlay"></div>
     <div class="vignette"></div>
     <div class="cursor" id="cursor"></div>
@@ -835,27 +875,60 @@
                Cap em 60 fps dá cadência estável (pula 1 frame de 2), mesmo movimento. */
             if (isTouchDevice && window.gsap) gsap.ticker.fps(60);
 
-            /* ── Política de movimento (a11y + WPO) ─────────────────────────────
-               Estado único lido por vídeo / GSAP / Lenis / centopeia / canvas.
-               - SO pede reduced-motion  -> inicia REDUZIDO (respeita o usuário);
-               - caso contrário          -> inicia COMPLETO (estética preservada);
-               Nada é "removido": no modo reduzido mantemos crossfades (opacity) e
-               pausamos apenas deslocamento/scroll-suave/canvas, que é o que causa
-               desconforto vestibular (WCAG 2.3.3).                                        */
+            /* ── Política de movimento (a11y + WPO) — AUDIT-PLAN §4 restaurada ──
+               Estado único lido por vídeo / GSAP / Lenis / centopeia / canvas / motion pass.
+
+               ANTES: `motionMode = prefers-reduced-motion do SO`. Isso (a) suprimia toda a
+               estética do desktop de quem tem "Mostrar animações" desligado no Windows e
+               (b) era o gatilho do `lenis.stop()` que matava a roda do mouse (fix d03182c).
+
+               AGORA (default = COMPLETO, como no item #4 do brief):
+                 · a preferência do SO NÃO força mais o modo reduzido;
+                 · WCAG 2.3.3 é cumprida pelo mecanismo explícito: o botão #motion-toggle
+                   (sempre acessível, aria-pressed, alvo de 44px, persistido);
+                 · o modo reduzido continua sendo um modo de CONFORTO real, não um modo
+                   quebrado — o scroll segue 100% funcional em qualquer um dos dois.        */
             const motionPref = window.matchMedia('(prefers-reduced-motion: reduce)');
-            const MOTION_KEY = 'lebot:motion';
-            function currentMotion() { return motionPref.matches ? 'reduced' : 'full'; }
-            let motionMode = currentMotion();
+            /* Chave versionada: a semântica mudou (v1 guardava a preferência do SO,
+               v2 guarda a escolha EXPLÍCITA do visitante). Valor antigo não pode vazar. */
+            const MOTION_KEY = 'lebot:motion:v2';
+            let motionMode = 'full';                       // default = estética completa
+            let motionChosen = false;                      // o visitante usou o toggle?
             const isReduced = () => motionMode === 'reduced';
-            function applyMotion(mode) {
+            function applyMotion(mode, byUser) {
                 motionMode = mode;
+                if (byUser) motionChosen = true;
                 document.documentElement.dataset.motion = mode;
-                document.dispatchEvent(new CustomEvent('motion:change', { detail: { mode } }));
+                const btn = document.getElementById('motion-toggle');
+                if (btn) {
+                    btn.setAttribute('aria-pressed', String(mode === 'reduced'));
+                    const on = mode === 'reduced';
+                    btn.setAttribute('aria-label', on ? 'Reativar animações' : 'Reduzir animações');
+                    btn.title = on ? 'Reativar animações' : 'Reduzir animações';
+                }
+                document.dispatchEvent(new CustomEvent('motion:change', { detail: { mode, byUser: !!byUser } }));
             }
-            // limpa qualquer valor preso de versões anteriores
-            try { localStorage.removeItem('lebot:motion'); } catch (e) {}
-            motionPref.addEventListener?.('change', (e) => applyMotion(e.matches ? 'reduced' : 'full'));
-            applyMotion(motionMode);
+            try { localStorage.removeItem('lebot:motion'); } catch (e) {}   // limpa v1
+            try {
+                const saved = localStorage.getItem(MOTION_KEY);
+                if (saved === 'reduced' || saved === 'full') { motionMode = saved; motionChosen = true; }
+            } catch (e) {}
+            /* Se o SO mudar e o visitante nunca escolheu, avisamos apenas refletindo a
+               preferência — sem sequestrar a estética default que o dono do site pediu. */
+            motionPref.addEventListener?.('change', () => {
+                if (!motionChosen) document.documentElement.dataset.osMotion = motionPref.matches ? 'reduce' : 'no-preference';
+            });
+            applyMotion(motionMode, false);
+
+            const motionBtn = document.getElementById('motion-toggle');
+            if (motionBtn) {
+                motionBtn.addEventListener('click', () => {
+                    const next = isReduced() ? 'full' : 'reduced';
+                    applyMotion(next, true);
+                    try { localStorage.setItem(MOTION_KEY, next); } catch (e) {}
+                    if (navigator.vibrate) navigator.vibrate(12);
+                });
+            }
 
             const saveData = navigator.connection && navigator.connection.saveData === true;
             const tryPlay = (el) => { try { const pr = el && el.play ? el.play() : null; if (pr && typeof pr.catch === 'function') pr.catch(() => {}); } catch (e) {} };
@@ -1020,6 +1093,9 @@
             }
 
             function revealHeroContent() {
+                /* Marca o fim da tela de entrada: é o que libera o HUD (toggle de movimento).
+                   Feito aqui e não num timeout para nunca aparecer sobre o "Click to Enter". */
+                document.body.classList.add('site-entered');
                 gsap.set("section:first-of-type h2, section:first-of-type p", { opacity: 1, y: 0 });
                 gsap.to("#rize-count", { opacity: 1, scale: 1, duration: 0.6, ease: "back.out(1.7)", delay: 0.2 });
                 gsap.to(".absolute.bottom-10", { opacity: 1, y: 0, duration: 0.6, ease: "power3.out", delay: 0.3 });
