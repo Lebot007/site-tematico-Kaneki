@@ -1270,12 +1270,34 @@
             setTimeout(() => { imagesReady = true; }, 4000);
 
             /* Tweens persistentes por card (quickTo): zero kill/restart de tween, zero
-               "overwrite:all", zero pop. Cada propriedade anima no compositor (x/scale/opacity). */
-            const cardTweens = Array.from(cards).map(card => ({
-                x: gsap.quickTo(card, 'x', { duration: 0.6, ease: 'power3.out', force3D: true }),
-                scale: gsap.quickTo(card, 'scale', { duration: 0.6, ease: 'power3.out', force3D: true }),
-                opacity: gsap.quickTo(card, 'opacity', { duration: 0.45, ease: 'power2.out' })
-            }));
+               "overwrite:all", zero pop. Cada propriedade anima no compositor (x/scale/opacity).
+
+               ⚠ BUG CORRIGIDO — `gsap.quickTo(card, 'scale', ...)` NUNCA funcionou:
+               quickTo() devolve um setter que chama `Tween.resetTo(prop)`, e resetTo procura
+               a prop em `_ptLookup`. No CSSPlugin do GSAP 3.12, `scale` é um ALIAS:
+                   dr = { autoAlpha:"opacity,visibility", scale:"scaleX,scaleY", alpha:"opacity" }
+               => as chaves registradas no tween são `scaleX`/`scaleY`, nunca `scale`.
+               resetTo('scale') caía no ramo `if(!u) ... _warn(prop+" not eligible for reset")`
+               e abortava SEM aplicar nada (ver _updatePropTweens no gsap.min.js pinado).
+
+               Efeito real, medido com DOMMatrix sobre getComputedStyle(transform):
+                   ANTES : scaleX = 1 em TODOS os cards -> profundidade do carrossel morta,
+                           todos os cards do mesmo tamanho + 10 warnings por update no console
+                   DEPOIS: scaleX = 1 / 0.82 / 0.68 conforme |offset| + 0 warning
+
+               Fix: dois setters sobre props REAIS (scaleX e scaleY), envelopados num único
+               `scale(v)` para não tocar em nenhum call-site. Mantém a garantia de perf do
+               quickTo (tween pausado reutilizado — nada é criado ou morto por frame).   */
+            const cardTweens = Array.from(cards).map(card => {
+                const scaleVars = { duration: 0.6, ease: 'power3.out', force3D: true };
+                const scaleXTo = gsap.quickTo(card, 'scaleX', scaleVars);
+                const scaleYTo = gsap.quickTo(card, 'scaleY', scaleVars);
+                return {
+                    x: gsap.quickTo(card, 'x', { duration: 0.6, ease: 'power3.out', force3D: true }),
+                    scale: (v) => { scaleXTo(v); scaleYTo(v); },
+                    opacity: gsap.quickTo(card, 'opacity', { duration: 0.45, ease: 'power2.out' })
+                };
+            });
 
             /* Offset CIRCULAR de caminho mínimo: com 5 cards, ir de 4 -> 0 antes dava offset -4
                (todos |offset|>2 => TODOS somem por um frame = a "piscada" clássica do wrap).
