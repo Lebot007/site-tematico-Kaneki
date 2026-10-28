@@ -837,7 +837,8 @@
 
     <!-- Fundo em vídeo: AV1 1080p (originaL, sem perda) p/ navegadores modernos; H.264 720p como
          fallback (Safari <=16 NÃO reproduz AV1 -> antes ficava preto). Autoplay imediato como no
-         original; em modo reduzido / Save-Data o JS pausa e o poster cobre o fundo. -->
+         original; toca em TODOS os modos de movimento (reduzido inclusive) e em qualquer
+         conexão — a única pausa é a de aba oculta, e aí o poster cobre o fundo. -->
     <video id="bg-video" autoplay muted loop playsinline preload="metadata" poster="video-poster.webp"
            disablepictureinpicture class="fixed inset-0 w-full h-full object-cover z-[-2] opacity-60">
         <source src="video.mp4" type='video/mp4; codecs="av01.0.08M.08"'>
@@ -1118,20 +1119,23 @@
                 });
             }
 
-            const saveData = navigator.connection && navigator.connection.saveData === true;
             const tryPlay = (el) => { try { const pr = el && el.play ? el.play() : null; if (pr && typeof pr.catch === 'function') pr.catch(() => {}); } catch (e) {} };
 
             const bgVideo = document.getElementById('bg-video');
             if (bgVideo) {
                 bgVideo.addEventListener('ended', () => { bgVideo.currentTime = 0; tryPlay(bgVideo); }, { passive: true });
-                /* DECISÃO DO DONO (28/10): o vídeo de fundo toca em QUALQUER modo.
-                   Mesmo com movimento reduzido ele não é gatilho vestibular a remover —
-                   é a paisagem do site; o que o modo reduzido remove é
-                   deslocamento/escala/blur/canvas. Por isso wantVideo() não consulta
-                   mais isReduced() e o listener de motion:change que pausava foi
-                   embora. A única pausa que resta é a de aba oculta (bateria), que é
-                   ortogonal ao modo.                                                */
-                const wantVideo = () => !saveData;   // toca em todo device e em todo modo
+                /* DECISÃO DO DONO (28/10) — rodada 1: o vídeo de fundo toca em QUALQUER
+                   modo de movimento. Mesmo com movimento reduzido ele não é gatilho
+                   vestibular a remover — é a paisagem do site; o que o modo reduzido
+                   remove é deslocamento/escala/blur/canvas. Por isso wantVideo() não
+                   consulta isReduced() e o listener de motion:change que pausava foi
+                   embora.
+                   Rodada 2 (mesmo dia): toca também com Save-Data / economia de dados
+                   ligada — pedido explícito do dono ("tocar sempre, mesmo com economia
+                   de energia"). O const saveData perdeu o único consumidor e saiu.
+                   A única pausa que resta é a de aba oculta, invisível para quem está
+                   olhando o site (economia de CPU/GPU/bateria sem custo visual).     */
+                const wantVideo = () => true;   // todo device, todo modo, toda conexão
                 const startVideo = () => { if (wantVideo()) tryPlay(bgVideo); };
                 startVideo();   // autoplay imediato, comportamento original
                 // não decodificar vídeo em aba oculta (economia de CPU/GPU/bateria)
