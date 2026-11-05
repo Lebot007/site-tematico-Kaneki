@@ -1,0 +1,36 @@
+MIT License
+
+Copyright (c) 2026 Lebot007 (João Vitor Alves Rodrigues)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+Notes on bundled third-party assets:
+
+- three.js (vendor/three.module.min.js) — MIT License, © 2010-2026 Three.js
+  Authors. https://github.com/mrdoob/three.js
+- GSAP (vendor/gsap.min.js, vendor/ScrollTrigger.min.js) — GSAP standard
+  "no charge" license, © GreenSock, LLC. https://gsap.com/
+- Lenis (vendor/lenis.min.js) — MIT License, © darkroom.engineering.
+  https://github.com/darkroomengineering/lenis
+
+All audio, video and image media in this repository are property of Lebot007
+and are not covered by the MIT license above. Tokyo Ghoul and its characters
+belong to Sui Ishida / Shueisha — this is a non-commercial fan project.
