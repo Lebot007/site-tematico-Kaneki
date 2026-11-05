@@ -2104,6 +2104,50 @@
                `gsap.set(autoAlpha:0)` dos reveals acontece ANTES do primeiro paint —
                sem flash de conteúdo. */
 
+            /* ══ GOVERNADOR GLOBAL DE FPS ═══════════════════════════════════════════
+               PCs sem decodificação por HARDWARE de AV1 (a maioria anterior a 2021)
+               decodificam o vídeo de 1080p por SOFTWARE e o processador satura —
+               o site inteiro cai para poucos fps (relato real: ~5 fps).
+               Escada de degradação (só desce, uma vez por carregamento, sem ir-e-voltar):
+                 estágio 1: fps médio < 22 por 4 s  → pausa o vídeo de fundo (o POSTER
+                            cobre o fundo: é um frame do próprio vídeo — visual igual);
+                 estágio 2: fps médio < 16 por 4 s  → reconstrói o motion no tier LITE
+                            (sem blur, 14 brasas a 30 fps) mesmo em desktop.
+               Amostragem no ticker do GSAP (loop de rAF que JÁ existe — zero custo
+               novo). Pausado enquanto a centopeia roda (ela tem watchdog próprio) e
+               no modo reduzido. ?nogovernor=1 desliga (diagnóstico em campo).      */
+            (function () {
+                if (/nogovernor/.test(location.search)) return;
+                let stage = 0, accMs = 0, frames = 0, last = 0;
+                const ROOT = document.documentElement;
+                const bgVideo = document.getElementById('bg-video');
+                gsap.ticker.add((time) => {
+                    const now = time * 1000;
+                    if (!last) { last = now; return; }
+                    const dt = now - last; last = now;
+                    if (dt <= 0 || dt > 250) { accMs = 0; frames = 0; return; }   // aba voltou: descarta amostra
+                    if (ROOT.dataset.motion === 'reduced') return;
+                    if (document.getElementById('centipede-canvas').classList.contains('active')) { accMs = 0; frames = 0; return; }
+                    accMs += dt; frames++;
+                    if (accMs < 4000) return;
+                    const fps = frames / (accMs / 1000);
+                    accMs = 0; frames = 0;
+                    /* reafirma a pausa: o visibilitychange religa o vídeo ao voltar
+                       para a aba — o governador mantém a decisão de economia */
+                    if (stage >= 1 && bgVideo && !bgVideo.paused) { try { bgVideo.pause(); } catch (e) {} }
+                    if (stage === 0 && fps < 22) {
+                        stage = 1;
+                        if (bgVideo && !bgVideo.paused) { try { bgVideo.pause(); } catch (e) {} }
+                        console.info('[lebot] fps', fps.toFixed(1), '→ vídeo de fundo pausado (economia de decodificação)');
+                    } else if (stage === 1 && fps < 16) {
+                        stage = 2;
+                        ROOT.dataset.motionTier = 'lite';
+                        buildMotion();
+                        console.info('[lebot] fps', fps.toFixed(1), '→ tier degradado para lite');
+                    }
+                });
+            })();
+
             const projects = [
                 { kanji: '眼', num: 'DOSSIÊ 01', title: 'Ken Kaneki', subtitle: 'O Trágico · Eyepatch', desc: 'Estudante universitário transformado em meio-ghoul após o transplante de órgãos de Rize. Carrega o peso de dois mundos e a dor de uma máscara que revela mais do que esconde. Seu Kagune Rinkaku se manifesta como quatro tentáculos escarlates.', tags: ['Rinkaku', 'Meio-Ghoul', 'Anteiku', 'Aogiri', 'Dragão'], year: 'RC: 911', img: 'kanekiprofile.jpg' },
                 { kanji: '食', num: 'DOSSIÊ 02', title: 'Rize Kamishiro', subtitle: 'Binge Eater · A Gourmet', desc: 'Conhecida como "Comilona", é a ghoul cujos órgãos foram transplantados para Kaneki. Filha ilegítima de Washuu, possui um Rinkaku de poder devastador com seis tentáculos. Elegante, letal e insaciável — sua fome não conhece limites.', tags: ['Rinkaku', 'Washuu', 'Gourmet', 'Binge Eater'], year: 'RC: 872', img: 'rizeprofile.jpg' },
@@ -2546,48 +2590,61 @@
                Protocolo de pesquisa (consultado ANTES de implementar):
                · three.js docs — InstancedMesh: 1 draw call p/ centenas de instâncias
                  https://threejs.org/docs/pages/InstancedMesh.html
-               · Discourse three.js — DPR travado em 2 (celular reporta 4!)
+               · three.js docs — MeshPhongMaterial: Blinn-Phong é ordens de magnitude
+                 mais barato que PBR (MeshStandardMaterial) e é o padrão para cenas
+                 estilizadas/low-cost sem IBL
+                 https://threejs.org/docs/pages/MeshPhongMaterial.html
+               · Discourse three.js — best practices mobile: DPR travado, sem AA em
+                 cenas escuras, <50 draw calls, fallback progressivo
                  https://discourse.threejs.org/t/what-are-your-best-practices-for-keeping-three-js-scenes-performant-on-mobile-devices/95775
-               · Guias de perf mobile — <50 draw calls, fallback progressivo obrigatório
-                 ("the page must remain fully functional ... without the 3D scene")
-                 https://digitalstrategyforce.com/journal/how-do-you-optimize-threejs-performance-for-mobile-devices
-               · Codrops — snake procedural com curvas/steering (referência de locomoção)
-                 https://tympanus.net/codrops/2026/02/10/building-an-endless-procedural-snake-with-three-js-and-webgl
+               · Anatomy reference (Scolopendra): tergitos alternados achatados, 1 par
+                 de pernas por segmento, forcípulas na cabeça, antenas longas, 2 pares
+                 terminais alongados.
 
                DECISÕES DE ARQUITETURA:
                · CINEMÁTICA = o motor procedural v6 2D (mola de spacing, onda de dois
-                 harmônicos, banking, IK de 2 ossos, marcha metacrônica, lookahead) —
-                 código já validado em produção. O 3D é uma NOVA RENDERIZAÇÃO, não
-                 uma física nova: o movimento que o dono aprovou fica intacto.
-               · LAZY: three.module.min.js (383 KB) só entra no 1º clique do 1000-7;
-                 modulepreload injetado logo após a entrada do site (ver revealHero).
-                 Custo no carregamento inicial: ZERO.
-               · FALLBACK TOTAL: erro de import, WebGL indisponível, contexto perdido
-                 ou FPS cronicamente baixo (watchdog de 3 s, degrada DPR→1 antes)
-                 => cai no Centipede2D original. O efeito NUNCA deixa de acontecer.
-               · ORÇAMENTO: ~7 draw calls (corpo, pernas, casco/olhos/antenas na 1
-                 hierarquia, 2 sprites de glow). Sem shadow map (luz direta + ponto
-                 vermelho na cabeça + emissivo dão o volume). DPR ≤ 2 / 1.75 touch.
-               · Hot-path sem alocação: todos os Vector3/Quaternion/Matrix4 são
-                 pré-alocados no build e reutilizados por frame.                      */
+                 harmônicos, banking, lookahead) — movimento aprovado pelo dono, intacto.
+                 O 3D é uma NOVA RENDERIZAÇÃO, não uma física nova.
+               · ANATOMIA REAL: tergitos achatados alternados (largura cresce até o
+                 meio e afunila na cauda), plastrão escuro embaixo (volume), 1 par de
+                 pernas de 3 ossos por segmento com marcha metacrônica + swing em Z,
+                 cabeça com forcípulas (ganchos venenosos) + 4 ocelos por lado +
+                 2 antenas varrendo, 2 pares terminais alongados.
+               · BUG ORIGINAL CORRIGIDO: as pernas eram posicionadas em coordenadas
+                 de TELA enquanto o corpo usava coordenadas de MUNDO — elas se
+                 separavam do corpo ("sombra preta solta"). Tudo agora em um único
+                 espaço de mundo (wx = x − w/2, wy = h/2 − y).
+               · PERFORMANCE (5 fps -> alvo 45+ em GPU fraca):
+                 − MeshPhongMaterial em TODOS os materiais (sem PBR/IBL)
+                 − antialias: false (DPR ≥ 1.25 compensa em cena escura)
+                 − DPR ≤ 1.5 desktop / 1.25 touch (antes 2 / 1.75)
+                 − SEM PointLight (luz pontual custa por fragmento) — key+rim
+                   direcionais + emissivo + sprites de glow
+                 − ~12 draw calls no total, zero alocação por frame
+                 − watchdog 3× mais rápido (amostras de 1.2 s): DPR→1 → fallback 2D
+                   (?nowatchdog=1 na URL desliga, para diagnóstico em campo)
+               · LAZY: three.module.min.js só entra no 1º clique do 1000-7.
+               · FALLBACK TOTAL: erro de import, WebGL indisponível, contexto
+                 perdido ou FPS cronicamente baixo => Centipede2D original.        */
             class Centipede3D {
                 constructor(canvas, T) {
                     this.T = T; this.canvas = canvas;
                     this.dead = false; this.running = false;
-                    this.numSegments = isTouchDevice ? 26 : 36;
+                    this.numSegments = isTouchDevice ? 26 : 34;
                     this.segmentSpacing = 11;
                     this.path = []; this.pathLengths = []; this.totalPathLength = 0; this.speed = 0;
                     this.distanceTraveled = 0; this.time = 0; this.exitThreshold = 0;
-                    this._acc = 0; this.FIXED = 1000 / 120;   // passo fixo: 60/90/120/144 Hz idênticos
+                    this._acc = 0; this.FIXED = 1000 / 120;
                     this._lastTs = 0; this._lastDrawTs = 0; this._raf = 0; this._rzT = 0;
                     this._fpsStage = 0; this._fpsT0 = 0; this._fpsN = 0;
                     this._hidden = document.hidden;
+                    this._noWatchdog = /nowatchdog/.test(location.search);
                     this._p = { x: 0, y: 0 }; this._q = { x: 0, y: 0 };
                     try {
-                        this.renderer = new T.WebGLRenderer({ canvas: canvas, alpha: true, antialias: !isTouchDevice, powerPreference: 'high-performance' });
+                        this.renderer = new T.WebGLRenderer({ canvas: canvas, alpha: true, antialias: false, powerPreference: 'high-performance' });
                     } catch (err) { this.dead = true; return; }
                     this.renderer.setClearColor(0x000000, 0);
-                    this._maxDPR = isTouchDevice ? 1.75 : 2;
+                    this._maxDPR = isTouchDevice ? 1.25 : 1.5;
                     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, this._maxDPR));
                     this.scene = new T.Scene();
                     this.camera = new T.PerspectiveCamera(42, 1, 10, 4000);
@@ -2604,57 +2661,92 @@
                     document.addEventListener('visibilitychange', this._onVis, { passive: true });
                     this.resize();
                 }
-                /* ── cena: luzes, corpo instanciado, pernas instanciadas, cabeça, glows ── */
+                /* ── cena: luzes, tergitos, plastrão, pernas, cabeça anatômica, glows ── */
                 _buildScene() {
                     const T = this.T, touch = isTouchDevice;
-                    this.scene.add(new T.AmbientLight(0x401008, 2.4));
-                    const key = new T.DirectionalLight(0xffc9b0, 1.15);
-                    key.position.set(-0.7, 1.0, 0.9);
+                    this.scene.add(new T.AmbientLight(0x702010, 2.0));
+                    const key = new T.DirectionalLight(0xffd2b8, 1.7);
+                    key.position.set(-0.65, 1.0, 0.85);
                     this.scene.add(key);
-                    this.headLight = new T.PointLight(0xff2020, 2600, 1200, 2);
-                    this.scene.add(this.headLight);
+                    const rim = new T.DirectionalLight(0xff2a1a, 0.8);
+                    rim.position.set(0.5, -0.5, -1.0);
+                    this.scene.add(rim);
 
-                    const segGeo = new T.SphereGeometry(1, touch ? 12 : 16, touch ? 9 : 12);
-                    const segMat = new T.MeshStandardMaterial({ color: 0x3a0404, roughness: 0.38, metalness: 0.22, emissive: 0x4d0000, emissiveIntensity: 0.45 });
+                    /* TERGITOS — placas dorsais alongadas e achatadas (esfera alongada
+                       em X, esmagada em Z): sobrepõem como telhas = leitura de armadura,
+                       não de bolinhas. Afunilamento LINEAR do tórax à cauda. */
+                    const segGeo = new T.SphereGeometry(1, touch ? 10 : 14, touch ? 7 : 9);
+                    const segMat = new T.MeshPhongMaterial({ color: 0x9a1a12, emissive: 0x520b0c, specular: 0xcc6a4a, shininess: 58, flatShading: true });
                     this.segMesh = new T.InstancedMesh(segGeo, segMat, this.numSegments);
                     this.segMesh.instanceMatrix.setUsage(T.DynamicDrawUsage);
                     this.segMesh.frustumCulled = false;
                     this.scene.add(this.segMesh);
 
-                    this._legCount = (this.numSegments - 2) * 8;
-                    const legGeo = new T.CylinderGeometry(1.05, 0.5, 1, 5, 1);
-                    legGeo.translate(0, -0.5, 0);   // pivot na raiz: escala alonga p/ baixo
-                    const legMat = new T.MeshStandardMaterial({ color: 0x1a0202, roughness: 0.62, metalness: 0.12 });
+                    /* PLASTRÃO — barriga escura sob cada escudo (leitura de volume) */
+                    const bellyMat = new T.MeshPhongMaterial({ color: 0x240505, emissive: 0x120202, specular: 0x3a1408, shininess: 18, flatShading: true });
+                    this.bellyMesh = new T.InstancedMesh(segGeo, bellyMat, this.numSegments);
+                    this.bellyMesh.instanceMatrix.setUsage(T.DynamicDrawUsage);
+                    this.bellyMesh.frustumCulled = false;
+                    this.scene.add(this.bellyMesh);
+
+                    /* PERNAS — 3 ossos (coxa, fêmur, tíbia) × 2 lados por segmento.
+                       1 draw call para TODO o apêndice. Pivot na raiz (escala alonga). */
+                    this._legPairs = this.numSegments - 3;
+                    this._legCount = this._legPairs * 6;
+                    const legGeo = new T.CylinderGeometry(1.3, 0.5, 1, 5, 1);
+                    legGeo.translate(0, -0.5, 0);
+                    const legMat = new T.MeshPhongMaterial({ color: 0x6e140c, emissive: 0x240404, specular: 0xc06040, shininess: 55, flatShading: true });
                     this.legMesh = new T.InstancedMesh(legGeo, legMat, this._legCount);
                     this.legMesh.instanceMatrix.setUsage(T.DynamicDrawUsage);
                     this.legMesh.frustumCulled = false;
                     this.scene.add(this.legMesh);
 
-                    /* Cabeça: casco + crista + olhos emissivos + antenas animadas */
+                    /* CABEÇA — escudo + forcípulas + ocelos + antenas */
                     this.head = new T.Group();
-                    const shellMat = new T.MeshStandardMaterial({ color: 0x52060a, roughness: 0.3, metalness: 0.32, emissive: 0x3a0000, emissiveIntensity: 0.55 });
-                    const shell = new T.Mesh(new T.SphereGeometry(1, touch ? 14 : 20, touch ? 10 : 14), shellMat);
-                    shell.scale.set(16, 12.5, 11);
+                    const headMat = new T.MeshPhongMaterial({ color: 0x7a1210, emissive: 0x300505, specular: 0xd87048, shininess: 62 });
+                    const shell = new T.Mesh(new T.SphereGeometry(1, touch ? 12 : 16, touch ? 9 : 12), headMat);
+                    shell.scale.set(14, 13, 6);
                     this.head.add(shell);
-                    const crest = new T.Mesh(new T.ConeGeometry(2.6, 9, 6), shellMat);
-                    crest.rotation.x = Math.PI / 2;
-                    crest.position.set(2, 0, 10.5);
-                    this.head.add(crest);
-                    const eyeMat = new T.MeshBasicMaterial({ color: 0xff2020, toneMapped: false });
-                    const eyeGeo = new T.SphereGeometry(2.1, 8, 8);
-                    const eyeL = new T.Mesh(eyeGeo, eyeMat); eyeL.position.set(9, 5.4, 2.5);
-                    const eyeR = new T.Mesh(eyeGeo, eyeMat); eyeR.position.set(9, -5.4, 2.5);
-                    this.head.add(eyeL); this.head.add(eyeR);
-                    const antMat = new T.MeshStandardMaterial({ color: 0x1a0202, roughness: 0.6 });
-                    const antGeo = new T.CylinderGeometry(0.35, 0.9, 26, 5);
-                    antGeo.translate(0, 13, 0);
-                    antGeo.rotateZ(-Math.PI / 2);       // estende no +X local (frente)
-                    this.antL = new T.Mesh(antGeo, antMat); this.antL.position.set(14, 5.5, 2); this.antL.rotation.z = 0.22;
-                    this.antR = new T.Mesh(antGeo, antMat); this.antR.position.set(14, -5.5, 2); this.antR.rotation.z = -0.22;
+                    /* forcípulas: 2 ganchos venenosos à frente, convergindo para dentro
+                       (cone: ápice +Y; rotation.z=-π/2 aponta o ápice para +X=frente,
+                       o desvio -s*0.3 fecha o gancho para o eixo do corpo) */
+                    const fangMat = new T.MeshPhongMaterial({ color: 0x330808, emissive: 0x140202, specular: 0xe07048, shininess: 70 });
+                    const fangGeo = new T.ConeGeometry(1.6, 9, 6);
+                    const fangL = new T.Mesh(fangGeo, fangMat);
+                    fangL.position.set(11.5, 4.6, -0.8);
+                    fangL.rotation.set(-0.3, 0, -Math.PI / 2 - 0.3);
+                    const fangR = new T.Mesh(fangGeo, fangMat);
+                    fangR.position.set(11.5, -4.6, -0.8);
+                    fangR.rotation.set(-0.3, 0, -Math.PI / 2 + 0.3);
+                    this.head.add(fangL); this.head.add(fangR);
+                    /* ocelos: 4 olhos emissivos por lado, sentados NA superfície do escudo
+                       (superfície do elipsoide: z = 7.5·√(1−(x/14)²−(y/11)²)) */
+                    const eyeMat = new T.MeshBasicMaterial({ color: 0xff2a20, toneMapped: false });
+                    const eyeGeo = new T.SphereGeometry(1.05, 6, 6);
+                    const eyeZ = [5.8, 5.1, 4.0, 2.7];
+                    for (let side = -1; side <= 1; side += 2) {
+                        for (let k = 0; k < 4; k++) {
+                            const eye = new T.Mesh(eyeGeo, eyeMat);
+                            eye.position.set(7 + k * 1.7, side * 4.2, eyeZ[k]);
+                            this.head.add(eye);
+                        }
+                    }
+                    /* antenas: tubos curvos varrendo para frente-lateral-cima */
+                    const antMat = new T.MeshPhongMaterial({ color: 0x240505, emissive: 0x0c0101, specular: 0x503018, shininess: 30 });
+                    const antCurvePts = (s) => [
+                        new T.Vector3(10, s * 7.5, 1.5),
+                        new T.Vector3(19, s * 12.5, 5.5),
+                        new T.Vector3(26, s * 15.5, 10.5),
+                        new T.Vector3(31, s * 13.5, 16),
+                        new T.Vector3(34, s * 8, 20.5),
+                        new T.Vector3(34.5, s * 1.5, 23)
+                    ];
+                    this.antL = new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3(antCurvePts(1)), 22, 0.75, 5, false), antMat);
+                    this.antR = new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3(antCurvePts(-1)), 22, 0.75, 5, false), antMat);
                     this.head.add(this.antL); this.head.add(this.antR);
                     this.scene.add(this.head);
 
-                    /* Glow barato (substitui bloom pós-processo, que é caro no mobile) */
+                    /* Glow barato (substitui bloom pós-processo) */
                     const glowTex = (stops) => {
                         const c = document.createElement('canvas'); c.width = c.height = 128;
                         const g2 = c.getContext('2d');
@@ -2669,16 +2761,23 @@
                         const s = new T.Sprite(m); s.scale.set(scale, scale, 1); s.frustumCulled = false;
                         this.scene.add(s); return s;
                     };
-                    const gOp = touch ? 0.7 : 1;
-                    this.headGlow = mkSprite(glowTex([[0, 'rgba(255,46,26,0.55)'], [0.4, 'rgba(196,20,20,0.22)'], [1, 'rgba(196,20,20,0)']]), 150, 0.9 * gOp);
-                    this.bodyGlow = mkSprite(glowTex([[0, 'rgba(196,30,30,0.22)'], [1, 'rgba(196,30,30,0)']]), 320, 0.5 * gOp);
+                    const gOp = touch ? 0.6 : 1;
+                    /* ⚠ glow FRACO: sprite aditivo grande em cima do corpo DESTRÓI a
+                       leitura (virava uma "vagem" vermelha indefinida). Só uma aura
+                       sutil ao redor — o corpo é quem tem que aparecer. */
+                    this.headGlow = mkSprite(glowTex([[0, 'rgba(255,46,26,0.45)'], [0.4, 'rgba(196,20,20,0.16)'], [1, 'rgba(196,20,20,0)']]), 90, 0.5 * gOp);
+                    this.bodyGlow = mkSprite(glowTex([[0, 'rgba(196,30,30,0.16)'], [1, 'rgba(196,30,30,0)']]), 170, 0.28 * gOp);
 
                     /* temporários pré-alocados — zero alocação por frame */
                     this._M = new T.Matrix4(); this._M2 = new T.Matrix4();
                     this._Qb = new T.Quaternion(); this._QL = new T.Quaternion();
                     this._F = new T.Vector3(); this._N = new T.Vector3(); this._U = new T.Vector3(0, 0, 1);
-                    this._P = new T.Vector3(); this._D = new T.Vector3(); this._S = new T.Vector3();
-                    this._YUP = new T.Vector3(0, 1, 0);
+                    this._D = new T.Vector3(); this._S = new T.Vector3();
+                    this._A = new T.Vector3(); this._B = new T.Vector3(); this._P = new T.Vector3();
+                    /* a geometria da perna se estende ao longo de -Y (pivot na raiz):
+                       rotacionar (0,-1,0) -> direção do osso. NUNCA (0,1,0) — senão o
+                       osso aponta ao contrário (bug do espelhamento da v1). */
+                    this._YDN = new T.Vector3(0, -1, 0);
                 }
                 resize() {
                     const w = window.innerWidth, h = window.innerHeight;
@@ -2755,17 +2854,13 @@
                     let n = 0;
                     while (this._acc >= this.FIXED && n < 6) { this.step(this.FIXED); this._acc -= this.FIXED; n++; }
                     if (n === 6) this._acc = 0;
-                    /* Touch: simula a 120 Hz, desenha a ~55 fps — movimento idêntico,
-                       metade do custo de GPU em telas de 90/120 Hz. */
                     if (!(isTouchDevice && timestamp - this._lastDrawTs < 18)) {
                         this._lastDrawTs = timestamp;
                         this._render();
                         this._watchdog(timestamp);
                     }
                 }
-                /* Cinemática orgânica v6 — PORTADA do Centipede2D sem alterações:
-                   mola de spacing, onda de dois harmônicos modulada por velocidade,
-                   banking, ângulos suavizados, cabeça com lookahead.                  */
+                /* Cinemática orgânica v6 — PORTADA do Centipede2D sem alterações */
                 step(dt) {
                     const prog = this.distanceTraveled / this.totalPathLength;
                     const ease = prog < 0.12 ? (prog / 0.12) * (prog / 0.12) * 0.55 + 0.45
@@ -2806,8 +2901,8 @@
                 }
                 _angDiff(a, b) { let d = a - b; while (d > Math.PI) d -= Math.PI * 2; while (d < -Math.PI) d += Math.PI * 2; return d; }
                 /* ── render: mapeia a cinemática 2D (px de tela) para o mundo 3D ──
-                   mundo: wx = x - w/2, wy = h/2 - y, z = profundidade ondulada.
-                   câmera: z exato p/ o plano z=0 casar 1:1 com o viewport.          */
+                   TODO aqui é um único espaço: wx = x − w/2, wy = h/2 − y.
+                   Corpo, plastrão, pernas e cabeça compartilham os MESMOS F/N/U. */
                 _render() {
                     const w = window.innerWidth, h = window.innerHeight;
                     const segs = this.segments, n = segs.length;
@@ -2817,56 +2912,84 @@
                         const seg = segs[i], p = i / (n - 1);
                         const bank = seg.bank || 0;
                         const ph = this.time * 2.2 - i * 0.42;
-                        const z = Math.sin(ph * 0.85 + 1.3) * (2.5 + 8 * p) + Math.sin(this.time * 0.8) * 2.5;
+                        const z = Math.sin(ph * 0.85 + 1.3) * (1.5 + 4 * p) + Math.sin(this.time * 0.8) * 1.5;
                         const wx = seg.x - w / 2, wy = h / 2 - seg.y;
                         const c = Math.cos(seg.angle), s = Math.sin(seg.angle);
                         F.set(c, -s, 0);
                         N.set(s, c, 0);
-                        Qb.setFromAxisAngle(F, bank * 0.55);
+                        Qb.setFromAxisAngle(F, bank * 0.4);
                         N.applyQuaternion(Qb);
                         U.set(0, 0, 1).applyQuaternion(Qb);
                         if (i > 0) {
-                            const hw = (13 - p * 7) * (1 + bank * 0.10);
-                            const hl = 9 - p * 4;
+                            /* faixa transversal — MESMAS proporções da 2D original que o
+                               dono aprovou (13 -> 6 de largura), agora em 3D facetado */
+                            const hw = (13 - p * 7) * (i % 2 ? 0.9 : 1);
+                            const hl = 9.5 - p * 3;
+                            const hh = 3.4 - p * 1.4;
                             M.makeBasis(F, N, U);
-                            M.scale(S.set(hl, hw, hw));
+                            M.scale(S.set(hl, hw, hh));
                             M.setPosition(wx, wy, z);
                             this.segMesh.setMatrixAt(i, M);
+                            /* plastrão = CONTORNO: ligeiramente mais LARGO que o tergito e
+                               escuro => a borda escura vaza nas laterais = outline de
+                               segmento (equivalente 3D do stroke preto da versão 2D) */
+                            M.scale(S.set(hl * 0.9, hw * 1.05, hh * 0.55));
+                            M.setPosition(wx, wy, z - hh * 0.45);
+                            this.bellyMesh.setMatrixAt(i, M);
                         } else {
                             M.makeBasis(F, N, U);
                             this.head.position.set(wx, wy, z);
                             this.head.quaternion.setFromRotationMatrix(M);
                         }
-                        if (i >= 1 && i <= n - 2) {
-                            const prog = i / n;
-                            const legLen1 = 9, legLen2 = 14 - prog * 6;
-                            const nx = -s, ny = c;
-                            const phase = this.time * 3 + i * 0.7;
-                            const wave = Math.sin(phase) * 0.5, wave2 = Math.cos(phase) * 0.4;
-                            const step = Math.sin(phase) * 3.2;
+                        /* PERNAS — 1 par por segmento (i = 1..n-3), 3 ossos, march
+                           metacrônica: lados opostos em π, onda viajante por segmento.
+                           Todos os pontos em MUNDO (o bug original usava tela aqui). */
+                        if (i >= 1 && i <= n - 3) {
+                            const bodyW = (13 - p * 7) * (i % 2 ? 0.9 : 1);
+                            const terminal = i >= n - 3;                 // 2 pares finais: longos
+                            const L1 = 6.5, L2 = 12, L3 = terminal ? 15 : 13.5;
+                            const pLeg = this.time * 2.9 - i * 0.62;
                             for (let side = -1; side <= 1; side += 2) {
-                                const hipX = seg.x + nx * side * 6, hipY = seg.y + ny * side * 6;
-                                const a1 = Math.atan2(ny * side, nx * side) + wave * 0.6 * side;
-                                const j1X = hipX + Math.cos(a1) * legLen1, j1Y = hipY + Math.sin(a1) * legLen1;
-                                const a2 = a1 + (0.9 + wave2) * side;
-                                const eX = j1X + Math.cos(a2) * legLen2, eY = j1Y + Math.sin(a2) * legLen2;
-                                this._setBone(legIdx++, hipX, hipY, z, j1X, j1Y, z + step * 0.5, 1.0);
-                                this._setBone(legIdx++, j1X, j1Y, z + step * 0.5, eX, eY, z + step, 0.8);
+                                const swing = Math.sin(pLeg + (side > 0 ? 0 : Math.PI));
+                                const hip = this._A.set(wx, wy, z - 0.5).addScaledVector(N, side * bodyW * 0.6);
+                                /* FRANJA LATERAL (como na 2D): pernas nascem ~perpendiculares
+                                   ao corpo e só deslizam para trás no fim — assim elas NUNCA
+                                   ficam sob a placa seguinte (a câmera é quase frontal). */
+                                const a1x = N.x * side * 1.2 - F.x * 0.12, a1y = N.y * side * 1.2 - F.y * 0.12;
+                                const a1l = Math.hypot(a1x, a1y) || 1;
+                                const j1 = this._B.set(
+                                    hip.x + (a1x / a1l) * L1,
+                                    hip.y + (a1y / a1l) * L1,
+                                    z + 1.0 + swing * 0.5);
+                                this._setBone(legIdx++, hip.x, hip.y, hip.z, j1.x, j1.y, j1.z, 1.5);
+                                /* fêmur: continua abrindo lateralmente, arco para cima */
+                                const j2x = j1.x - F.x * L2 * 0.55 + N.x * side * L2 * 0.72;
+                                const j2y = j1.y - F.y * L2 * 0.55 + N.y * side * L2 * 0.72;
+                                const j2z = j1.z + 2.0 + swing * 1.0;
+                                this._setBone(legIdx++, j1.x, j1.y, j1.z, j2x, j2y, j2z, 1.15);
+                                /* tíbia: vira para trás-fora no fim (garra) */
+                                const tibZ = j2z - L3 * (0.60 - Math.max(0, swing) * 0.30);
+                                const footX = j2x - F.x * L3 * (0.52 + swing * 0.22) + N.x * side * L3 * 0.42;
+                                const footY = j2y - F.y * L3 * (0.52 + swing * 0.22) + N.y * side * L3 * 0.42;
+                                this._setBone(legIdx++, j2x, j2y, j2z, footX, footY, tibZ, 0.8);
                             }
                         }
                     }
                     this.segMesh.instanceMatrix.needsUpdate = true;
+                    this.bellyMesh.instanceMatrix.needsUpdate = true;
                     this.legMesh.instanceMatrix.needsUpdate = true;
                     const hx = segs[0].x - w / 2, hy = h / 2 - segs[0].y;
                     this._camX += (hx * 0.06 - this._camX) * 0.05;
                     this.camera.position.set(this._camX, 12, this._camZ);
                     this.camera.lookAt(this._camX * 0.6, 0, 0);
-                    this.headLight.position.set(hx, hy, 60);
-                    this.headGlow.position.set(hx + Math.cos(segs[0].angle) * 14, hy - Math.sin(segs[0].angle) * 14, 10);
+                    this.headGlow.position.set(hx + F.x * 13, hy + F.y * 13, 8);
                     const mid = segs[Math.floor(n * 0.45)];
-                    this.bodyGlow.position.set(mid.x - w / 2, h / 2 - mid.y, -16);
-                    this.antL.rotation.z = 0.22 + Math.sin(this.time * 2.3) * 0.12;
-                    this.antR.rotation.z = -0.22 + Math.sin(this.time * 2.3 + 1.1) * 0.12;
+                    this.bodyGlow.position.set(mid.x - w / 2, h / 2 - mid.y, -14);
+                    /* antenas varrendo (feeling de exploração) */
+                    this.antL.rotation.y = Math.sin(this.time * 1.9) * 0.16;
+                    this.antL.rotation.x = Math.sin(this.time * 1.3) * 0.10;
+                    this.antR.rotation.y = Math.sin(this.time * 1.9 + 0.9) * 0.16;
+                    this.antR.rotation.x = Math.sin(this.time * 1.3 + 0.7) * 0.10;
                     this.renderer.render(this.scene, this.camera);
                 }
                 _setBone(idx, ax, ay, az, bx, by, bz, thick) {
@@ -2874,24 +2997,26 @@
                     D.set(bx - ax, by - ay, bz - az);
                     const len = D.length() || 1;
                     P.set(ax, ay, az);
-                    QL.setFromUnitVectors(this._YUP, D.multiplyScalar(1 / len));
+                    QL.setFromUnitVectors(this._YDN, D.multiplyScalar(1 / len));
                     M2.compose(P, QL, S.set(thick, len, thick));
                     this.legMesh.setMatrixAt(idx, M2);
                 }
-                /* Watchdog de FPS (3 s por estágio): DPR → 1 antes de renderizar 2D.
-                   Dispositivo fraco nunca fica preso num 3D que ele não aguenta.  */
+                /* Watchdog de FPS (amostras de 1.2 s): DPR → 1 antes de renderizar 2D.
+                   ?nowatchdog=1 desliga (diagnóstico em campo).                   */
                 _watchdog(ts) {
+                    if (this._noWatchdog) return;
                     if (this._fpsStage === 0) { this._fpsStage = 1; this._fpsT0 = ts; this._fpsN = 0; return; }
                     this._fpsN++;
                     const elapsed = ts - this._fpsT0;
-                    if (this._fpsStage === 1 && elapsed >= 3000) {
+                    if (this._fpsStage === 1 && elapsed >= 1200) {
                         const fps = this._fpsN / (elapsed / 1000);
-                        if (fps < 22 && this.renderer.getPixelRatio() > 1.05) {
+                        if (fps < 26 && this.renderer.getPixelRatio() > 1.05) {
+                            this._maxDPR = 1;
                             this.renderer.setPixelRatio(1);
                             this.renderer.setSize(window.innerWidth, window.innerHeight, true);
                             this._fpsStage = 2; this._fpsT0 = ts; this._fpsN = 0;
                         } else { this._fpsStage = 3; }
-                    } else if (this._fpsStage === 2 && elapsed >= 3000) {
+                    } else if (this._fpsStage === 2 && elapsed >= 1200) {
                         const fps = this._fpsN / (elapsed / 1000);
                         if (fps < 18) { this.dead = true; this.stop(); if (!(centipede2D && centipede2D.running)) get2D().start(); }
                         this._fpsStage = 3;
