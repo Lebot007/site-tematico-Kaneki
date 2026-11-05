@@ -11,6 +11,14 @@
     <meta property="og:title" content="Lebot | Portfolio">
     <meta property="og:description" content="Portfólio temático Tokyo Ghoul — Developer &amp; Creator.">
     <meta property="og:type" content="website">
+    <meta property="og:url" content="https://lebot.vercel.app/">
+    <meta property="og:image" content="https://lebot.vercel.app/kanekituc.webp">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Lebot | Portfolio">
+    <meta name="twitter:description" content="Portfólio temático Tokyo Ghoul — Developer &amp; Creator.">
+    <meta name="twitter:image" content="https://lebot.vercel.app/kanekituc.webp">
+    <meta name="color-scheme" content="dark">
+    <link rel="canonical" href="https://lebot.vercel.app/">
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90' fill='%23c41e1e'%3E%E5%96%B0%3C/text%3E%3C/svg%3E">
     <title>Lebot | Portfolio</title>
     <!-- Tailwind compilado estaticamente (7,8 KB) no lugar do Play CDN (397,7 KB de JS runtime, "não usar em produção") -->
@@ -805,6 +813,122 @@
             .higanbana-wrap { width: 220px; height: 220px; }
         }
         
+        /* ══ REFORM PASS — refinamento profissional ══════════════════════════════════
+           Princípios: só compositor (transform/opacity), paleta existente (sangue +
+           osso), ZERO alteração de textos/mecânicas, tudo desativado no modo reduzido
+           pela regra global html[data-motion="reduced"] (animation-duration: 0.001ms). */
+
+        ::selection { background: #c41e1e; color: #f5f0f0; }
+        html { scrollbar-color: #6a0a0a #0a0505; }
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #070404; }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #8a0303, #4a0000); border-radius: 5px; border: 2px solid #070404; }
+        ::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #a81515, #6a0505); }
+
+        /* Títulos de seção: capítulos com gradiente de sangue + régua decorativa.
+           background-clip:text sobrevive ao scramble katakana (o JS só troca textContent). */
+        section h3 {
+            position: relative;
+            color: transparent !important;
+            background: linear-gradient(180deg, #ff4545 0%, #b31212 55%, #7a0303 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 0.08em;
+        }
+        section h3::after {
+            content: ''; position: absolute; left: 50%; bottom: -14px;
+            width: 64px; height: 1px; transform: translateX(-50%);
+            background: linear-gradient(90deg, transparent, rgba(196, 30, 30, 0.85), transparent);
+            pointer-events: none;
+        }
+
+        /* Hero: presença tipográfica fluida + brilho de sangue no nome */
+        section:first-of-type h2 {
+            font-size: clamp(4.2rem, 17vw, 10.5rem);
+            line-height: 1.05;
+            text-shadow: 0 0 70px rgba(196, 30, 30, 0.32), 0 0 22px rgba(196, 30, 30, 0.2);
+        }
+        section:first-of-type p.text-sm { letter-spacing: 0.5em; }
+
+        /* Indicador SCROLL: fio vertical com pulso viajante (transform/opacity only) */
+        .absolute.bottom-10::after {
+            content: ''; position: absolute; top: calc(100% + 14px); left: 50%;
+            width: 1px; height: 46px; transform: translateX(-50%);
+            background: linear-gradient(180deg, rgba(196, 30, 30, 0), rgba(196, 30, 30, 0.55));
+            pointer-events: none;
+        }
+        .absolute.bottom-10::before {
+            content: ''; position: absolute; top: calc(100% + 14px); left: 50%;
+            width: 3px; height: 3px; border-radius: 50%;
+            background: #ff4040; box-shadow: 0 0 8px rgba(255, 32, 32, 0.9);
+            transform: translate(-50%, 0); opacity: 0;
+            animation: scrollDot 2.4s cubic-bezier(0.45, 0, 0.2, 1) infinite;
+            pointer-events: none;
+        }
+        @keyframes scrollDot {
+            0% { transform: translate(-50%, 0); opacity: 0; }
+            14% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { transform: translate(-50%, 46px); opacity: 0; }
+        }
+        html[data-motion="reduced"] .absolute.bottom-10::before,
+        html[data-motion="reduced"] .absolute.bottom-10::after { display: none; }
+
+        /* Citação: painel de dossiê discreto, sem competir com a flor */
+        .quote-container {
+            padding: 1.6rem 1.5rem;
+            border: 1px solid rgba(196, 30, 30, 0.16);
+            border-radius: 4px;
+            background: linear-gradient(160deg, rgba(16, 6, 6, 0.55), rgba(5, 2, 2, 0.3));
+        }
+        .quote-container::before {
+            content: ''; position: absolute; top: 0; left: 0;
+            width: 34px; height: 1px;
+            background: linear-gradient(90deg, rgba(196, 30, 30, 0.7), transparent);
+        }
+        @media (hover: none), (pointer: coarse) {
+            .quote-container { background: rgba(10, 4, 4, 0.55); }
+        }
+
+        /* Dica da flor: pulso lento de opacidade */
+        .flower-hint { animation: hintPulse 3.6s ease-in-out infinite; }
+        @keyframes hintPulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+        /* Dossiês do carrossel: destaque do card ativo + tags vivas */
+        .project-card.active { box-shadow: inset 0 0 0 1px rgba(196, 30, 30, 0.14); }
+        .project-card.active .card-tag { border-color: rgba(196, 30, 30, 0.75); background: rgba(196, 30, 30, 0.14); color: #fff; }
+        .project-card.active .card-cta { animation: ctaPulse 2.6s ease-in-out infinite; }
+        @keyframes ctaPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        /* Cartões sociais: lavagem radial de sangue no hover + ícone com halo */
+        .social-card::before {
+            content: ''; position: absolute; inset: 0; border-radius: inherit;
+            background: radial-gradient(circle at 50% 0%, rgba(196, 30, 30, 0.12), transparent 62%);
+            opacity: 0; transition: opacity 0.3s ease; pointer-events: none; z-index: 1;
+        }
+        .social-card:hover::before { opacity: 1; }
+        .social-card .social-icon { filter: drop-shadow(0 0 14px rgba(196, 30, 30, 0.22)); }
+
+        /* Rodapé: régua de sangue no topo + links discretos */
+        footer { position: relative; }
+        footer::before {
+            content: ''; position: absolute; top: 0; left: 18%; right: 18%; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(196, 30, 30, 0.45), transparent);
+        }
+        .footer-links { margin-top: 0.8rem; font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase; }
+        .footer-links a { color: rgba(212, 212, 212, 0.55); text-decoration: none; transition: color 0.25s ease; border-bottom: 1px solid rgba(196, 30, 30, 0.3); padding-bottom: 2px; }
+        .footer-links a:hover { color: #ff4545; }
+        .footer-links .sep { color: rgba(196, 30, 30, 0.5); margin: 0 10px; }
+
+        /* Imagem do Kaneki: presença um pouco maior */
+        .kaneki-container img { filter: drop-shadow(-20px 0 40px rgba(196, 30, 30, 0.3)) contrast(1.04) saturate(1.04); }
+
+        /* Touch: alvos de 44px preservados, efeitos de paint reduzidos */
+        @media (hover: none), (pointer: coarse) {
+            section h3::after { width: 48px; }
+        }
+
         body.tab-hidden * { animation-play-state: paused !important; }
     </style>
 </head>
@@ -856,7 +980,7 @@
         </button>
         <div class="player-top">
             <div class="player-cover-wrap">
-                <img src="music1image.jpg" alt="Album cover" class="player-cover" id="player-cover" loading="eager" fetchpriority="high" decoding="async">
+                <img src="music1image.webp" alt="Album cover" class="player-cover" id="player-cover" loading="eager" fetchpriority="high" decoding="async">
             </div>
             <div class="player-info">
                 <div class="player-track-name" id="player-track-name">Nuts</div>
@@ -911,7 +1035,7 @@
     <canvas id="centipede-canvas"></canvas>
 
     <div class="kaneki-container" id="kaneki-container">
-        <img src="kanekituc.png" alt="" loading="lazy" decoding="async">
+        <img src="kanekituc.webp" alt="" loading="lazy" decoding="async">
     </div>
 
     <section class="relative h-screen flex flex-col items-center justify-center text-center px-4">
@@ -1030,6 +1154,7 @@
 
     <footer class="py-12 text-center text-readable-faint text-xs tracking-widest">
         <p>LEBOT © <span class="font-jp" style="color: #c41e1e;">喰</span></p>
+        <p class="footer-links"><a href="https://github.com/Lebot007/site-tematico-Kaneki" target="_blank" rel="noopener">GitHub</a><span class="sep">·</span><a href="LICENSE" target="_blank" rel="noopener">MIT License</a><span class="sep">·</span><span>1000-7</span></p>
     </footer>
 
     <!-- Libs self-hosted e pinadas (GSAP 3.12.7 = mesma minor em produção; Lenis 1.3.27).
@@ -1298,6 +1423,15 @@
                 /* Marca o fim da tela de entrada: é o que libera o HUD (toggle de movimento).
                    Feito aqui e não num timeout para nunca aparecer sobre o "Click to Enter". */
                 document.body.classList.add('site-entered');
+                /* Preload do motor 3D (three.module.min.js, 383 KB) AGORA que o site entrou:
+                   o módulo é baixado/parseado fora do caminho crítico e o 1º clique no
+                   1000-7 já encontra a centopeia WebGL pronta. Quem nunca clicar, não
+                   paga nada além do download em cache. */
+                try {
+                    const pre3d = document.createElement('link');
+                    pre3d.rel = 'modulepreload'; pre3d.href = 'vendor/three.module.min.js';
+                    document.head.appendChild(pre3d);
+                } catch (e) {}
                 gsap.set("section:first-of-type h2, section:first-of-type p", { opacity: 1, y: 0 });
                 gsap.to("#rize-count", { opacity: 1, scale: 1, duration: 0.6, ease: "back.out(1.7)", delay: 0.2 });
                 gsap.to(".absolute.bottom-10", { opacity: 1, y: 0, duration: 0.6, ease: "power3.out", delay: 0.3 });
@@ -2187,9 +2321,11 @@
                  pagos UMA vez), pernas em UM único path (batching), zero alocação no
                  hot-path, timestep fixo 120 Hz => movimento idêntico em 60/90/120/144 fps.
                ════════════════════════════════════════════════════════════════ */
-            class Centipede {
+            class Centipede2D {
                 constructor(canvas) {
                     this.canvas = canvas; this.ctx = canvas.getContext('2d', { alpha: true });
+                    this.dead = !this.ctx;   // canvas preso a WebGL: facade troca o elemento
+                    if (this.dead) return;
                     this.segments = []; this.numSegments = isTouchDevice ? 28 : 35; this.segmentSpacing = 10;
                     this.running = false; this.path = []; this.distanceTraveled = 0; this.time = 0;
                     this.rafId = null; this.lastTimestamp = 0; this.speed = 0; this.totalPathLength = 0;
@@ -2241,6 +2377,7 @@
                     return out;
                 }
                 start() {
+                    if (this.dead || this.running) return;
                     this.generatePath(); this.distanceTraveled = 0; this.time = 0; this.lastTimestamp = 0; this._acc = 0;
                     this.segments = [];
                     for (let i = 0; i < this.numSegments; i++) {
@@ -2405,13 +2542,444 @@
                     ctx.strokeStyle = '#0a0000'; ctx.lineWidth = 2.2; ctx.stroke();
                 }
             }
+            /* ══ CENTOPEIA 3D — WebGL (Three.js r187, lazy) + fallback Canvas2D ══════
+               Protocolo de pesquisa (consultado ANTES de implementar):
+               · three.js docs — InstancedMesh: 1 draw call p/ centenas de instâncias
+                 https://threejs.org/docs/pages/InstancedMesh.html
+               · Discourse three.js — DPR travado em 2 (celular reporta 4!)
+                 https://discourse.threejs.org/t/what-are-your-best-practices-for-keeping-three-js-scenes-performant-on-mobile-devices/95775
+               · Guias de perf mobile — <50 draw calls, fallback progressivo obrigatório
+                 ("the page must remain fully functional ... without the 3D scene")
+                 https://digitalstrategyforce.com/journal/how-do-you-optimize-threejs-performance-for-mobile-devices
+               · Codrops — snake procedural com curvas/steering (referência de locomoção)
+                 https://tympanus.net/codrops/2026/02/10/building-an-endless-procedural-snake-with-three-js-and-webgl
+
+               DECISÕES DE ARQUITETURA:
+               · CINEMÁTICA = o motor procedural v6 2D (mola de spacing, onda de dois
+                 harmônicos, banking, IK de 2 ossos, marcha metacrônica, lookahead) —
+                 código já validado em produção. O 3D é uma NOVA RENDERIZAÇÃO, não
+                 uma física nova: o movimento que o dono aprovou fica intacto.
+               · LAZY: three.module.min.js (383 KB) só entra no 1º clique do 1000-7;
+                 modulepreload injetado logo após a entrada do site (ver revealHero).
+                 Custo no carregamento inicial: ZERO.
+               · FALLBACK TOTAL: erro de import, WebGL indisponível, contexto perdido
+                 ou FPS cronicamente baixo (watchdog de 3 s, degrada DPR→1 antes)
+                 => cai no Centipede2D original. O efeito NUNCA deixa de acontecer.
+               · ORÇAMENTO: ~7 draw calls (corpo, pernas, casco/olhos/antenas na 1
+                 hierarquia, 2 sprites de glow). Sem shadow map (luz direta + ponto
+                 vermelho na cabeça + emissivo dão o volume). DPR ≤ 2 / 1.75 touch.
+               · Hot-path sem alocação: todos os Vector3/Quaternion/Matrix4 são
+                 pré-alocados no build e reutilizados por frame.                      */
+            class Centipede3D {
+                constructor(canvas, T) {
+                    this.T = T; this.canvas = canvas;
+                    this.dead = false; this.running = false;
+                    this.numSegments = isTouchDevice ? 26 : 36;
+                    this.segmentSpacing = 11;
+                    this.path = []; this.pathLengths = []; this.totalPathLength = 0; this.speed = 0;
+                    this.distanceTraveled = 0; this.time = 0; this.exitThreshold = 0;
+                    this._acc = 0; this.FIXED = 1000 / 120;   // passo fixo: 60/90/120/144 Hz idênticos
+                    this._lastTs = 0; this._lastDrawTs = 0; this._raf = 0; this._rzT = 0;
+                    this._fpsStage = 0; this._fpsT0 = 0; this._fpsN = 0;
+                    this._hidden = document.hidden;
+                    this._p = { x: 0, y: 0 }; this._q = { x: 0, y: 0 };
+                    try {
+                        this.renderer = new T.WebGLRenderer({ canvas: canvas, alpha: true, antialias: !isTouchDevice, powerPreference: 'high-performance' });
+                    } catch (err) { this.dead = true; return; }
+                    this.renderer.setClearColor(0x000000, 0);
+                    this._maxDPR = isTouchDevice ? 1.75 : 2;
+                    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, this._maxDPR));
+                    this.scene = new T.Scene();
+                    this.camera = new T.PerspectiveCamera(42, 1, 10, 4000);
+                    this._camX = 0; this._camZ = 600;
+                    this._buildScene();
+                    this._onResize = () => {
+                        clearTimeout(this._rzT);
+                        this._rzT = setTimeout(() => { this.resize(); if (this.running) this.generatePath(); }, 140);
+                    };
+                    window.addEventListener('resize', this._onResize, { passive: true });
+                    this._onLost = (e) => { e.preventDefault(); this.dead = true; this.stop(); };
+                    canvas.addEventListener('webglcontextlost', this._onLost, false);
+                    this._onVis = () => { this._hidden = document.hidden; this._pump(); };
+                    document.addEventListener('visibilitychange', this._onVis, { passive: true });
+                    this.resize();
+                }
+                /* ── cena: luzes, corpo instanciado, pernas instanciadas, cabeça, glows ── */
+                _buildScene() {
+                    const T = this.T, touch = isTouchDevice;
+                    this.scene.add(new T.AmbientLight(0x401008, 2.4));
+                    const key = new T.DirectionalLight(0xffc9b0, 1.15);
+                    key.position.set(-0.7, 1.0, 0.9);
+                    this.scene.add(key);
+                    this.headLight = new T.PointLight(0xff2020, 2600, 1200, 2);
+                    this.scene.add(this.headLight);
+
+                    const segGeo = new T.SphereGeometry(1, touch ? 12 : 16, touch ? 9 : 12);
+                    const segMat = new T.MeshStandardMaterial({ color: 0x3a0404, roughness: 0.38, metalness: 0.22, emissive: 0x4d0000, emissiveIntensity: 0.45 });
+                    this.segMesh = new T.InstancedMesh(segGeo, segMat, this.numSegments);
+                    this.segMesh.instanceMatrix.setUsage(T.DynamicDrawUsage);
+                    this.segMesh.frustumCulled = false;
+                    this.scene.add(this.segMesh);
+
+                    this._legCount = (this.numSegments - 2) * 8;
+                    const legGeo = new T.CylinderGeometry(1.05, 0.5, 1, 5, 1);
+                    legGeo.translate(0, -0.5, 0);   // pivot na raiz: escala alonga p/ baixo
+                    const legMat = new T.MeshStandardMaterial({ color: 0x1a0202, roughness: 0.62, metalness: 0.12 });
+                    this.legMesh = new T.InstancedMesh(legGeo, legMat, this._legCount);
+                    this.legMesh.instanceMatrix.setUsage(T.DynamicDrawUsage);
+                    this.legMesh.frustumCulled = false;
+                    this.scene.add(this.legMesh);
+
+                    /* Cabeça: casco + crista + olhos emissivos + antenas animadas */
+                    this.head = new T.Group();
+                    const shellMat = new T.MeshStandardMaterial({ color: 0x52060a, roughness: 0.3, metalness: 0.32, emissive: 0x3a0000, emissiveIntensity: 0.55 });
+                    const shell = new T.Mesh(new T.SphereGeometry(1, touch ? 14 : 20, touch ? 10 : 14), shellMat);
+                    shell.scale.set(16, 12.5, 11);
+                    this.head.add(shell);
+                    const crest = new T.Mesh(new T.ConeGeometry(2.6, 9, 6), shellMat);
+                    crest.rotation.x = Math.PI / 2;
+                    crest.position.set(2, 0, 10.5);
+                    this.head.add(crest);
+                    const eyeMat = new T.MeshBasicMaterial({ color: 0xff2020, toneMapped: false });
+                    const eyeGeo = new T.SphereGeometry(2.1, 8, 8);
+                    const eyeL = new T.Mesh(eyeGeo, eyeMat); eyeL.position.set(9, 5.4, 2.5);
+                    const eyeR = new T.Mesh(eyeGeo, eyeMat); eyeR.position.set(9, -5.4, 2.5);
+                    this.head.add(eyeL); this.head.add(eyeR);
+                    const antMat = new T.MeshStandardMaterial({ color: 0x1a0202, roughness: 0.6 });
+                    const antGeo = new T.CylinderGeometry(0.35, 0.9, 26, 5);
+                    antGeo.translate(0, 13, 0);
+                    antGeo.rotateZ(-Math.PI / 2);       // estende no +X local (frente)
+                    this.antL = new T.Mesh(antGeo, antMat); this.antL.position.set(14, 5.5, 2); this.antL.rotation.z = 0.22;
+                    this.antR = new T.Mesh(antGeo, antMat); this.antR.position.set(14, -5.5, 2); this.antR.rotation.z = -0.22;
+                    this.head.add(this.antL); this.head.add(this.antR);
+                    this.scene.add(this.head);
+
+                    /* Glow barato (substitui bloom pós-processo, que é caro no mobile) */
+                    const glowTex = (stops) => {
+                        const c = document.createElement('canvas'); c.width = c.height = 128;
+                        const g2 = c.getContext('2d');
+                        const gr = g2.createRadialGradient(64, 64, 0, 64, 64, 64);
+                        stops.forEach((s) => gr.addColorStop(s[0], s[1]));
+                        g2.fillStyle = gr; g2.fillRect(0, 0, 128, 128);
+                        const tx = new T.CanvasTexture(c); tx.colorSpace = T.SRGBColorSpace;
+                        return tx;
+                    };
+                    const mkSprite = (tex, scale, opacity) => {
+                        const m = new T.SpriteMaterial({ map: tex, blending: T.AdditiveBlending, depthWrite: false, transparent: true, opacity: opacity });
+                        const s = new T.Sprite(m); s.scale.set(scale, scale, 1); s.frustumCulled = false;
+                        this.scene.add(s); return s;
+                    };
+                    const gOp = touch ? 0.7 : 1;
+                    this.headGlow = mkSprite(glowTex([[0, 'rgba(255,46,26,0.55)'], [0.4, 'rgba(196,20,20,0.22)'], [1, 'rgba(196,20,20,0)']]), 150, 0.9 * gOp);
+                    this.bodyGlow = mkSprite(glowTex([[0, 'rgba(196,30,30,0.22)'], [1, 'rgba(196,30,30,0)']]), 320, 0.5 * gOp);
+
+                    /* temporários pré-alocados — zero alocação por frame */
+                    this._M = new T.Matrix4(); this._M2 = new T.Matrix4();
+                    this._Qb = new T.Quaternion(); this._QL = new T.Quaternion();
+                    this._F = new T.Vector3(); this._N = new T.Vector3(); this._U = new T.Vector3(0, 0, 1);
+                    this._P = new T.Vector3(); this._D = new T.Vector3(); this._S = new T.Vector3();
+                    this._YUP = new T.Vector3(0, 1, 0);
+                }
+                resize() {
+                    const w = window.innerWidth, h = window.innerHeight;
+                    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, this._maxDPR));
+                    this.renderer.setSize(w, h, true);
+                    this.camera.aspect = w / h;
+                    this._camZ = h / (2 * Math.tan((this.camera.fov * Math.PI / 180) / 2));
+                    this.camera.updateProjectionMatrix();
+                }
+                generatePath() {
+                    this.path = []; this.pathLengths = [];
+                    const w = window.innerWidth, h = window.innerHeight, exitX = w + 500;
+                    const points = [ { x: -150, y: h * 0.4 }, { x: w * 0.15, y: h * 0.35 }, { x: w * 0.3, y: h * 0.6 }, { x: w * 0.45, y: h * 0.25 }, { x: w * 0.6, y: h * 0.55 }, { x: w * 0.75, y: h * 0.3 }, { x: w * 0.9, y: h * 0.6 }, { x: exitX, y: h * 0.4 } ];
+                    for (let i = 0; i < points.length - 1; i++) {
+                        const steps = 100;
+                        for (let j = 0; j < steps; j++) {
+                            const t = j / steps;
+                            const p0 = points[Math.max(0, i - 1)], p1 = points[i], p2 = points[Math.min(points.length - 1, i + 1)], p3 = points[Math.min(points.length - 1, i + 2)];
+                            const x = 0.5 * ((2 * p1.x) + (-p0.x + p2.x) * t + (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * t * t + (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * t * t * t);
+                            const y = 0.5 * ((2 * p1.y) + (-p0.y + p2.y) * t + (2 * p0.y - 5 * p1.y + 4 * p2.y - p3.y) * t * t + (-p0.y + 3 * p1.y - 3 * p2.y + p3.y) * t * t * t);
+                            this.path.push({ x: x, y: y });
+                        }
+                    }
+                    this.path.push(points[points.length - 1]);
+                    let acc = 0; this.pathLengths.push(0);
+                    for (let i = 1; i < this.path.length; i++) {
+                        const dx = this.path[i].x - this.path[i - 1].x, dy = this.path[i].y - this.path[i - 1].y;
+                        acc += Math.sqrt(dx * dx + dy * dy); this.pathLengths.push(acc);
+                    }
+                    this.totalPathLength = acc; this.speed = this.totalPathLength / 5500;
+                    this.exitThreshold = this.totalPathLength - (this.numSegments * this.segmentSpacing) - 50;
+                }
+                getPositionAtDistance(dist, out) {
+                    out = out || this._p;
+                    if (dist <= 0) { const a = this.path[0]; out.x = a.x; out.y = a.y; return out; }
+                    if (dist >= this.totalPathLength) { const a = this.path[this.path.length - 1]; out.x = a.x; out.y = a.y; return out; }
+                    let lo = 0, hi = this.pathLengths.length - 1;
+                    while (lo < hi - 1) { const mid = (lo + hi) >> 1; if (this.pathLengths[mid] <= dist) lo = mid; else hi = mid; }
+                    const s0 = this.pathLengths[lo], s1 = this.pathLengths[hi], t = (dist - s0) / (s1 - s0 || 1);
+                    const p1 = this.path[lo], p2 = this.path[hi];
+                    out.x = p1.x + (p2.x - p1.x) * t; out.y = p1.y + (p2.y - p1.y) * t;
+                    return out;
+                }
+                start() {
+                    if (this.dead || this.running) return;
+                    this.generatePath();
+                    this.distanceTraveled = 0; this.time = 0; this._lastTs = 0; this._acc = 0;
+                    this._vSm = undefined; this._fpsStage = 0;
+                    this.segments = [];
+                    for (let i = 0; i < this.numSegments; i++) {
+                        const pos = this.getPositionAtDistance(-i * this.segmentSpacing, { x: 0, y: 0 });
+                        this.segments.push({ x: pos.x, y: pos.y, angle: 0, arc: -i * this.segmentSpacing, bank: 0 });
+                    }
+                    this.running = true;
+                    this.canvas.classList.add('active');
+                    this._pump();
+                }
+                _pump() {
+                    const want = this.running && !this._hidden;
+                    if (want && !this._raf) this._raf = requestAnimationFrame((t) => this.animate(t));
+                    else if (!want && this._raf) { cancelAnimationFrame(this._raf); this._raf = 0; }
+                }
+                stop() {
+                    this.running = false;
+                    if (this._raf) { cancelAnimationFrame(this._raf); this._raf = 0; }
+                    this.canvas.classList.remove('active');
+                }
+                animate(timestamp) {
+                    if (!this.running) return;
+                    this._raf = requestAnimationFrame((t) => this.animate(t));
+                    if (!this._lastTs) this._lastTs = timestamp;
+                    const frameDt = Math.min(timestamp - this._lastTs, 50); this._lastTs = timestamp;
+                    this._acc += frameDt;
+                    let n = 0;
+                    while (this._acc >= this.FIXED && n < 6) { this.step(this.FIXED); this._acc -= this.FIXED; n++; }
+                    if (n === 6) this._acc = 0;
+                    /* Touch: simula a 120 Hz, desenha a ~55 fps — movimento idêntico,
+                       metade do custo de GPU em telas de 90/120 Hz. */
+                    if (!(isTouchDevice && timestamp - this._lastDrawTs < 18)) {
+                        this._lastDrawTs = timestamp;
+                        this._render();
+                        this._watchdog(timestamp);
+                    }
+                }
+                /* Cinemática orgânica v6 — PORTADA do Centipede2D sem alterações:
+                   mola de spacing, onda de dois harmônicos modulada por velocidade,
+                   banking, ângulos suavizados, cabeça com lookahead.                  */
+                step(dt) {
+                    const prog = this.distanceTraveled / this.totalPathLength;
+                    const ease = prog < 0.12 ? (prog / 0.12) * (prog / 0.12) * 0.55 + 0.45
+                               : (prog > 0.85 ? Math.max(0.4, 1 - (prog - 0.85) / 0.32) : 1);
+                    this.distanceTraveled += this.speed * ease * dt;
+                    this.time += dt * 0.005;
+                    const tail = this.getPositionAtDistance(this.distanceTraveled - (this.numSegments - 1) * this.segmentSpacing, this._q);
+                    if (tail.x > window.innerWidth + 50) { this.stop(); return; }
+                    const segs = this.segments;
+                    segs[0].arc = this.distanceTraveled;
+                    for (let i = 1; i < segs.length; i++) {
+                        const bend = Math.abs(this._angDiff(segs[i - 1].angle, segs[i].angle));
+                        segs[i].arc = segs[i - 1].arc - this.segmentSpacing * (1 - Math.min(0.28, bend * 0.8));
+                    }
+                    const vNow = this.speed * ease;
+                    this._vSm = this._vSm === undefined ? vNow : this._vSm + (vNow - this._vSm) * 0.08;
+                    const vigour = 0.7 + 0.5 * Math.min(1, this._vSm / (this.speed || 1));
+                    for (let i = 0; i < segs.length; i++) {
+                        const base = this.getPositionAtDistance(segs[i].arc, this._p);
+                        const ahead = this.getPositionAtDistance(segs[i].arc + 4, this._q);
+                        let tx = ahead.x - base.x, ty = ahead.y - base.y;
+                        const tl = Math.hypot(tx, ty) || 1; tx /= tl; ty /= tl;
+                        const tailness = i / (segs.length - 1);
+                        const ph = this.time * 2.2 - i * 0.42;
+                        const wave = (Math.sin(ph) * 0.82 + Math.sin(2 * ph + 1.7) * 0.18) * (0.7 + 2.4 * tailness) * vigour;
+                        segs[i].x = base.x + (-ty) * wave; segs[i].y = base.y + tx * wave;
+                        segs[i].bank = Math.cos(ph) * (0.35 + 0.65 * tailness);
+                    }
+                    for (let i = segs.length - 1; i >= 1; i--) {
+                        const a = Math.atan2(segs[i - 1].y - segs[i].y, segs[i - 1].x - segs[i].x);
+                        segs[i].angle += this._angDiff(a, segs[i].angle) * Math.min(1, dt / 45);
+                    }
+                    if (segs.length > 1) {
+                        const lead = this.getPositionAtDistance(this.distanceTraveled + 16, this._q);
+                        const a = Math.atan2(lead.y - segs[0].y, lead.x - segs[0].x);
+                        segs[0].angle += this._angDiff(a, segs[0].angle) * Math.min(1, dt / 40);
+                    }
+                }
+                _angDiff(a, b) { let d = a - b; while (d > Math.PI) d -= Math.PI * 2; while (d < -Math.PI) d += Math.PI * 2; return d; }
+                /* ── render: mapeia a cinemática 2D (px de tela) para o mundo 3D ──
+                   mundo: wx = x - w/2, wy = h/2 - y, z = profundidade ondulada.
+                   câmera: z exato p/ o plano z=0 casar 1:1 com o viewport.          */
+                _render() {
+                    const w = window.innerWidth, h = window.innerHeight;
+                    const segs = this.segments, n = segs.length;
+                    const M = this._M, Qb = this._Qb, F = this._F, N = this._N, U = this._U, S = this._S;
+                    let legIdx = 0;
+                    for (let i = 0; i < n; i++) {
+                        const seg = segs[i], p = i / (n - 1);
+                        const bank = seg.bank || 0;
+                        const ph = this.time * 2.2 - i * 0.42;
+                        const z = Math.sin(ph * 0.85 + 1.3) * (2.5 + 8 * p) + Math.sin(this.time * 0.8) * 2.5;
+                        const wx = seg.x - w / 2, wy = h / 2 - seg.y;
+                        const c = Math.cos(seg.angle), s = Math.sin(seg.angle);
+                        F.set(c, -s, 0);
+                        N.set(s, c, 0);
+                        Qb.setFromAxisAngle(F, bank * 0.55);
+                        N.applyQuaternion(Qb);
+                        U.set(0, 0, 1).applyQuaternion(Qb);
+                        if (i > 0) {
+                            const hw = (13 - p * 7) * (1 + bank * 0.10);
+                            const hl = 9 - p * 4;
+                            M.makeBasis(F, N, U);
+                            M.scale(S.set(hl, hw, hw));
+                            M.setPosition(wx, wy, z);
+                            this.segMesh.setMatrixAt(i, M);
+                        } else {
+                            M.makeBasis(F, N, U);
+                            this.head.position.set(wx, wy, z);
+                            this.head.quaternion.setFromRotationMatrix(M);
+                        }
+                        if (i >= 1 && i <= n - 2) {
+                            const prog = i / n;
+                            const legLen1 = 9, legLen2 = 14 - prog * 6;
+                            const nx = -s, ny = c;
+                            const phase = this.time * 3 + i * 0.7;
+                            const wave = Math.sin(phase) * 0.5, wave2 = Math.cos(phase) * 0.4;
+                            const step = Math.sin(phase) * 3.2;
+                            for (let side = -1; side <= 1; side += 2) {
+                                const hipX = seg.x + nx * side * 6, hipY = seg.y + ny * side * 6;
+                                const a1 = Math.atan2(ny * side, nx * side) + wave * 0.6 * side;
+                                const j1X = hipX + Math.cos(a1) * legLen1, j1Y = hipY + Math.sin(a1) * legLen1;
+                                const a2 = a1 + (0.9 + wave2) * side;
+                                const eX = j1X + Math.cos(a2) * legLen2, eY = j1Y + Math.sin(a2) * legLen2;
+                                this._setBone(legIdx++, hipX, hipY, z, j1X, j1Y, z + step * 0.5, 1.0);
+                                this._setBone(legIdx++, j1X, j1Y, z + step * 0.5, eX, eY, z + step, 0.8);
+                            }
+                        }
+                    }
+                    this.segMesh.instanceMatrix.needsUpdate = true;
+                    this.legMesh.instanceMatrix.needsUpdate = true;
+                    const hx = segs[0].x - w / 2, hy = h / 2 - segs[0].y;
+                    this._camX += (hx * 0.06 - this._camX) * 0.05;
+                    this.camera.position.set(this._camX, 12, this._camZ);
+                    this.camera.lookAt(this._camX * 0.6, 0, 0);
+                    this.headLight.position.set(hx, hy, 60);
+                    this.headGlow.position.set(hx + Math.cos(segs[0].angle) * 14, hy - Math.sin(segs[0].angle) * 14, 10);
+                    const mid = segs[Math.floor(n * 0.45)];
+                    this.bodyGlow.position.set(mid.x - w / 2, h / 2 - mid.y, -16);
+                    this.antL.rotation.z = 0.22 + Math.sin(this.time * 2.3) * 0.12;
+                    this.antR.rotation.z = -0.22 + Math.sin(this.time * 2.3 + 1.1) * 0.12;
+                    this.renderer.render(this.scene, this.camera);
+                }
+                _setBone(idx, ax, ay, az, bx, by, bz, thick) {
+                    const D = this._D, P = this._P, QL = this._QL, S = this._S, M2 = this._M2;
+                    D.set(bx - ax, by - ay, bz - az);
+                    const len = D.length() || 1;
+                    P.set(ax, ay, az);
+                    QL.setFromUnitVectors(this._YUP, D.multiplyScalar(1 / len));
+                    M2.compose(P, QL, S.set(thick, len, thick));
+                    this.legMesh.setMatrixAt(idx, M2);
+                }
+                /* Watchdog de FPS (3 s por estágio): DPR → 1 antes de renderizar 2D.
+                   Dispositivo fraco nunca fica preso num 3D que ele não aguenta.  */
+                _watchdog(ts) {
+                    if (this._fpsStage === 0) { this._fpsStage = 1; this._fpsT0 = ts; this._fpsN = 0; return; }
+                    this._fpsN++;
+                    const elapsed = ts - this._fpsT0;
+                    if (this._fpsStage === 1 && elapsed >= 3000) {
+                        const fps = this._fpsN / (elapsed / 1000);
+                        if (fps < 22 && this.renderer.getPixelRatio() > 1.05) {
+                            this.renderer.setPixelRatio(1);
+                            this.renderer.setSize(window.innerWidth, window.innerHeight, true);
+                            this._fpsStage = 2; this._fpsT0 = ts; this._fpsN = 0;
+                        } else { this._fpsStage = 3; }
+                    } else if (this._fpsStage === 2 && elapsed >= 3000) {
+                        const fps = this._fpsN / (elapsed / 1000);
+                        if (fps < 18) { this.dead = true; this.stop(); if (!(centipede2D && centipede2D.running)) get2D().start(); }
+                        this._fpsStage = 3;
+                    }
+                }
+                dispose() {
+                    this.stop();
+                    window.removeEventListener('resize', this._onResize);
+                    document.removeEventListener('visibilitychange', this._onVis);
+                    this.canvas.removeEventListener('webglcontextlost', this._onLost);
+                    this.scene.traverse((o) => {
+                        if (o.geometry) o.geometry.dispose();
+                        if (o.material) { const mats = Array.isArray(o.material) ? o.material : [o.material]; mats.forEach((m) => { if (m.map) m.map.dispose(); m.dispose(); }); }
+                    });
+                    if (this.renderer) this.renderer.dispose();
+                }
+            }
+
             const rizeCount = document.getElementById('rize-count');
             const kanekiContainer = document.getElementById('kaneki-container');
             const glitchOverlay = document.getElementById('glitch-overlay');
             const darkenOverlay = document.getElementById('darken-overlay');
             const chainsOverlay = document.getElementById('chains-overlay');
-            const centipedeCanvas = document.getElementById('centipede-canvas');
-            const centipede = new Centipede(centipedeCanvas);
+            let centipedeCanvas = document.getElementById('centipede-canvas');
+            /* ── Facade: 3D lazy com fallback Canvas2D determinístico ──────────────
+               API idêntica à que o triggerKaneki já usa (start/stop/running) — a
+               sequência cinematográfica não sabe qual engine está por baixo.
+               ⚠ Centipede2D é instanciado SÓ no fallback: o constructor dele faz
+               canvas.getContext('2d'), e um canvas não pode ter dois contextos
+               (2D + WebGL) — instanciar cedo mataria o WebGLRenderer.            */
+            let centipede2D = null;
+            let centipede3D = null;
+            let threeLoadPromise = null;
+            function get2D() {
+                if (centipede2D) return centipede2D;
+                /* Um canvas não pode trocar de tipo de contexto: se ele já está preso
+                   a um WebGL (fallback pós-watchdog do 3D), troca o elemento por um
+                   novo com o mesmo id/classe — o CSS #centipede-canvas continua válido. */
+                if (centipedeCanvas.getContext('2d') === null) {
+                    const novo = document.createElement('canvas');
+                    novo.id = 'centipede-canvas';
+                    novo.className = centipedeCanvas.className;
+                    centipedeCanvas.replaceWith(novo);
+                    centipedeCanvas = novo;
+                }
+                centipede2D = new Centipede2D(centipedeCanvas);
+                return centipede2D;
+            }
+            function loadThreeModule() {
+                if (!threeLoadPromise) {
+                    try {
+                        /* import() dinâmico via Function: browsers sem dynamic import
+                           não quebram o parse do script principal — só esta promise
+                           rejeita e o fallback Canvas2D assume.                    */
+                        threeLoadPromise = new Function('u', 'return import(u)')('./vendor/three.module.min.js');
+                    } catch (err) { threeLoadPromise = Promise.reject(err); }
+                    threeLoadPromise.catch(() => {});
+                }
+                return threeLoadPromise;
+            }
+            const centipede = {
+                get running() { return (centipede3D && centipede3D.running) || !!(centipede2D && centipede2D.running); },
+                start() {
+                    if (this.running) return;
+                    loadThreeModule().then((T) => {
+                        if (this.running) return;
+                        if (centipede3D && centipede3D.dead) { try { centipede3D.dispose(); } catch (e) {} centipede3D = null; }
+                        if (!centipede3D) centipede3D = new Centipede3D(centipedeCanvas, T);
+                        if (centipede3D.dead) throw new Error('WebGL indisponível');
+                        centipede3D.start();
+                    }).catch(() => {
+                        if (!this.running) get2D().start();
+                    });
+                },
+                stop() {
+                    if (centipede3D && centipede3D.running) centipede3D.stop();
+                    if (centipede2D && centipede2D.running) centipede2D.stop();
+                }
+            };
+            /* Diagnóstico (padrão window.__lebot do site): audita a engine ativa
+               sem abrir DevTools em dispositivo físico.                          */
+            window.__lebot = window.__lebot || {};
+            window.__lebot.centipede = () => ({
+                loaded3d: !!centipede3D,
+                dead3d: !!(centipede3D && centipede3D.dead),
+                running3d: !!(centipede3D && centipede3D.running),
+                running: (centipede3D && centipede3D.running) || !!(centipede2D && centipede2D.running)
+            });
             const chainGroups = document.querySelectorAll('.chain-group');
             /* Todas as timelines das correntes (entrada, assentamento e sway) ficam
                rastreadas: antes só o sway era morto, então sair no meio da entrada
