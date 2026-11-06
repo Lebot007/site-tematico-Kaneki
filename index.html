@@ -1732,25 +1732,45 @@
 
             /* ── hover magnético ───────────────────────────────────────────────────────
                quickTo (guide oficial GSAP para props atualizadas com frequência).
-               getBoundingClientRect() é CACHEADO e só é relido quando scroll/resize
-               invalidam — evita leitura de layout a cada pointermove (layout thrashing).
+               getBoundingClientRect() é cacheado por elemento e revalidado em 3 pontos:
+               pointerenter (início do gesto), flag viewportDirty (scroll/resize) e
+               ponteiro fora do rect cacheado — sem leitura de layout a cada pointermove.
                Só pointerType === 'mouse': no touch não existe hover e o gesto pertence
                ao scroll nativo.                                                         */
             function makeMagnetic(el, strength) {
                 const vars = { duration: 0.5, ease: 'power3.out' };
                 const qx = gsap.quickTo(el, 'x', vars);
                 const qy = gsap.quickTo(el, 'y', vars);
+                /* Clamp duro do deslocamento: com um rect obsoleto o produto
+                   strength * distância podia ir a CENTENAS de px (alvo atravessava a
+                   tela). 28px preserva o efeito "ímã" real (alvos pequenos, força
+                   <= 0.45 => offset natural < 12px) e torna o estado absurdo
+                   matematicamente inalcançável. Padrão de clamp de libs de hover. */
+                const clamp = (v) => Math.max(-28, Math.min(28, v));
                 let rect = null;
+                const measure = () => { rect = el.getBoundingClientRect(); viewportDirty = false; };
+                /* BUG "card gigante" — a geometria era medida UMA vez e reusada enquanto
+                   viewportDirty não fosse marcado; scroll conduzido pelo Lenis/âncora
+                   podia deslocar o conteúdo SEM 'scroll' no window => rect obsoleto de
+                   centenas de px. Correção em 3 camadas (padrão vanilla-tilt):
+                   1) pointerenter mede geometria FRESCA no início do gesto;
+                   2) ponteiro fora do rect cacheado (margem 48px) => re-medir;
+                   3) clamp do offset final. */
+                const onEnter = (e) => { if (e.pointerType === 'mouse') measure(); };
                 const onMove = (e) => {
                     if (e.pointerType !== 'mouse') return;
-                    if (viewportDirty || !rect) { rect = el.getBoundingClientRect(); viewportDirty = false; }
-                    qx((e.clientX - rect.left - rect.width / 2) * strength);
-                    qy((e.clientY - rect.top - rect.height / 2) * strength);
+                    if (!rect || viewportDirty ||
+                        e.clientX < rect.left - 48 || e.clientX > rect.right + 48 ||
+                        e.clientY < rect.top - 48 || e.clientY > rect.bottom + 48) measure();
+                    qx(clamp((e.clientX - rect.left - rect.width / 2) * strength));
+                    qy(clamp((e.clientY - rect.top - rect.height / 2) * strength));
                 };
                 const onLeave = () => { qx(0); qy(0); };
+                el.addEventListener('pointerenter', onEnter, { passive: true });
                 el.addEventListener('pointermove', onMove, { passive: true });
                 el.addEventListener('pointerleave', onLeave, { passive: true });
                 return () => {
+                    el.removeEventListener('pointerenter', onEnter);
                     el.removeEventListener('pointermove', onMove);
                     el.removeEventListener('pointerleave', onLeave);
                     qx(0); qy(0);
@@ -1759,8 +1779,8 @@
 
             /* ── tilt 3D + glare nos social-cards ──────────────────────────────────────
                rotationX/rotationY/z são componentes REAIS do transform parser do GSAP
-               (diferente de `scale`, que é alias -> ver fix 609c9c6). transformPerspective
-               injeta perspective() no próprio elemento, então o grid não precisa mudar.
+               (diferente de `scale`, que é alias -> ver fix 609c9c6). A perspective é
+               fixada UMA vez por gsap.set (ver makeTilt) — NÃO vai no vars do quickTo.
 
                ⚠ O "lift" do hover usa `z` (translateZ) e NÃO `y`: o reveal anima `y` no
                mesmo elemento, e dois tweens escrevendo a mesma componente brigam. Com `z`
@@ -1769,7 +1789,15 @@
                O `translate: 0 -4px` do CSS fica como fallback de progressive enhancement:
                vale enquanto o GSAP não renderizar transform no card (JS/vendor fora).   */
             function makeTilt(card) {
-                const vars = { duration: 0.45, ease: 'power3.out', transformPerspective: 900, force3D: true };
+                /* transformPerspective fora do vars do quickTo e fixado UMA vez no
+                   elemento: dentro do vars ele entra na lista de props interpoláveis do
+                   tween, e cada resetTo/invalidate re-lê a perspective do transform
+                   corrente — depois de qualquer write externo no card (reveal, toggle,
+                   set) a perspective passava a ser TWEENADA (medido: 900 -> 142/223/412)
+                   e o lift z=26 projetava o card a 1.4x = o estado gigante dos prints.
+                   Propriedade com dono único + clamp px/py[0,1] => impossível reproduzir. */
+                gsap.set(card, { transformPerspective: 900 });
+                const vars = { duration: 0.45, ease: 'power3.out', force3D: true };
                 const rx = gsap.quickTo(card, 'rotationX', vars);
                 const ry = gsap.quickTo(card, 'rotationY', vars);
                 const rz = gsap.quickTo(card, 'z', vars);
@@ -1777,12 +1805,25 @@
                 glare.className = 'card-glare';
                 glare.setAttribute('aria-hidden', 'true');
                 card.appendChild(glare);
+                /* BUG "card gigante" (prints do dono 05/11): px/py vinham de um rect EM
+                   CACHE; com o cache obsoleto (scroll do Lenis/âncora sem 'scroll' no
+                   window, zoom fracionário do Windows), px chegava a 3–5 => rotationX/Y
+                   de 30–60° => projeção perspectivada TRIPLEXAVA o card sobre os
+                   vizinhos. Correção em 3 camadas (padrão vanilla-tilt):
+                   1) pointerenter => geometria FRESCA no início do gesto;
+                   2) ponteiro fora do rect cacheado (margem 48px) => re-medir uma vez;
+                   3) clamp de px/py em [0,1] — MESMO com qualquer rect inválido a
+                      rotação fica limitada a ±6.5°: o estado gigante é impossível. */
                 let rect = null;
+                const measure = () => { rect = card.getBoundingClientRect(); viewportDirty = false; };
+                const onEnter = (e) => { if (e.pointerType === 'mouse') measure(); };
                 const onMove = (e) => {
                     if (e.pointerType !== 'mouse') return;
-                    if (viewportDirty || !rect) { rect = card.getBoundingClientRect(); viewportDirty = false; }
-                    const px = (e.clientX - rect.left) / rect.width;
-                    const py = (e.clientY - rect.top) / rect.height;
+                    if (!rect || viewportDirty ||
+                        e.clientX < rect.left - 48 || e.clientX > rect.right + 48 ||
+                        e.clientY < rect.top - 48 || e.clientY > rect.bottom + 48) measure();
+                    const px = Math.min(1, Math.max(0, (e.clientX - rect.left) / (rect.width || 1)));
+                    const py = Math.min(1, Math.max(0, (e.clientY - rect.top) / (rect.height || 1)));
                     ry((px - 0.5) * 13);
                     rx((0.5 - py) * 13);
                     rz(26);
@@ -1790,9 +1831,11 @@
                     glare.style.setProperty('--gy', (py * 100).toFixed(1) + '%');
                 };
                 const onLeave = () => { rx(0); ry(0); rz(0); };
+                card.addEventListener('pointerenter', onEnter, { passive: true });
                 card.addEventListener('pointermove', onMove, { passive: true });
                 card.addEventListener('pointerleave', onLeave, { passive: true });
                 return () => {
+                    card.removeEventListener('pointerenter', onEnter);
                     card.removeEventListener('pointermove', onMove);
                     card.removeEventListener('pointerleave', onLeave);
                     rx(0); ry(0); rz(0);
